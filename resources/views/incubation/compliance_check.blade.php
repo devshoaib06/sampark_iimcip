@@ -115,7 +115,7 @@
         </div>
         <div class="mt-3">
 
-            <input type="submit" class="btn btn-primary" value="Add Yearly Target">
+            <input type="submit" class="btn btn-primary" value="Add Compliance ">
         </div>
     </div>
     @endif

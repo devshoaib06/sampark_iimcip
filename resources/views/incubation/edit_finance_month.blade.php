@@ -67,7 +67,9 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="revenue" class="form-label">Product</label>
-                                    <select name="product_id[]" class="form-control indusCatIds" multiple="multiple">
+                                    <input type="text" class="form-control" id="product_id" name="product_id"
+                                        value="{{ $finmonth->product_id }}">
+                                    {{-- <select name="product_id[]" class="form-control indusCatIds" multiple="multiple">
                                         <option value="">Select Product</option>
                                         @if (isset($allProducts) && count($allProducts))
                                             @foreach ($allProducts as $c)
@@ -77,7 +79,7 @@
                                                 </option>
                                             @endforeach
                                         @endif
-                                    </select>
+                                    </select> --}}
                                 </div>
                             </div>
 

@@ -25,11 +25,11 @@
                     <th>SI#</th>
                     <th>Financial Year</th>
                     <th>Revenue(Rs.)</th>
-                    <th>GMV(Rs.)</th>
+                    {{-- <th>GMV(Rs.)</th> --}}
                     <th>Expense(Rs.)</th>
                     <th>Customer Count</th>
                     <th>Net Profit(Rs.)</th>
-                    <th>EBITDA(Rs.)</th>
+                    {{-- <th>EBITDA(Rs.)</th> --}}
                     <th id="{{$userType == 6 ? 'unselectableTh' : ''}}">Actions</th>
                 </tr>
             </thead>
@@ -40,10 +40,10 @@
                         <td>{{ $key + 1 }}</td>
                         <td>{{ $list->getFinancialYear['display_year'] }}</td>
                         <td>{{ number_format($list->revenue) }}</td>
-                        <td>{{ number_format($list->gmv) }}</td>
+                        {{-- <td>{{ number_format($list->gmv) }}</td> --}}
                         <td>{{ number_format($list->expense) }}</td>
                         <td>{{ $list->customer_count }}</td>
-                        <td>{{ number_format($list->ebitda) }}</td>
+                        {{-- <td>{{ number_format($list->ebitda) }}</td> --}}
                         <td>{{ number_format($list->net_profit) }}</td>
 
                         @if($userType == 4)
@@ -109,12 +109,12 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-3">
+                            {{-- <div class="col-md-3">
                                 <div class="form-group">
 
                                     <input type="text" class="form-control" name="gmv" placeholder="GMV(Rs.)" />
                                 </div>
-                            </div>
+                            </div> --}}
 
                             <div class="col-md-3">
                                 <div class="form-group">
@@ -133,12 +133,12 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-3">
+                            {{-- <div class="col-md-3">
                                 <div class="form-group">
 
                                     <input type="text" class="form-control" name="ebitda" placeholder="EBITDA(Rs.)" />
                                 </div>
-                            </div>
+                            </div> --}}
 
                             <div class="col-md-3">
                                 <div class="form-group">

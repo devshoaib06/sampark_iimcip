@@ -19,9 +19,12 @@
                 //     'packages': ['line']
                 // });
 
-
                 google.charts.setOnLoadCallback(drawChart);
-                google.charts.setOnLoadCallback(drawChartMonth);
+                @if(count($results_month)>0)
+
+                    google.charts.setOnLoadCallback(drawChartMonth);
+                @endif
+                
 
                 function drawChart() {
                     console.log("{{ $data }}");

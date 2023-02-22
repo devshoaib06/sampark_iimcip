@@ -37,16 +37,18 @@
 
                     </div>
                     <div class="left-block block-inner3">
-                        {{ $list->member_company }}
+
+                        {{ $list->member_company?$list->member_company: 'NA' }}
                     </div>
 
 
-                    {{-- <div class="left-block block-inner4">
-            {{ ($list->getCompanyType['company_type']!=''?$list->getCompanyType['company_type']:'NA')}}
-    </div> --}}
+                    
                     <div class="left-block block-inner5">
                         @forelse ($list->getMentor as $menKey=>$mentor)
-                            {{ $mentor->first_name }} {{ $mentor->last_name }} {{ $menKey > 0 ? ',' : '' }}
+                            {{-- @if ()
+                                
+                            @endif --}}
+                            {{ $mentor->first_name }} {{ $mentor->last_name }} {{ $menKey > 0 ? ',' : 'NA'  }}
 
                         @empty
                             NA

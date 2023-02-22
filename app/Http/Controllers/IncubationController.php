@@ -641,11 +641,11 @@ class IncubationController extends Controller
 
 
 
-        $DataBag['mentorList'] = $mentor->where('status', 1)->where('user_type', 2)->whereNull('founder_id')->get();
+        $DataBag['mentorList'] = $mentor->where('status', 1)->where('user_type', 2)->whereNull('founder_id')->orderBy('id','asc')->get();
 
         $DataBag['memberList'] = Users::whereIn('user_type', [6])->orderBy('id', 'desc')->get();
 
-
+        // dd($DataBag['mentorList']);
 
         return view('incubation.incubatee_view', $DataBag);
     }
@@ -790,7 +790,7 @@ class IncubationController extends Controller
 
         }
         $DataBag['data_month'] = json_encode($res);
-        // dd($DataBag['data_month']);
+        // dd($DataBag['results_month']);
 
         $DataBag['data'] = "";
 
@@ -1429,6 +1429,8 @@ class IncubationController extends Controller
 
         $DataBag['startUpId'] = $startUpId;
 
+        // dd($request->all());
+
         $fin = new StartupYearlyFinancial;
 
         $fin->startup_id = $startUpId;
@@ -1534,27 +1536,27 @@ class IncubationController extends Controller
         ]);
 
         $prods = $request->product_id;
+        // dd($prods);
+        $finsale = new StartupMonthlySale;
 
-        foreach ($prods as $prod) {
+        $finsale->startup_id = $startUpId;
 
-            $finsale = new StartupMonthlySale;
+        $finsale->month = $request->input('month');
 
-            $finsale->startup_id = $startUpId;
+        $finsale->financial_year = $request->input('financial_year');
 
-            $finsale->month = $request->input('month');
+        $finsale->product_id = $prods;
 
-            $finsale->financial_year = $request->input('financial_year');
+        $finsale->volume = $request->input('volume');
 
-            $finsale->product_id = $prod;
+        $finsale->credit_sale = $request->input('credit_sale');
 
-            $finsale->volume = $request->input('volume');
+        $finsale->cash_sale = $request->input('cash_sale');
 
-            $finsale->credit_sale = $request->input('credit_sale');
+        $finsale->save();
+        // foreach ($prods as $prod) {
 
-            $finsale->cash_sale = $request->input('cash_sale');
-
-            $finsale->save();
-        }
+        // }
 
         return back()->with('msg', 'Financial Monthly Sales has been saved successfully!')
             ->with('msg_class', 'alert alert-success');
@@ -1592,24 +1594,24 @@ class IncubationController extends Controller
 
         $prods = $request->product_id;
 
-        foreach ($prods as $prod) {
+        $finmonth->month = $request->input('month');
 
-            //$finmonth->startup_id = Auth::user()->id;
+        $finmonth->financial_year = $request->input('financial_year');
 
-            $finmonth->month = $request->input('month');
+        $finmonth->product_id = $prods;
 
-            $finmonth->financial_year = $request->input('financial_year');
+        $finmonth->volume = $request->input('volume');
 
-            $finmonth->product_id = $prod;
+        $finmonth->credit_sale = $request->input('credit_sale');
 
-            $finmonth->volume = $request->input('volume');
+        $finmonth->cash_sale = $request->input('cash_sale');
 
-            $finmonth->credit_sale = $request->input('credit_sale');
+        $finmonth->save();
+        // foreach ($prods as $prod) {
 
-            $finmonth->cash_sale = $request->input('cash_sale');
+        //     //$finmonth->startup_id = Auth::user()->id;
 
-            $finmonth->save();
-        }
+        // }
 
         return redirect()->back()->with('msg', 'Financial Month Updated Successfully')->with('msg_class', 'alert alert-success');;
     }
