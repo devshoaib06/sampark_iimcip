@@ -1,0 +1,272 @@
+@extends('incubation.layouts.app')
+@section('accountRightMenu')
+    @include('incubation.includes.account_right_menu')
+@endsection
+@section('content')
+    <div class="row">
+        @if (Session::has('msg') && Session::has('msg_class'))
+            <div class="col-sm-12">
+                <div class="postCard">
+                    <div class="{{ Session::get('msg_class') }}" style="margin-bottom: 0;">
+                        {{ Session::get('msg') }}
+                    </div>
+                </div>
+            </div>
+        @endif
+        @php $userType = Auth()->user()->user_type; @endphp
+        @foreach ($mentorList as $key => $list)
+            <div class="col-md-12">
+                <div class="member-wrap">
+                    <div class="member-img member-img-custom">
+                        @php
+                            $profileImage = asset('public/front_end/images/profile-pic.png');
+                            if ($list->image != '' && $list->image != null) {
+                                $profileImage = asset('public/uploads/user_images/thumb/' . $list->image);
+                            } else {
+                                $profileImage = asset('public/uploads/user_images/thumb/entreprenaur_photo/noimage.png');
+                            }
+                        @endphp
+                        @if (isset($profileImage) && $profileImage != '')
+                            <a class="fancybox" data-fancybox="images" href="{{ $profileImage }}"><img
+                                    src="{{ $profileImage }}" class="img-fluid"></a>
+                        @endif
+                        <a id="{{$userType == 6 ? 'send' : ''}}" data-toggle="modal" data-target="#myModalmail"
+                            style="font-size: 14px;
+               color: #ffffff;
+               font-weight: bold;
+               background-color: #2d75a1;
+               padding: 8px 10px;
+               border-radius: 5px;
+               text-align: center;
+               margin: 10px auto;
+               display: block;">Send
+                            Message</a>
+                    </div>
+                    <div class="member-info">
+                        <h1>{{ $list->member_company }}</h1>
+                        <h4>No of Posts: <span>{{ $list->number_of_post ?? '0' }}</span> No of Replies:
+                            <span>{{ $list->number_of_reply ?? '0' }}</span></h4>
+                        <ul>
+
+                            @if (isset($list->getCompanyType['company_type']))
+                                <li><i class="fas fa-user"></i><strong>Company Type:</strong><span><a href="#">
+                                            {{ $list->getCompanyType['company_type'] }}</a></span></li>
+                            @endif
+                            <li><i class="fas fa-building"></i><strong>Industry Verticals:</strong>
+                                @if (isset($list->allIndustryIds) && !empty($list->allIndustryIds) && count($list->allIndustryIds))
+                                    @php
+                                        $i = 0;
+                                        $tot = count($list->allIndustryIds);
+                                    @endphp
+                                    @foreach ($list->allIndustryIds as $v)
+                                        @if (isset($v->industryInfo) && !empty($v->industryInfo))
+                                            <span>{{ trim($v->industryInfo->industry_category) }}</span>
+                                            @if ($i < $tot - 1)
+                                                ,
+                                            @endif
+                                        @endif
+                                        @php $i++; @endphp
+                                    @endforeach
+                                @endif
+                                @if ($list->member_spec != '')
+                            <li><i class="fas fa-info-circle"></i><strong>Specialization:</strong><span>{{ $list->member_spec }}
+                            </li>
+        @endif
+        @if ($list->member_looking != '')
+            <li><i class="fas fa-info-circle"></i><strong>Looking For:</strong><span>{{ $list->member_looking }}</li>
+        @endif
+        @if ($list->member_help != '')
+            <li><i class="fas fa-info-circle"></i><strong>Can Help In:</strong><span>{{ $list->member_help }}</li>
+        @endif
+        @if ($list->achievements != '')
+            <li><i class="fas fa-info-circle"></i><strong>Achievements:</strong><span>{{ $list->achievements }}</li>
+        @endif
+        @if ($list->certifications != '')
+            <li><i class="fas fa-info-circle"></i><strong>Patents/Licenses:</strong><span>{{ $list->certifications }}</li>
+        @endif
+        @if ($list->is_raised_invest != '')
+            <!-- <li><i class="fas fa-info-circle"></i><strong>Investment Name:</strong><span>{{ $list->invest_name }}</li> -->
+        @endif
+        @if ($list->stage_id != '')
+            <li><i class="fas fa-info-circle"></i><strong>Milestone:</strong><span>{{ $list->stage_name }}</li>
+        @endif
+        </li>
+        <li><i class="fas fa-envelope"></i><strong>Company Email:</strong><span><a
+                    href="#">{{ $list->email_id }}</a></span></li>
+        <li><i class="fas fa-phone-volume"></i><strong>Company Phone:</strong><span><a
+                    href="#">{{ $list->company_mobile }}</a></span></li>
+        @if ($list->speech != '')
+            <li><i class="fas fa-info-circle"></i><strong>Company Pitch:</strong><span> @php
+                $list->speech = asset('public/uploads/user_images/' . $list->speech);
+            @endphp
+                    <a onclick="openPDFModal('{{ $list->speech }}')">Click Here To View</a>
+            </li>
+            </span>
+        @endif
+        @php
+            $removeChar = ['https://', 'http://'];
+            $http_referer = str_replace($removeChar, '', $list->website);
+            //dd($http_referer);
+        @endphp
+        @if ($list->website != '')
+            <li><i class="fas fa-user"></i><strong>Website:</strong><span><a href="//{{ $http_referer }}"
+                        target="_blank">{{ $list->website }}</a></span></li>
+        @endif
+        @if ($list->address != '')
+            <li><i class="fas fa-map-marker-alt"></i><strong>Location:</strong><span>{{ $list->address }}</span></li>
+        @endif
+        {{-- souvik changes --}}
+        @if ($list->state != '')
+            <li><i class="fas fa-info-circle"></i><strong>State:</strong><span>{{ $list->state }}</span></li>
+        @endif
+        @if ($list->district != '')
+            <li><i class="fas fa-info-circle"></i><strong>District:</strong><span>{{ $list->district }}</span></li>
+        @endif
+        @if ($list->pincode != '')
+            <li><i class="fas fa-info-circle"></i><strong>Pincode:</strong><span>{{ $list->pincode }}</span></li>
+        @endif
+        @if ($list->incorporation != '')
+            <li><i class="fas fa-info-circle"></i><strong> Year Of Incorporation: </strong>
+                <span>{{ $list->incorporation }}</span>
+            </li>
+        @endif
+        @if ($list->operational_presence != '')
+            <li><i class="fas fa-info-circle"></i><strong> Operational Presence:
+                </strong><span>{{ $list->operational_presence }}</span></li>
+        @endif
+        @if ($list->market_reach != '')
+            <li><i class="fas fa-info-circle"></i><strong> Market Reach: </strong><span>{{ $list->market_reach }}</span>
+            </li>
+        @endif
+        {{-- <li><i class="fas fa-info-circle"></i><strong> Raised Investments: </strong></li> --}}
+        </ul>
+
+    </div>
+    </div>
+
+    </div>
+    @endforeach
+
+    <div id="myModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <!-- <h4 class="modal-title">Video</h4> -->
+                </div>
+                <div class="modal-body">
+                    <iframe id="cartoonVideo" width="560" height="315" src="//www.youtube.com/embed/YE7VzlLtp-4"
+                        frameborder="0" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="myModalPDF" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <!-- <h4 class="modal-title">Video</h4> -->
+                </div>
+                <div class="modal-body">
+                    <embed id="cartoonPDF" type="application/pdf" width="560" height="560" src=""
+                        frameborder="0" allowfullscreen>
+                    </embed>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div id="myModalmail" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <form name="frm_pfupd" id="frm_pfupd" action="{{ route('front.user.sendMail') }}" method="post"
+                enctype="multipart/form-data">
+                {{ csrf_field() }}
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Message Company</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <!-- <label>Title:</label> -->
+                            <input type="text" placeholder="Title" class="form-control" name="title"
+                                required="required">
+                            <input type="hidden" class="form-control" name="email" required="required"
+                                value="{{ $list->company_email }}">
+                        </div>
+                        <br>
+                        <div class="form-group">
+                            <!-- <label>Message:</label> -->
+                            <textarea placeholder="Message" class="form-control" name="info" required="required"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="myModalmessage" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <form name="frm_pfupd" id="frm_pfupd" action="{{ route('front.user.sendMessages') }}" method="post"
+                enctype="multipart/form-data">
+                {{ csrf_field() }}
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Send Message</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <!-- <label>Message:</label> -->
+                            <textarea placeholder="Message" class="form-control" name="message" required="required"></textarea>
+                            <input type="hidden" class="form-control" name="receiver_id" id="receiver_id"
+                                required="required" value="">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!--Question modal-->
+    @include('frontend.includes.add_question_modal')
+    @push('page_js')
+        <script type="text/javascript">
+            function receiver(id) {
+                $("#receiver_id").val(id);
+            }
+            $(document).ready(function() {
+                $(".fancybox").fancybox();
+
+            });
+
+            $(document).ready(function () {
+                $('#send').click(function () {
+                    return false;
+                });
+            });
+            function openVideoModal(video_url) {
+
+                //alert(video_url);
+                $("#cartoonVideo").attr('src', video_url);
+                //alert(video_url);
+                $("#myModal").modal('show');
+            }
+
+            function openPDFModal(pdf_url) {
+                $("#cartoonPDF").attr('src', pdf_url);
+
+                $("#myModalPDF").modal('show');
+            }
+        </script>
+    @endpush
+@endsection

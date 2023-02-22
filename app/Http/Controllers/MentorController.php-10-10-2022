@@ -1,0 +1,646 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use App\Models\Users;
+use App\Models\Invitations;
+use App\Models\Stages;
+use App\Models\IndustryCategories;
+use App\Models\MemberBusiness;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+use Image;
+use App\Models\FounderTransaction;
+use App\Models\MemberService;
+use App\Models\MemberVideo;
+use App\Models\CompanyType;
+use App\Models\LegalStatus;
+use Auth;
+use DB;
+use Session;
+use PHPMailer\PHPMailer\PHPMailer;
+use Carbon\Carbon;
+use Validator;
+use Mail;
+
+
+class MentorController extends Controller
+{
+
+    public function index() {
+        
+         
+        $dataBag = array();
+        $dataBag['GparentMenu'] = 'mentormanagement';
+        $dataBag['parentMenu'] = 'mentorManagement';
+        $dataBag['childMenu'] = 'mentorList';
+        $dataBag['userList'] = $userList= Users::whereIn('user_type', [6])->orderBy('id', 'desc')->get();
+        //dd($dataBag['userList']->toArray());
+        return view('dashboard.mentor.index', $dataBag);
+    }
+
+    
+    public function editMentor($user_id) {
+        $dataBag = array();
+        $dataBag['GparentMenu'] = 'mentormanagement';
+        $dataBag['parentMenu'] = 'mentorManagement';
+        $dataBag['childMenu'] = 'mentorEdit';
+
+        $dataBag['stageList'] = Stages::orderBy('id', 'desc')->get();
+        $dataBag['industryList'] = IndustryCategories::orderBy('id', 'desc')->get();
+
+
+        $user = Users::where('id', '=', $user_id)->first();
+        $dataBag['user_data'] = $user;
+
+        //dd($dataBag['user_data']);
+
+
+
+        $dataBag['founders'] = DB::table('founder_transactions')->where('member_id', '=', $user->id)->orderBy('id', 'asc')->get();
+
+        //dd($DataBag['founders']);
+
+        $dataBag['founderscount'] = DB::table('founder_transactions')->where('member_id', '=', $user->id)->count();
+
+         $dataBag['buisness'] = DB::table('member_services')->where('member_id', '=', $user->id)->orderBy('id', 'asc')->get();
+
+        $dataBag['memberBusiness'] = MemberBusiness::where('member_id', '=', $user->id)->pluck('industry_category_id')->toArray();
+        //dd($dataBag['memberBusiness']);
+
+        $dataBag['company_videos'] = DB::table('member_videos')->where('member_id', '=', $user->id)->orderBy('id', 'asc')->get();
+
+
+        //dd($dataBag['company_videos']);
+        
+        $dataBag['companyTypeList'] = CompanyType::orderBy('company_type.company_type', 'asc')->get();
+        $dataBag['legalStatusList'] = LegalStatus::orderBy('legal_status.legal_status', 'asc')->get();
+        
+        return view('dashboard.mentor.edit', $dataBag);
+    }
+
+
+    public function updateMentor(Request $request, $user_id) {
+
+            $User = Users::where('id', '=', $user_id)->first();
+            if( !empty($User) ) {
+
+                $request->validate([
+                
+                'email_id' => 'required|email|unique:users,email_id,'.$User->id
+                ],[
+                
+                    'email_id.unique' => 'This Email-id Already Exist, Try Another.'
+                ]);
+
+                $updateData = array();
+                $updateData['member_company'] = trim($request->input('member_company'));
+
+                $updateData['slug'] = Str::slug($updateData['member_company'], '-');
+
+                $updateData['contact_name'] = trim($request->input('contact_name'));
+                $updateData['email_id'] = trim($request->input('email_id'));
+                $updateData['contact_no'] = trim($request->input('contact_no'));
+                //$updateData['mobile'] = trim($request->input('mobile'));
+                //$updateData['stage_id'] = trim($request->input('stage_id'));
+
+                //$updateData['country'] = trim($request->input('country'));
+                //$updateData['city'] = trim($request->input('city'));
+                //$updateData['website'] = trim($request->input('website'));
+                //$updateData['legal_status'] = trim($request->input('legal_status'));
+                $updateData['profile_info'] = trim($request->input('profile_info'));
+                
+                
+                //$updateData['company_type'] = trim($request->input('company_type'));
+                //$updateData['about_you'] = trim(htmlentities($request->input('about_you'), ENT_QUOTES));
+                 
+             
+
+
+
+                //$updateData['milestone'] = trim($request->input('milestone'));
+
+                //$updateData['member_spec'] = trim($request->input('member_spec'));
+                //$updateData['member_looking'] = trim($request->input('member_looking'));
+                //$updateData['member_help'] = trim($request->input('member_help'));
+                //$updateData['achievements'] = trim($request->input('achievements'));
+                //$updateData['certifications'] = trim($request->input('certifications'));
+
+                //$updateData['is_raised_invest'] = trim($request->input('is_raised_invest'));
+				
+				$updateData['designation'] = trim($request->input('designation'));
+				$updateData['company'] = trim($request->input('company'));
+				$updateData['preferred_industry'] = trim($request->input('preferred_industry'));
+				$updateData['functional_expertise'] = trim($request->input('functional_expertise'));
+				$updateData['address'] = trim($request->input('address'));
+				$updateData['investment_interests'] = trim($request->input('investment_interests'));
+				$updateData['startup_stage_preference'] = trim($request->input('startup_stage_preference'));
+				$updateData['startups_mentored'] = trim($request->input('startups_mentored'));
+                /* if($updateData['is_raised_invest']==1)
+                {
+                    $updateData['invest_name'] = trim($request->input('invest_name'));
+                }
+                else
+                {
+                    $updateData['invest_name'] = "";
+                }
+
+                $updateData['invest_name'] = trim($request->input('invest_name')); */
+
+                
+                
+                if( $request->hasFile('speech') ) {
+                
+
+                $file = $request->file('speech'); 
+       
+          //Display File Name
+          $file_newname=$file->getClientOriginalName();
+          echo '<br>';
+       
+          //Display File Extension
+          echo 'File Extension: '.$file->getClientOriginalExtension();
+          echo '<br>';
+       
+          //Display File Real Path
+          echo 'File Real Path: '.$file->getRealPath();
+          echo '<br>';
+       
+          //Display File Size
+          echo 'File Size: '.$file->getSize();
+          echo '<br>';
+       
+          //Display File Mime Type
+          echo 'File Mime Type: '.$file->getMimeType();
+       
+          $destinationPath = public_path('/uploads/user_images');
+          $file->move($destinationPath,$file->getClientOriginalName());
+
+
+                $updateData['speech'] = $file_newname;
+            }
+
+                
+                $updateData['updated_by'] = Auth::user()->id;
+                $updateData['updated_at'] = date('Y-m-d H:i:s');
+                if( $request->hasFile('image') ) {
+
+                    $image = $request->file('image');
+                    $real_path = $image->getRealPath();
+                    $file_orgname = $image->getClientOriginalName();
+                    $file_size = $image->getClientSize();
+                    $file_ext = strtolower($image->getClientOriginalExtension());
+                    $file_newname = "user"."_".time().".".$file_ext;
+
+                    $destinationPath = public_path('/uploads/user_images');
+                    $original_path = $destinationPath."/original";
+                    $thumb_path = $destinationPath."/thumb";
+                    
+                    $img = Image::make($real_path);
+                    $img->resize(150, 150, function ($constraint) {
+                        $constraint->aspectRatio();
+                    })->save($thumb_path.'/'.$file_newname);
+
+                    $image->move($original_path, $file_newname);
+                    $updateData['image'] = $file_newname;
+                }
+                $res = Users::where('id', '=', $user_id)->update($updateData);
+                if( $res ) {
+
+                    $childs =Users::where('founder_id', '=', $User->id)->get();
+
+                    foreach ($childs as $key => $child) {
+                        $update_child_data = array(
+                        'slug' => $updateData['slug']
+                        );
+
+                        //dd($update_data);
+                        Users::where('id', '=', $child->id)->update($update_child_data);
+                    }
+
+                    //founder
+                    $founder_name = $request->input('founder_name');
+                    $founder_profile = $request->input('founder_profile');
+
+                    $founder_img=$request->file('founder_img');
+
+                    //dd($founder_img);
+
+                    $founder_img_hidden=$request->input('founder_img_hidden');
+
+                    if(!empty($founder_name))
+                    {
+                        if(!empty($founder_img_hidden))
+                        {
+                            $count_hidden =count($founder_img_hidden);
+                            $memberFounder = array();
+                            foreach($founder_name as $key=>$v) {
+
+                                
+                                if(!empty($v))
+                                {
+                                    $memberFounder[$key]['member_id'] = $User->id;
+                                    $memberFounder[$key]['name'] = $v;
+                                    $memberFounder[$key]['profile'] = $founder_profile[$key];
+
+                                    //$key +=$count_hidden;
+
+                                    //echo $key;die;
+
+
+                                    if( isset($founder_img[$key]) ) {
+                                        $image = $founder_img[$key];
+                                        $real_path = $image->getRealPath();
+                                        $file_orgname = $image->getClientOriginalName();
+                                        $file_size = $image->getClientSize();
+                                        $file_ext = strtolower($image->getClientOriginalExtension());
+                                        $file_newname = "founder"."_".time().$key.".".$file_ext;
+                                        $destinationPath = public_path('/uploads/founder_images');
+                                        $original_path = $destinationPath."/original";
+                                        $thumb_path = $destinationPath."/thumb";
+                                        
+                                        $img = Image::make($real_path);
+                                        $img->resize(150, null, function ($constraint) {
+                                            $constraint->aspectRatio();
+                                        })->save($thumb_path.'/'.$file_newname);
+
+                                        $image->move($original_path, $file_newname);
+                                        $memberFounder[$key]['image'] = $file_newname;
+                                    }
+                                    else
+                                    {
+                                        $file_newname =$founder_img_hidden[$key];
+                                        $memberFounder[$key]['image'] = $file_newname;
+                                    }
+                                }
+                                
+                            }
+
+                            
+                            if (!empty($memberFounder)) {
+                                FounderTransaction::where('member_id', '=', $User->id)->delete();
+                                FounderTransaction::insert($memberFounder);
+                            }
+                        }
+                        else
+                        {
+                        
+                        $memberFounder = array();
+                        foreach($founder_name as $key=>$v) {
+
+                            if(!empty($v))
+                            {
+                            
+                                $memberFounder[$key]['member_id'] = $User->id;
+                                $memberFounder[$key]['name'] = $v;
+                                $memberFounder[$key]['profile'] = $founder_profile[$key];
+
+                                //$key +=$count_hidden;
+
+                                //echo $key;die;
+                                if( $founder_img[$key] ) {
+                                    $image = $founder_img[$key];
+                                    $real_path = $image->getRealPath();
+                                    $file_orgname = $image->getClientOriginalName();
+                                    $file_size = $image->getClientSize();
+                                    $file_ext = strtolower($image->getClientOriginalExtension());
+                                    $file_newname = "founder"."_".time().$key.".".$file_ext;
+                                    $destinationPath = public_path('/uploads/founder_images');
+                                    $original_path = $destinationPath."/original";
+                                    $thumb_path = $destinationPath."/thumb";
+                                    
+                                    $img = Image::make($real_path);
+                                    $img->resize(150, null, function ($constraint) {
+                                        $constraint->aspectRatio();
+                                    })->save($thumb_path.'/'.$file_newname);
+
+                                    $image->move($original_path, $file_newname);
+                                    $memberFounder[$key]['image'] = $file_newname;
+                                }
+                            }
+                        }
+
+                        //dd($memberFounder);
+
+                       
+                    }
+                    
+                    }
+
+
+                    //dd($company_videoArr);
+
+                    return back()->with('msg_class', 'alert alert-success')
+                    ->with('msg', 'Mentor Updated Succesfully.');
+                } else {
+                    return back()->with('msg_class', 'alert alert-danger')
+                    ->with('msg', 'Something Went Wrong.');
+                }
+            } else {
+                return back()->with('msg_class', 'alert alert-danger')
+                ->with('msg', 'Something Went Wrong. User Missmatch');
+            }
+        }
+
+    public function mentorMemberList($user_id) {  
+        $dataBag = array();
+        $dataBag['GparentMenu'] = 'mentormanagement';
+        $dataBag['parentMenu'] = 'mentorManagement';
+        $dataBag['childMenu'] = 'mentorEdit';
+        $ids_array = DB::table('member_mentor_rel')->where('mentor_id', '=', $user_id)->get()->toArray();
+        $ids = array();
+        foreach ($ids_array as $key => $value) {
+            $ids[] = $value->member_id; 
+        }
+        //dd($ids);
+        $dataBag['userList'] = DB::table('users')->whereIn('id', $ids)
+                  ->where('status', 1)
+                  ->get();
+        if(!empty($dataBag['userList'])){
+            $memberBusiness= array();
+            foreach($dataBag['userList'] as $user){ 
+               $mentor_id = DB::table('member_mentor_rel')
+                ->select('mentor_id')
+                ->where("member_id", "=", $user->id)->get();
+                 $count = count($mentor_id); 
+                if($count != 0){
+                    $mentor_name = DB::table('users')
+                    ->select('first_name')
+                    ->where("id", "=", $mentor_id[0]->mentor_id)->first();
+                    $user->mentor = $mentor_name->first_name; 
+                  }
+                  else{
+                    $user->mentor = "NA";
+                  }
+                //dd($user);
+            }
+           // dd($dataBag['userList']);
+        }
+        //dd($dataBag['userList']->toArray());
+        return view('dashboard.mentor.member_list', $dataBag);
+    }
+    
+    public function assignMentor(Request $request){
+     $member_id = $request->input('startupID'); 
+      $memtor_id = $request->input('mentorID');
+
+       DB::table('member_mentor_rel')->where('member_id', $member_id)->delete();
+
+      $res = DB::table('member_mentor_rel')->insert([
+            'member_id' => $member_id,
+            'mentor_id' => $memtor_id
+        ]);
+
+      if($res){
+        echo "1";
+      }else{
+        echo "2";
+      }
+
+
+    }
+
+public function deleteMentor($id) {
+       //$res = DB::table('member_mentor_rel')->where('member_id', $member_id)->where('mentor_id', $mentor_id)->delete();
+	   $res = DB::table('users')->where('id', $id)->delete();
+        if( $res ) {
+            return back()->with('msg_class', 'alert alert-success')
+            ->with('msg', 'Mentor Deleted Succesfully.');
+        } else {
+            return back()->with('msg_class', 'alert alert-danger')
+            ->with('msg', 'Something Went Wrong.');
+        }
+    }
+
+
+ public function createMentor() {
+        $dataBag = array();
+        $dataBag['GparentMenu'] = 'mentormanagement';
+        $dataBag['parentMenu'] = 'mentormanagement';
+        $dataBag['childMenu'] = 'mentorAdd';
+        $dataBag['stageList'] = Stages::orderBy('id', 'desc')->get();
+        $dataBag['industryList'] = IndustryCategories::orderBy('industry_category.industry_category', 'asc')->get();
+        
+        $dataBag['companyTypeList'] = CompanyType::orderBy('company_type.company_type', 'asc')->get();
+        $dataBag['legalStatusList'] = LegalStatus::orderBy('legal_status.legal_status', 'asc')->get();
+        
+        return view('dashboard.mentor.create', $dataBag);    
+    }
+
+
+    public function saveMentor(Request $request) {
+
+        $request->validate([
+            
+            'email_id' => 'required|email|unique:users,email_id'
+        ],[
+        
+            'email_id.unique' => 'This Email-id Already Exist, Try Another.'
+        ]);
+
+
+        $Users = new Users;
+        $Users->timestamp_id = md5(microtime(TRUE));
+        $Users->first_name = trim($request->input('name'));
+        $Users->contact_name = trim($request->input('contact_name'));
+        $Users->slug  =Str::slug($Users->member_company, '-');
+        $Users->email_id = trim($request->input('email_id'));
+        $Users->contact_no = trim($request->input('contact_no'));
+        //$Users->address = $request->input('country'). "-". $request->input('city')."-".$request->input('zip_code');
+        $Users->password = md5('iImCiP@2020$');
+        $Users->linkedIn = trim($request->input('linkedin_url'));
+        $Users->designation = trim($request->input('designation'));
+        $Users->user_type = 6;
+		
+		$Users->company = trim($request->input('company'));
+		$Users->preferred_industry = trim($request->input('preferred_industry'));
+		$Users->experience_years = trim($request->input('experience_years'));
+		$Users->functional_expertise = trim($request->input('functional_expertise'));
+		$Users->address = trim($request->input('address'));
+		$Users->investment_interests = trim($request->input('investment_interests'));
+		$Users->startup_stage_preference = trim($request->input('startup_stage_preference'));
+		$Users->startups_mentored = trim($request->input('startups_mentored'));
+        //$Users->milestone = trim($request->input('milestone'));
+
+        //$Users->member_spec = trim($request->input('member_spec'));
+        //$Users->member_looking = trim($request->input('member_looking'));
+        //$Users->member_help = trim($request->input('member_help'));
+        //$Users->achievements = trim($request->input('achievements'));
+        //$Users->certifications = trim($request->input('certifications'));
+        //$Users->company_type = trim($request->input('company_type'));
+        
+
+        //$Users->about_you = trim(htmlentities($request->input('about_you'), ENT_QUOTES));
+
+        //$Users->is_raised_invest = trim($request->input('is_raised_invest'));
+
+        /* if($Users->is_raised_invest==1)
+        {
+            $Users->invest_name = trim($request->input('invest_name'));
+        }
+        else
+        {
+            $Users->invest_name = "";
+        } */
+
+        if( $request->hasFile('image') ) {
+
+                $image = $request->file('image');
+                $real_path = $image->getRealPath();
+                $file_orgname = $image->getClientOriginalName();
+                $file_size = $image->getClientSize();
+                $file_ext = strtolower($image->getClientOriginalExtension());
+                $file_newname = "user"."_".time().".".$file_ext;
+
+                $destinationPath = public_path('/uploads/user_images');
+                $original_path = $destinationPath."/original";
+                $thumb_path = $destinationPath."/thumb";
+                
+                $img = Image::make($real_path);
+                $img->resize(150, 150, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($thumb_path.'/'.$file_newname);
+
+                $image->move($original_path, $file_newname);
+                
+
+                $Users->image = $file_newname;
+            }
+        
+        
+        if( $request->hasFile('speech') ) {
+            
+
+            $file = $request->file('speech');
+   
+      //Display File Name
+      $file_newname=$file->getClientOriginalName();
+      echo '<br>';
+   
+      //Display File Extension
+      echo 'File Extension: '.$file->getClientOriginalExtension();
+      echo '<br>';
+   
+      //Display File Real Path
+      echo 'File Real Path: '.$file->getRealPath();
+      echo '<br>';
+   
+      //Display File Size
+      echo 'File Size: '.$file->getSize();
+      echo '<br>';
+   
+      //Display File Mime Type
+      echo 'File Mime Type: '.$file->getMimeType();
+   
+      $destinationPath = public_path('/uploads/user_images');
+      $file->move($destinationPath,$file->getClientOriginalName());
+
+
+            $Users->speech = $file_newname;
+        }
+
+
+
+        $Users->mobile = trim($request->input('mobile'));
+        $Users->stage_id = trim($request->input('stage_id'));
+        $Users->country = trim($request->input('country'));
+        $Users->city = trim($request->input('city'));
+        $Users->website = trim($request->input('website'));
+        $Users->legal_status = trim($request->input('legal_status'));
+        $Users->profile_info = trim($request->input('profile_info'));
+        $Users->created_by = Auth::user()->id;
+
+        $Users->last_login =date("Y-m-d H:i:s", strtotime('+5 hours +30 minutes'));
+
+        //$Users->current_login =date("Y-m-d H:i:s", strtotime('+5 hours +30 minutes'));
+
+        //dd($Users);
+
+
+        if( $Users->save() ) {
+            //founder
+                $founder_name = $request->input('founder_name');
+                $founder_profile = $request->input('founder_profile');
+
+                $founder_img=$request->file('founder_img');
+
+
+                $user_id = $Users->id;
+
+                $new_time = date("Y-m-d H:i:s", strtotime('+5 hours +30 minutes'));
+                
+                $update_data = array(
+                    'current_login' => $new_time,
+                );
+                Users::where('id', '=', $user_id)->update($update_data);
+
+
+                //dd($founder_img);
+
+                if(!empty($founder_name))
+                {
+                    
+                    $memberFounder = array();
+                    foreach($founder_name as $key=>$v) {
+
+                        if(!empty($v))
+                        {
+                        
+                            $memberFounder[$key]['member_id'] = $Users->id;
+                            $memberFounder[$key]['name'] = $v;
+                            $memberFounder[$key]['profile'] = $founder_profile[$key];
+
+                            //$key +=$count_hidden;
+
+                            //echo $key;die;
+                            if( $founder_img[$key] ) {
+                                $image = $founder_img[$key];
+                                $real_path = $image->getRealPath();
+                                $file_orgname = $image->getClientOriginalName();
+                                $file_size = $image->getClientSize();
+                                $file_ext = strtolower($image->getClientOriginalExtension());
+                                $file_newname = "founder"."_".time().$key.".".$file_ext;
+                                $destinationPath = public_path('/uploads/founder_images');
+                                $original_path = $destinationPath."/original";
+                                $thumb_path = $destinationPath."/thumb";
+                                
+                                $img = Image::make($real_path);
+                                $img->resize(150, null, function ($constraint) {
+                                    $constraint->aspectRatio();
+                                })->save($thumb_path.'/'.$file_newname);
+
+                                $image->move($original_path, $file_newname);
+                                $memberFounder[$key]['image'] = $file_newname;
+                            }
+                        }
+                    }
+
+                    //dd($memberFounder);
+
+                    
+                    if (!empty($memberFounder)) {
+                        //FounderTransaction::where('member_id', '=', $Users->id)->delete();
+                        FounderTransaction::insert($memberFounder);
+                    }
+                
+                
+                }
+
+                 
+
+             
+
+ 
+            return back()->with('msg_class', 'alert alert-success')
+            ->with('msg', 'New Mentor Created Succesfully.');
+
+        } else {
+            return back()->with('msg_class', 'alert alert-danger')
+            ->with('msg', 'Something Went Wrong.');
+        }
+    }
+
+
+}

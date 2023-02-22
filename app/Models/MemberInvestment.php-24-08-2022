@@ -1,0 +1,15 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Cohensive\Embed\Facades\Embed;
+
+class MemberInvestment extends Model
+{
+    protected $table = 'member_investments';
+    protected $primaryKey = "id";
+    public $timestamps = false;
+
+
+}

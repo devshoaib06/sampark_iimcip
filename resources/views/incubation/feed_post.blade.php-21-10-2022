@@ -1,0 +1,18 @@
+@extends('incubation.layouts.app')
+@section('content')
+
+
+<!--Question modal-->
+@include('frontend.includes.add_question_modal')
+
+@endsection
+
+@push('page_js')
+<script>
+
+
+
+</script>
+@endpush
+
+    

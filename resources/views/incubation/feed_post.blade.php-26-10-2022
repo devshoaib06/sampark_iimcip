@@ -1,0 +1,81 @@
+
+@extends('incubation.layouts.app')
+@section('content')
+
+
+<div class="container">
+    
+    <div class="dashboard-block">
+        <div class="dashboard-titel"><a href="#">Incubates </a></div>
+        <div class="dashboard-icon"><img src="{{ asset('public/incubation/images/home-icon1.png')}}"></div>
+        <div class="clearfix"></div>
+        <div class="dashboard-count">{{$incubatees}}</div>
+       <div class="terget">TARGET</div> 
+       <div  class="percentage">60%</div> 
+       <div class="clearfix"></div>
+        <div class="progress">
+            <div class="bar" style="width:60%">
+                
+            </div>
+        </div>
+    </div>
+    
+    <div class="dashboard-block">
+        <div class="dashboard-titel"><a href="{{route('incubatee.user.todo')}}">TODO </a></div>
+        <div class="dashboard-icon"><img src="{{ asset('public/incubation/images/home-icon2.png')}}"></div>
+        <div class="clearfix"></div>
+        <div class="dashboard-count">{{$todos}}</div>
+       <div class="terget">TARGET</div> 
+       <div  class="percentage">49%</div> 
+       <div class="clearfix"></div>
+        <div class="progress">
+            <div class="bar1" style="width:49%">
+                
+            </div>
+        </div>
+    </div>
+    <div class="dashboard-block">
+        <div class="dashboard-titel"><a href="#">Incubatee Reportees </a></div>
+        <div class="dashboard-icon"><img src="{{ asset('public/incubation/images/home-icon3.png')}}"></div>
+        <div class="clearfix"></div>
+        <div class="dashboard-count">8947</div>
+       <div class="terget">TARGET</div> 
+       <div  class="percentage">18%</div> 
+       <div class="clearfix"></div>
+        <div class="progress">
+            <div class="bar2" style="width:18%">
+                
+            </div>
+        </div>
+    </div>
+    <div class="dashboard-block" style="margin-right: 0;">
+        <div class="dashboard-titel"><a href="#">Collaboration </a></div>
+        <div class="dashboard-icon"><img src="{{ asset('public/incubation/images/home-icon4.png')}}"></div>
+        <div class="clearfix"></div>
+        <div class="dashboard-count">178</div>
+       <div class="terget">TARGET</div> 
+       <div  class="percentage">74%</div> 
+       <div class="clearfix"></div>
+        <div class="progress">
+            <div class="bar3" style="width:74%">
+                
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+<!--Question modal-->
+@include('frontend.includes.add_question_modal')
+
+@endsection
+
+@push('page_js')
+<script>
+
+
+
+</script>
+@endpush
+
+    

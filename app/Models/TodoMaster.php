@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class TodoMaster extends Model
+{
+	protected $guarded = [];
+
+	protected $table = 'todo_masters';
+
+	public function getUserName()
+	{
+		return $this->hasOne('App\Models\Users', 'id', 'user_id');
+	}
+}

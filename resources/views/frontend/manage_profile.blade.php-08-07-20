@@ -1,0 +1,214 @@
+@extends('frontend.layouts.app')
+@section('content')
+<div class="row">
+    @if(Session::has('msg') && Session::has('msg_class'))
+    <div class="col-sm-12">
+        <div class="postCard">
+            <div class="{{ Session::get('msg_class') }}" style="margin-bottom: 0;">
+                {{ Session::get('msg') }}
+            </div>
+        </div>
+    </div>
+    @endif
+    
+    <div class="col-sm-12">
+        <div class="postCard">
+            <div class="postWrap">
+                <div class="pwdbox">
+                    <h3>Manage your profile</h3>
+                    <form name="frm_pfupd" id="frm_pfupd" action="{{ route('front.user.updprof') }}" method="post" enctype="multipart/form-data">
+                    {{ csrf_field() }}
+                        <div class="row mt-5">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Industry Verticals:</label>
+                                    <div>
+                                        <select class="form-control indusCatIds" name="industry_category_id[]" id="indusCatIds" multiple="multiple" required="required" style="width: 100%;">
+                                            <option value="">Select Industry Verticals</option>
+                                            @if(isset($industry_category) && count($industry_category))
+                                                @foreach($industry_category as $v)
+                                                    <option value="{{ $v->id }}" 
+                                                        @if(isset($currentIndusCats) && !empty($currentIndusCats) && in_array($v->id, $currentIndusCats)) selected="selected" @endif>
+                                                            {{ $v->industry_category }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mt-3">
+                                <div class="form-group">
+                                    <label>Startup Name:</label>
+                                    <input type="text" class="form-control" name="member_company" required="required" value="{{ Auth::user()->member_company }}" />
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Contact Name:</label>
+                                    <input type="text" class="form-control" name="contact_name" required="required" value="{{ Auth::user()->contact_name }}" />
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Email:</label>
+                                    <input type="email" class="form-control" name="email_id" required="required" value="{{ Auth::user()->email_id }}" />
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Mobile:</label>
+                                    <input type="text" class="form-control onlyNumber" name="contact_no" required="required" value="{{ Auth::user()->contact_no }}" />
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Website:</label>
+                                    <input type="text" class="form-control" name="website" value="{{ Auth::user()->website }}" />
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Image:</label>
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            <input type="file" name="image" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
+                                            <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mt-3">
+                                <div class="form-group">
+                                    <label>Startup Stage:</label>
+                                    <select class="form-control" name="stage_id" required="required">
+                                        <option value="">Select Startup Stage</option>
+                                        @if(isset($stage) && count($stage))
+                                            @foreach($stage as $v)
+                                                <option value="{{ $v->id }}" @if(Auth::user()->stage_id == $v->id) selected="selected" @endif>{{ $v->stage_name }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Legal Status:</label>
+                                    <select class="form-control" name="legal_status">
+                                        <option>Status 1</option>
+                                        <option>Status 2</option>
+                                        <option>Status 3</option>
+                                        <option>Status 3</option>
+                                    </select>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Country:</label>
+                                    <input type="text" class="form-control" name="country" required="required" value="{{ Auth::user()->country }}" />
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>City:</label>
+                                    <input type="text" class="form-control" name="city" required="required" value="{{ Auth::user()->city }}" />
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Address:</label>
+                                    <textarea class="form-control" name="address" placeholder="Address..">{{ Auth::user()->address }}</textarea>
+                                </div>
+                                <div class="form-group mt-3">
+                                    @php 
+                                        if(Auth::user()->image != '' && Auth::user()->image != null) {
+                                            $profileImage = asset('public/uploads/user_images/thumb/'. Auth::user()->image);
+                                        }
+                                    @endphp
+                                    @if(isset($profileImage) && $profileImage != '')
+                                        <img src="{{ $profileImage }}" style="width: 40px; height: 40px; border-radius:20px;">
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <label>Tell us about yourself:</label>
+                                <textarea name="about_you" id="aboutMe" class="form-control" placeholder="Tell us about yourself" style="height: 150px;">{!! html_entity_decode(Auth::user()->about_you, ENT_QUOTES) !!}</textarea>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <input type="submit" class="btn btn-primary" value="Save Changes">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!--Question modal-->
+@include('frontend.includes.add_question_modal')
+
+@push('page_js')
+<script>
+var editorPostInfo = CKEDITOR.replace( 'aboutMe', {
+  customConfig: "{{ asset('public/assets/ckeditor/mini_config.js') }}",
+} );
+$('#frm_pfupd').validate({
+    errorElement: 'span',
+    errorClass: 'roy-vali-error',
+    rules: {
+        member_company: {
+            required: true
+        },
+        contact_name: {
+            required: true
+        },
+        "industry_category_id[]": {
+            required: true
+        },
+        stage_id: {
+            required: true
+        },
+        email_id:{
+            required: true,
+            email: true
+        },
+        contact_no:{
+            required: true
+        },
+        country:{
+            required: true
+        },
+        city:{
+            required: true
+        }
+    },
+    messages: {
+        member_company: {
+            required: 'Please enter your startup name'
+        },
+        contact_name: {
+            required: 'Please enter contact name'
+        },
+        "industry_category_id[]": {
+            required: 'Please select industies'
+        },
+        stage_id: {
+            required: 'Please select startup stage'
+        },
+        email_id:{
+            required: 'Please enter email-id',
+            email: 'Please enter valid email-id'
+        },
+        contact_no:{
+            required: 'Please enter contact number'
+        },
+        country:{
+            required: 'Please enter country'
+        },
+        city:{
+            required: 'Please enter city'
+        }
+    },
+    errorPlacement: function(error, element) {
+        if (element.hasClass('indusCatIds')) {
+            error.insertAfter(element.parent());
+        } else {
+            error.insertAfter(element); 
+        }
+    }
+});
+</script>
+@endpush
+@endsection
+
+    

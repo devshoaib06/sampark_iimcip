@@ -1,0 +1,499 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\MemberBusiness;
+use App\Models\Users;
+use App\Models\Posts;
+use App\Models\PostReply;
+use App\Models\Incubatee;
+use App\Models\TodoMaster;
+use Session;
+use Image;
+use View;
+use Auth;
+use DB;
+use Mail;
+use Illuminate\Support\Str; 
+use App\Models\Invitations;
+use App\Jobs\MailSendJob;
+use Illuminate\Support\Facades\File;
+
+class IncubationController extends Controller
+{
+    public function allSite(){
+
+        dd('ok');
+
+        //return view('index');
+
+    } // End Method
+
+    public function index()
+    {
+        $DataBag = array();
+        $DataBag['stage'] = DB::table('stage')->orderBy('stage_name', 'asc')->get();
+        return view('incubation.index', $DataBag);
+    }
+
+    public function userLogin(Request $request)
+    {
+        $request->validate([
+            'email_id' => 'required',
+            'password' => 'required'
+		],[
+			'email_id.required' => 'Please enter email-id.',
+			'password.required' => 'Please enter password.'
+		]);
+
+    	$email_id = trim($request->input('email_id'));
+    	$password = md5(trim($request->input('password')));
+    	$rm_me = trim($request->input('rm_me'));
+    	$norPwd = trim($request->input('password'));
+
+
+        
+    	$loginUser = Users::where('email_id', '=', $email_id)
+    	->where('password', '=', $password)->where('status', '=', '1')->first(); 
+
+
+       // dd($loginUser);
+
+        $new_time = date("Y-m-d H:i:s", strtotime('+5 hours +30 minutes'));
+
+    	if(!empty($loginUser)) {
+    		Auth::login($loginUser);
+
+           $user_id = Auth::user()->id; 
+            $current_login = Auth::user()->current_login;
+
+            if(empty($current_login))
+            {
+                $current_login =$new_time;
+            }
+
+            $update_data = array(
+                'current_login' => $new_time
+            );
+            Users::where('id', '=', $user_id)->update($update_data);
+
+    		if( $rm_me == '1' ) {
+    			setcookie("iimcip_email", $email_id, time() + (86400 * 30));
+                setcookie("iimcip_password", $norPwd, time() + (86400 * 30));
+    		} else {
+    			unset($_COOKIE['iimcip_email']);
+                unset($_COOKIE['iimcip_password']);
+                setcookie("iimcip_email", '', time() - 3600);
+                setcookie("iimcip_password", '', time() - 3600);
+    		}
+
+    		Session::put('iimcip_user_id', $loginUser->id);
+            Session::put('is_iimcip_logged_in', 'yes');
+            Session::put('user_type_id', $loginUser->user_type);
+
+            //return redirect()->route('front.user.account');
+
+//            return redirect()->route('front.user.dashboard');
+
+            //echo $loginUser->user_type; die;
+
+            if($loginUser->user_type == 6){
+               return redirect()->route('incubatee.mentor.startup');
+             }
+             else{
+                    return redirect()->route('incubatee.user.feed');
+             }
+            
+
+    	} else {
+    		return back()->with('msg', 'Sorry! Incorrect Login Information..');
+    	}
+    }
+
+    public function mentorStartup()
+    {
+
+            $user_id  = Auth::user()->id;
+
+            $ids_array = DB::table('member_mentor_rel')->where('mentor_id', '=', $user_id)->get()->toArray();
+            $ids = array();
+            foreach ($ids_array as $key => $value) {
+                $ids[] = $value->member_id; 
+            }
+            //dd($ids);
+            // $users = DB::table('users')->whereIn('id', $ids)
+            //           ->where('status', 1);
+
+            $users =Users::whereIn('users.id', $ids);
+
+           // $users =Users::where('users.status',1)->where('user_type',2)->whereNull('founder_id');
+     
+            if (isset($_GET['search']) && $_GET['search'] != '') {
+                $search = trim($_GET['search']);
+                if (strpos($search, '(') !== false) {
+                    $search = trim(substr($search, 0, strpos($search, '(')));
+                }
+                $users->where('users.member_company', 'LIKE', '%' . $search . '%');
+                        
+            }
+            if (isset($_GET['searr_id']) && $_GET['searr_id'] != '') {
+
+                //echo $_GET['search_id'];die;
+
+                $search1 = trim($_GET['searr_id']);
+                if (strpos($search1, '(') !== false) {
+                    $search1 = trim(substr($search1, 0, strpos($search1, '(')));
+                }
+                $users->where('member_company', 'LIKE', '' . $search1 . '%');
+                        
+            }
+
+            if (isset($_GET['industry_id']) && $_GET['industry_id'] != '') {
+
+                //echo $_GET['search_id'];die;
+
+                $users =$users->join('member_business', 'users.id', '=', 'member_business.member_id');
+
+                $search2 = trim($_GET['industry_id']);
+                if (strpos($search2, '(') !== false) {
+                    $search2 = trim(substr($search2, 0, strpos($search2, '(')));
+                }
+                $users->where('member_business.industry_category_id',$search2 );
+                        
+            }
+
+            $users =$users->orderBy('users.member_company', 'asc')->select('users.*')->get();
+
+            $DataBag['users'] = array();
+
+            //dd($users->toArray());
+
+            foreach ($users as $key => $user) {
+                $company_id =$user->id;
+
+
+               //echo $user->id;die;
+            $DataBag['users'][$key]['memberInfo'] = Users::join('stage', 'stage.id', '=', 'users.stage_id')->where('users.id', '=', $company_id)->select('users.*','stage.stage_name')->first();
+     
+            $DataBag['users'][$key]['number_of_post']=Posts::where('member_id', '=', $company_id)->where('status', '=', '1')->count();
+
+            $DataBag['users'][$key]['number_of_reply']=PostReply::where('replied_by', '=', $company_id)->where('status', '=', '1')->count();
+
+
+            $DataBag['users'][$key]['founders'] = DB::table('founder_transactions')->where('member_id', '=', $company_id)->orderBy('id', 'asc')->get();
+
+            $DataBag['users'][$key]['founderscount'] = DB::table('founder_transactions')->where('member_id', '=', $company_id)->count();
+     
+            }
+
+            //dd($DataBag);
+
+            
+
+            return view('incubation.startup_mentor', $DataBag);
+    }
+
+        public function feed()
+    {   
+
+        $DataBag = array();
+
+        //echo Auth::user()->id;die;
+        $DataBag['incubatees'] = Incubatee::count();
+        $DataBag['todos'] = TodoMaster::count();
+
+        $industry_category =MemberBusiness::where('member_id', '=', Auth::user()->id)->select('industry_category_id')->get();
+
+        $category=array();
+
+        foreach ($industry_category as $key => $value) {
+            $category[$key]=$value->industry_category_id;
+        }
+
+        $myString = '1,2,3';
+        $myArray = explode(',', $myString);
+        //dd($myArray);
+        //dd($category);
+
+        //DB::enableQueryLog();
+
+        
+ 
+        $DataBag['myPosts'] = Posts::join('post_industry', 'post_industry.post_id', '=', 'post_master.id')->where(function ($query) use ($category) {
+                $query->whereIn('post_industry.industry_category_id', $category);
+            })->orWhere(function($query) {
+                $query->where('is_bookmarked', 1);   
+            })
+        ->orderBy('post_master.id', 'desc')->select('post_master.*')->paginate(15);
+
+
+        //dd($DataBag['myPosts']->toArray());
+
+        //dd(DB::getQueryLog());
+
+        $DataBag['mesg']  ="Sorry! No post found.";
+        return view('incubation.feed_post', $DataBag);
+    }
+
+     public function account(Request $request)
+    {
+        
+         
+        $DataBag = array();
+        $DataBag['queryString'] = $_SERVER['QUERY_STRING'];
+		
+			//$user_type = Auth::user()->user_type;
+		
+		
+			if($request->category == "startup") {
+			//$DataBag['users'] = array();
+			
+			 
+
+			$DataBag['usersQuery'] = Users::orderBy('id','desc')->where('member_company', 'LIKE', '%'.$_GET['search'].'%')->whereNotIn('member_company',['IIMCIP Portfolio Managers', 'IIMCIP MENTORS'])->whereNull('founder_id')->get(); 
+			
+			
+		
+		
+			}
+		
+			/* 
+			if(isset($_GET['category']) && $_GET['category'] =='company' ){
+				return redirect()->route('front.user.company', ['category' =>'company', 'search'=> $_GET['search']]);
+			} */
+			
+			if($request->category == "company" ) {
+				
+			
+			 $DataBag['companyQuery'] = Users::orderBy('id','desc')->where('contact_name', 'LIKE', '%'.$_GET['search'].'%' )->get(); 
+			
+			
+			
+			//dd($DataBag['companyQuery']);
+		
+			}
+			
+			
+			if($request->category == "mentor" ) {
+				
+				//$DataBag['mentorQuery'] = Users::orderBy('id','desc')->where('first_name', 'LIKE', '%'.$_GET['search'].'%' )->where('user_type', '=', 6)->whereNull('founder_id')->get();
+				
+				 $DataBag['mentorQuery'] = Users::orderBy('id','desc')->where('contact_name', 'LIKE', $_GET['search'].'%' )->get(); 
+				
+				
+				
+				//dd($DataBag['mentorQuery']);
+
+			}
+			
+				
+			
+			
+        $postQuery = Posts::with(['memberInfo'])->where('status', '=', '1');
+
+        if (isset($_GET['post']) && $_GET['post'] != '') {
+            $postFilter = trim($_GET['post']);
+            if ($postFilter == 'public') {
+                $postQuery = $postQuery->where(function($postQuery) {
+                    $postQuery->where('post_type', '=', '1');
+                });
+            }
+            if ($postFilter == 'private') {
+                $postQuery = $postQuery->where(function($postQuery) {
+                    $postQuery->where('post_type', '=', '2');
+                    $postQuery->where('private_member_id', '=', Auth::user()->id);
+                    $postQuery->orWhere('private_sender_id', '=', Auth::user()->id);
+
+                });
+            }
+            if ($postFilter == 'administrator') {
+                $postQuery = $postQuery->where(function($postQuery) {
+                    $postQuery->where('post_type', '=', '1');
+                    $postQuery->where('member_id', '=', '1');
+                });
+            }
+
+        } else {
+            $postQuery = $postQuery->where(function($postQuery) {
+                $postQuery->where('post_type', '=', '1');
+                $postQuery->orWhere(function($postQuery) {
+                    $postQuery->where('post_type', '=', '2');
+                    $postQuery->where('private_member_id', '=', Auth::user()->id);
+                });
+                // $postQuery->orWhere(function($postQuery) {
+                //     $postQuery->where('post_type', '=', '2');
+                //     $postQuery->where('member_id', '=', Auth::user()->id);
+                // });
+            });
+            //dd($postQuery->toSql());
+        }
+        if (isset($_GET['industry']) && $_GET['industry'] != '') {
+            $industryCatID = base64_decode($_GET['industry']);
+            $postQuery = $postQuery->where( function($postQuery) use($industryCatID) {
+                $postQuery = $postQuery->whereHas('postIndistries', function ($postQuery) use($industryCatID) {
+                    $postQuery->where('industry_category_id', '=', 7);
+                    $postQuery->orWhere('industry_category_id', '=', $industryCatID);
+                });
+            });
+        } 
+		
+		
+        if (isset($_GET['category']) && $_GET['category'] != '') {
+            $categoryCatID = base64_decode($_GET['category']);
+            $postQuery = $postQuery->where( function($postQuery) use($categoryCatID) {
+                $postQuery = $postQuery->whereHas('postCategories', function ($postQuery) use($categoryCatID) {
+                    $postQuery->where('category_id', '=', $categoryCatID);
+                });
+            });
+			//dd($postQuery)
+        }
+        if (isset($_GET['search']) && $_GET['search'] != '') {
+            $search = trim($_GET['search']);
+            if (strpos($search, '(') !== false) {
+                $search = trim(substr($search, 0, strpos($search, '(')));
+            }
+            $postQuery = $postQuery->where( function($postQuery) use($search) {
+                $postQuery->where('post_title', 'LIKE', '%' . $search . '%');
+                $postQuery->orWhere('post_info', 'LIKE', '%' . $search . '%');
+                $postQuery->orWhereHas('memberInfo', function($postQuery) use ($search) {
+                    $postQuery->where('contact_name', 'LIKE', '%' . $search . '%');
+                    $postQuery->orWhere('member_company', 'LIKE', '%' . $search . '%');
+                });
+            });
+			
+			
+        }
+		  if (isset($_GET['category']) && $_GET['category'] != '') {
+            $categoryCatID = base64_decode($_GET['category']);
+            $postQuery = $postQuery->where( function($postQuery) use($categoryCatID) {
+                $postQuery = $postQuery->whereHas('postCategories', function ($postQuery) use($categoryCatID) {
+                    $postQuery->where('category_id', '=', $categoryCatID);
+                });
+            });
+        }
+		
+		
+		
+		
+        $DataBag['normalPost'] = $postQuery->orderBy('post_type', 'desc')->orderBy('id', 'desc')->paginate(15);
+
+        //dd($DataBag['normalPost']);
+
+        $DataBag['mesg']  ="Sorry! No post found.";
+		
+	
+		
+		
+		 
+        return view('incubation.account', $DataBag);
+    }
+
+   
+
+    public function logout()
+    {
+        $new_time = date("Y-m-d H:i:s", strtotime('+5 hours +30 minutes'));
+
+        $update_data = array(
+                'last_login' => $new_time,
+            );
+        Users::where('id', '=', Auth::user()->id)->update($update_data);
+
+        Auth::logout();
+    	Session::flush();
+    	return redirect()->route('signin');
+    }
+    public function todo(){
+        $DataBag['tasks']= TodoMaster::orderBy('id','Desc')->get();
+        //dd($DataBag['tasks']);
+        return view('incubation.todo_list',$DataBag);
+    }
+
+     public function todoCreate(){
+        $DataBag['allActiveUsers'] = Users::orderBy('id','Desc')->get();
+        $DataBag['statuses'] = [
+            [
+                'label' => 'Pending',
+                'value' => '0',
+            ],
+            [
+                'label' => 'Completed',
+                'value' => '1',
+            ],
+             [
+                'label' => 'In Process',
+                'value' => '2',
+            ]
+        ];
+        return view('incubation.create', $DataBag);
+    }
+
+     public function todoStore(Request $request)
+    {
+        $request->validate([
+            'task_title' => 'required'
+        ]);
+
+        $task = new TodoMaster;
+        $task->task_title = $request->task_title;
+        $task->task_details = $request->task_details;
+        $task->assigned_by = $request->assigned_by;
+        $task->user_id = Auth::user()->id;
+        $task->status = $request->status;
+        $task->save();
+
+         return redirect()->back()->with('success', 'Todo Created Successfully');   
+
+    }
+
+    public function todoEdit($id)
+    {
+        
+        $DataBag['task'] = TodoMaster::findOrFail($id);
+        $DataBag['allActiveUsers'] = Users::orderBy('id','Desc')->get();
+        $DataBag['userList'] = TodoMaster::with(['getUserName'])->select([DB::raw('DISTINCT(assigned_by)')])->get();
+
+        //dd( $DataBag['userList']);
+
+        $DataBag['statuses'] = [
+           [
+                'label' => 'Pending',
+                'value' => '0',
+            ],
+            [
+                'label' => 'Completed',
+                'value' => '1',
+            ],
+             [
+                'label' => 'In Process',
+                'value' => '2',
+            ]
+        ];
+        return view('incubation.edit',$DataBag);
+    }
+
+    public function todoUpdate(Request $request, $id)
+    {
+        $task = TodoMaster::findOrFail($id);
+        $request->validate([
+            'task_title' => 'required'
+        ]);
+
+        $task->task_title = $request->task_title;
+        $task->task_details = $request->task_details;
+        $task->assigned_by = $request->assigned_by;
+        $task->user_id = Auth::user()->id;
+        $task->status = $request->status;
+        $task->save();
+       return redirect()->back()->with('success', 'Todo Updated Successfully'); 
+    }
+
+    public function todoDestroy($id)
+    {
+        $task = TodoMaster::findOrFail($id);
+        $task->delete();
+         return redirect()->back()->with('success', 'Todo Deleted Successfully'); 
+    }
+
+}

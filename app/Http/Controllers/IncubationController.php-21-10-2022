@@ -1,0 +1,96 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class IncubationController extends Controller
+{
+    public function allSite(){
+
+        dd('ok');
+
+        //return view('index');
+
+    } // End Method
+
+    public function index()
+    {
+        $DataBag = array();
+        //$DataBag['stage'] = DB::table('stage')->orderBy('stage_name', 'asc')->get();
+        return view('incubation.index', $DataBag);
+    }
+
+    public function userLogin(Request $request)
+    {
+        $request->validate([
+            'email_id' => 'required',
+            'password' => 'required'
+		],[
+			'email_id.required' => 'Please enter email-id.',
+			'password.required' => 'Please enter password.'
+		]);
+
+    	$email_id = trim($request->input('email_id'));
+    	$password = md5(trim($request->input('password')));
+    	$rm_me = trim($request->input('rm_me'));
+    	$norPwd = trim($request->input('password'));
+
+
+        
+    	$loginUser = Users::where('email_id', '=', $email_id)
+    	->where('password', '=', $password)->where('status', '=', '1')->first(); 
+
+
+       // dd($loginUser);
+
+        $new_time = date("Y-m-d H:i:s", strtotime('+5 hours +30 minutes'));
+
+    	if(!empty($loginUser)) {
+    		Auth::login($loginUser);
+
+           $user_id = Auth::user()->id; 
+            $current_login = Auth::user()->current_login;
+
+            if(empty($current_login))
+            {
+                $current_login =$new_time;
+            }
+
+            $update_data = array(
+                'current_login' => $new_time
+            );
+            Users::where('id', '=', $user_id)->update($update_data);
+
+    		if( $rm_me == '1' ) {
+    			setcookie("iimcip_email", $email_id, time() + (86400 * 30));
+                setcookie("iimcip_password", $norPwd, time() + (86400 * 30));
+    		} else {
+    			unset($_COOKIE['iimcip_email']);
+                unset($_COOKIE['iimcip_password']);
+                setcookie("iimcip_email", '', time() - 3600);
+                setcookie("iimcip_password", '', time() - 3600);
+    		}
+
+    		Session::put('iimcip_user_id', $loginUser->id);
+            Session::put('is_iimcip_logged_in', 'yes');
+            Session::put('user_type_id', $loginUser->user_type);
+
+            //return redirect()->route('front.user.account');
+
+//            return redirect()->route('front.user.dashboard');
+
+            //echo $loginUser->user_type; die;
+            if($loginUser->user_type == 6){
+               return redirect()->route('front.mentor.startup');
+             }
+             else{
+                       return redirect()->route('front.user.feed', ['post' => 'feed']);
+             }
+            
+
+    	} else {
+    		return back()->with('msg', 'Sorry! Incorrect Login Information..');
+    	}
+    }
+}

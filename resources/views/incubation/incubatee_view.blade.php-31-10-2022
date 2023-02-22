@@ -1,0 +1,94 @@
+
+@extends('incubation.layouts.app')
+@section('content')
+
+
+<div class="listing-block">
+    <div class="listing-block-heading">
+    <h3>TOP INCUBATES</h3>
+    <h4>Over 500 members</h4>
+    </div>
+    <div class="listing-block-member">
+        <a href=""><i class="fa fa-plus" aria-hidden="true"></i> New member</a>
+    </div>
+    <div class="clearfix"></div>
+    <div class="listing-block-from">
+        <div class="left-block block1">Name</div>
+        <div class="left-block block2">Startup</div>
+        <div class="left-block block3">Email-id</div>
+        <div class="left-block block4">Phone</div>
+        <div class="left-block block5">Location</div>
+        <div class="left-block block6">Program</div>
+        <div class="left-block block7">Action</div>
+        <div class="clearfix"></div>
+       </div>
+       <div class="listing-block-inner-from">
+        <div class="left-block block-inner1"><img src="{{asset('public/incubation/images/logo-listing.jpg')}}" align="left"> RP GROUP</div>
+        <div class="left-block block-inner2">
+            <span>Intertico</span><br/>
+            Web, UI/UX Design
+        </div>
+        <div class="left-block block-inner3">agastya@iimcip.com</div>
+        <div class="left-block block-inner4">4756824800</div>
+        <div class="left-block block-inner5">Kolkata</div>
+        <div class="left-block block-inner6">NEEDP</div>
+        <div class="left-block block-inner7"><a href=""><i class="fa fa-plus" aria-hidden="true"></i></a> <a href=""><i class="fa fa-pencil" aria-hidden="true"></i></a> <a href=""><i class="fa fa-trash" aria-hidden="true"></i> </a></div>
+        <div class="clearfix"></div>
+       </div>
+       <div class="listing-block-inner-from">
+        <div class="left-block block-inner1"><img src="{{asset('public/incubation/images/logo-listing.jpg')}}" align="left"> RP GROUP</div>
+        <div class="left-block block-inner2">
+            <span>Intertico</span><br/>
+            Web, UI/UX Design
+        </div>
+        <div class="left-block block-inner3">agastya@iimcip.com</div>
+        <div class="left-block block-inner4">4756824800</div>
+        <div class="left-block block-inner5">Kolkata</div>
+        <div class="left-block block-inner6">NEEDP</div>
+        <div class="left-block block-inner7"><a href=""><i class="fa fa-plus" aria-hidden="true"></i></a> <a href=""><i class="fa fa-pencil" aria-hidden="true"></i></a> <a href=""><i class="fa fa-trash" aria-hidden="true"></i> </a></div>
+        <div class="clearfix"></div>
+       </div>
+       <div class="listing-block-inner-from">
+        <div class="left-block block-inner1"><img src="{{asset('public/incubation/images/logo-listing.jpg')}}" align="left"> RP GROUP</div>
+        <div class="left-block block-inner2">
+            <span>Intertico</span><br/>
+            Web, UI/UX Design
+        </div>
+        <div class="left-block block-inner3">agastya@iimcip.com</div>
+        <div class="left-block block-inner4">4756824800</div>
+        <div class="left-block block-inner5">Kolkata</div>
+        <div class="left-block block-inner6">NEEDP</div>
+        <div class="left-block block-inner7"><a href=""><i class="fa fa-plus" aria-hidden="true"></i></a> <a href=""><i class="fa fa-pencil" aria-hidden="true"></i></a> <a href=""><i class="fa fa-trash" aria-hidden="true"></i> </a></div>
+        <div class="clearfix"></div>
+       </div>
+       <div class="listing-block-inner-from">
+        <div class="left-block block-inner1"><img src="{{asset('public/incubation/images/logo-listing.jpg')}}" align="left"> RP GROUP</div>
+        <div class="left-block block-inner2">
+            <span>Intertico</span><br/>
+            Web, UI/UX Design
+        </div>
+        <div class="left-block block-inner3">agastya@iimcip.com</div>
+        <div class="left-block block-inner4">4756824800</div>
+        <div class="left-block block-inner5">Kolkata</div>
+        <div class="left-block block-inner6">NEEDP</div>
+        <div class="left-block block-inner7"><a href=""><i class="fa fa-plus" aria-hidden="true"></i></a> <a href=""><i class="fa fa-pencil" aria-hidden="true"></i></a> <a href=""><i class="fa fa-trash" aria-hidden="true"></i> </a></div>
+        <div class="clearfix"></div>
+       </div>
+       <div class="listing-block-inner-from">
+        <div class="left-block block-inner1"><img src="{{asset('public/incubation/images/logo-listing.jpg')}}" align="left"> RP GROUP</div>
+        <div class="left-block block-inner2">
+            <span>Intertico</span><br/>
+            Web, UI/UX Design
+        </div>
+        <div class="left-block block-inner3">agastya@iimcip.com</div>
+        <div class="left-block block-inner4">4756824800</div>
+        <div class="left-block block-inner5">Kolkata</div>
+        <div class="left-block block-inner6">NEEDP</div>
+        <div class="left-block block-inner7"><a href=""><i class="fa fa-plus" aria-hidden="true"></i></a> <a href=""><i class="fa fa-pencil" aria-hidden="true"></i></a> <a href=""><i class="fa fa-trash" aria-hidden="true"></i> </a></div>
+        <div class="clearfix"></div>
+       </div>
+</div>
+
+
+
+@endsection

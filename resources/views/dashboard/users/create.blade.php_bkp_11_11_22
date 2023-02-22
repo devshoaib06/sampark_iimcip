@@ -1,0 +1,802 @@
+@extends('dashboard.layouts.app')
+
+
+@section('content_header')
+<section class="content-header">
+  <h1>
+    Add Startup
+    <!--small>it all starts here</small-->
+  </h1>
+  <!-- <ol class="breadcrumb">
+    <li><a href="{{ route('dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
+    <li><a href="{{ route('users_list') }}">Members List</a></li>
+    <li class="active">Create Member</li>
+  </ol> -->
+</section>
+@endsection
+
+@section('content')
+<section class="content">
+
+  @if(Session::has('msg'))
+  <div class="ar-hide @if(Session::has('msg_class')){{ Session::get('msg_class') }}@endif">{{ Session::get('msg') }}</div>
+  @endif
+
+  <div class="row">
+    <div class="col-md-6">
+      <a href="{{ route('users_list') }}" class="btn btn-primary"><i class="fa fa-users" aria-hidden="true"></i> All Startups</a>
+    </div>
+    <div class="col-md-6">
+    </div>
+  </div>
+  <div class="row" style="margin-top: 10px;">
+    <div class="col-md-12">
+      <!-- Default box -->
+      <div class="box">
+        <div class="box-header with-border">
+          <!-- <h3 class="box-title">Create Member</h3> -->
+
+          <div class="box-tools pull-right">
+            
+          </div>
+        </div>
+        <div class="box-body">
+          <form name="frm" id="frmx" action="{{ route('save_user') }}" method="post" enctype="multipart/form-data">
+          {{ csrf_field() }}
+          <div class="row">
+            <div class="col-sm-12 col-md-4">
+              <div class="form-group">
+                <label>Startup Name : <em>*</em></label>
+                <input type="text" name="member_company" class="form-control" placeholder="Enter Startup Name">
+              </div>
+            </div>
+              
+              <div class="col-md-4">
+              <div class="form-group">
+                <label>Company Type : </label>
+                 <select name="company_type" class="form-control">
+                  <option value="">Select Company Type</option>
+                  @if(!empty($companyTypeList))
+                   @foreach($companyTypeList as $s)
+                  <option value="{{ $s->id }}">{{ $s->company_type }}</option>
+                  @endforeach
+                  @endif
+                </select>
+              </div>
+            </div>
+              
+              <div class="col-md-4">
+              <div class="form-group">
+                <label>Legal Status : </label>
+                 <select name="legal_status" class="form-control select2">
+                  <option value="">Select Legal Status</option>
+                  @if(!empty($legalStatusList))
+                   @foreach($legalStatusList as $s)
+                  <option value="{{ $s->id }}">{{ $s->legal_status }}</option>
+                  @endforeach
+                  @endif
+                </select>
+              </div>
+            </div>
+              
+              
+            <div class="col-sm-12 col-md-4">
+              <div class="form-group">
+                <label>Primary Contact : <em>*</em></label>
+                <input type="text" name="contact_name" class="form-control" placeholder="Enter Primary Contact">
+              </div>
+            </div>
+            <div class="col-sm-12 col-md-4">
+              <div class="form-group">
+                  <label>Milestone of Startup:</label>
+                  <input type="text" class="form-control" name="milestone"  value="{{ Auth::user()->milestone }}" />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Email-id : <em>*</em></label>
+                <input type="email" name="email_id" class="form-control" placeholder="Enter Email-Id" value="{{ old('email_id') }}" autocomplete="off">
+                @if($errors->has('email_id'))
+                <span class="roy-vali-error"><small>{{$errors->first('email_id')}}</small></span>
+                @endif
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Contact Number : </label>
+                <input type="text" name="contact_no" class="form-control onlyNumber" placeholder="Enter Contact Number" autocomplete="off">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Mobile :</label>
+                <input type="text" name="mobile" class="form-control" placeholder="Enter Mobile No."  autocomplete="off">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Startup current Stage : </label>
+                 <select name="stage_id" class="form-control">
+                  <option value="">Select Startup Stage</option>
+                  @if(!empty($stageList))
+                   @foreach($stageList as $s)
+                  <option value="{{ $s->id }}">{{ $s->stage_name }}</option>
+                  @endforeach
+                  @endif
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Country : <em>*</em></label>
+                <input type="text" name="country" class="form-control" placeholder="Enter Country"  autocomplete="off">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>City : </label>
+                <input type="text" name="city" class="form-control" placeholder="Enter City" autocomplete="off">
+              </div>
+            </div>
+           <div class="col-md-4">
+              <div class="form-group">
+                  <label>Specialization:</label>
+                  <textarea class="form-control" name="member_spec" placeholder="Specialization..">{{ Auth::user()->member_spec }}</textarea>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                  <label>What are you looking for:</label>
+                  <textarea class="form-control" name="member_looking" placeholder="What are..">{{ Auth::user()->member_looking }}</textarea>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                  <label>What can you help in:</label>
+                  <textarea class="form-control" name="member_help" placeholder="What can you..">{{ Auth::user()->member_help }}</textarea>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                  <label>Achievements:</label>
+                  <textarea class="form-control" name="achievements" placeholder="Achievements..">{{ Auth::user()->achievements }}</textarea>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                  <label>Certifications:</label>
+                  <textarea class="form-control" name="certifications" placeholder="Certifications..">{{ Auth::user()->certifications }}</textarea>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group raise-invest">
+                <label for="is_raised_invest">Raised Investments:</label>
+                        <input type="radio" name="is_raised_invest" onclick="change_hidden_answer_type_value(1)" id="is_raised_invest" value="1" 
+                    @if(isset(Auth::user()->is_raised_invest))
+                        @if(Auth::user()->is_raised_invest == 1) 
+                            checked
+
+                        @endif                      
+                    @endif>Yes
+                    <input type="radio" name="is_raised_invest" id="is_raised_invest" onclick="change_hidden_answer_type_value(0)"  value="0" 
+                    @if(isset(Auth::user()->is_raised_invest))
+                        @if(Auth::user()->is_raised_invest == 0) 
+                            checked
+
+                        @endif                      
+                    @endif>No
+                <input type="hidden" name="raise_check" id="raise_check" value="{{Auth::user()->is_raised_invest}}">
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group" id="show_raise" style="display: none">
+                  <label>Investment Info :</label>
+                  <textarea class="form-control" name="invest_name" placeholder="Investment Info..">{{ Auth::user()->invest_name }}</textarea>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Website : <em>*</em></label>
+                <input type="text" name="website" class="form-control" placeholder="Enter Website"  autocomplete="off">
+              </div>
+            </div>
+<!--
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Business Type : </label>
+                <select name="legal_status" class="form-control">
+                  <option>Select Business Type</option>
+                  <option value="pvt">Pvt Ltd</option>
+                  <option value="partnership">Partnership</option>
+                </select>
+              </div>
+            </div>-->
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Profile Image : </label>
+                  <div class="custom-file">
+                    <input type="file" name="" class="custom-file-input" id="profile-img" aria-describedby="inputGroupFileAddon03">
+                    <label class="custom-file-label profile-img-name" for="inputGroupFile03">Choose file</label>
+                  </div>
+                  <img src="http://iimcip.net/public/front_end/images/no-img.jpg" class="profile-img-thumb">
+              </div>
+            </div>
+
+<!--            <div class="col-md-3">-->
+<!--
+              <div class="form-group">
+                <label>Password : <em>*</em></label>
+                <input type="text" name="password" id="pwd" class="form-control" placeholder="Enter Login Password" autocomplete="off">
+                <a href="javascript:void(0);" id="pwdToggle" class="pwd-eye"><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
+                <input type="button" id="autoPWD" class="btn btn-defult btn-sm" value="Set Auto Generated Password">
+              </div>
+-->
+<!--            </div>-->
+<!--
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Confirm Password : <em>*</em></label>
+                <input type="text" name="password2" id="pwd2" class="form-control" placeholder="Enter Login Password" autocomplete="off">
+                <a href="javascript:void(0);" id="pwdToggle2" class="pwd-eye"><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
+              </div>
+            </div>
+-->
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Speech :</label>
+                  <div class="custom-file">
+                    <input type="file" name="speech" class="custom-file-input" id="speech" aria-describedby="inputGroupFileAddon02">
+                    <label class="custom-file-label speech-file" for="inputGroupFile02">Choose file</label>
+                  </div>
+              </div>
+            </div>
+
+            <div class="clearfix"></div>
+            
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Profile Info : <em>*</em></label>
+                <!-- <input type="text" name="profile_info" class="form-control" placeholder="Enter Profile Info"  autocomplete="off"> -->
+                <textarea name="profile_info" class="form-control" placeholder="Enter Profile Info"  autocomplete="off"> </textarea>
+              </div>
+            </div>
+
+
+            <div class="col-md-8">
+              <div class="form-group">
+                <label>About Company : <em>*</em></label>
+                  <textarea name="about_you" id="about_you" class="form-control" placeholder="Enter About Company" autocomplete="off"></textarea>
+              </div>
+            </div>
+
+              
+            
+            
+          </div>
+
+          <div class="row">
+<!--
+            <div class="col-sm-12 col-md-6">
+              <div class="founder-header">
+                  <label>Founder</label>        
+              </div>
+                  <div id="answer_sec">
+                <div id="answer_sec_1">
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label>Name : </label>
+                                    <input type="text" name="founder_name[]" class="form-control" id="founder_name_1"  value="">
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12">
+                                <div class="form-group">
+                                <label>Image:</label>
+                                    <div class="custom-file">
+                                    <input type="file" name="founder_img[]" class="custom-file-input" id="founder_img_1" aria-describedby="inputGroupFileAddon02">
+                                    <label class="custom-file-label" for="inputGroupFile02">Choose file</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12">
+                                <div class="form-group">
+                                <label>Profile :</label>
+                                    <textarea class="form-control custom-textarea" name="founder_profile[]" id="founder_profile_1"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12">
+                                  <a id="ad-answer-1" class="btn btn-success add-founders" onClick="clone_answer()">Add More</a>
+                                  <input type="hidden" name="answer_row_count" id="answer_row_count" value="1" />        
+                            </div>
+                        </div>
+                    </div>
+              </div>
+            </div>
+-->
+            <div class="col-sm-12 col-md-6">
+              <div class="founder-header">
+                  <label>Product/Services</label>            
+              </div>
+              <div id="service_sec" >
+                <div id="service_sec_1">
+                  <div class="row">
+                      <div class="col-sm-12 col-md-12">
+                          <div class="form-group">
+                              <label>Image:</label>
+                              <div class="custom-file">
+                                  <input type="file" name="buisness_img[]" class="custom-file-input" id="buisness_img_1" aria-describedby="inputGroupFileAddon02">
+                                  <label class="custom-file-label product-img-name" for="inputGroupFile02">Choose file</label>
+                              </div>
+                              <img src="http://iimcip.net/public/front_end/images/no-img.jpg" class="product-img-thumb">
+                          </div>
+                      </div>
+
+                      <div class="col-sm-12 col-md-12">
+                          <div class="form-group">
+                          <label>Caption : </label>
+                          <input type="text" name="buisness_caption[]" class="form-control" id="buisness_caption_1"  value="">
+                          </div>
+                      </div>
+
+                      <div class="col-sm-12 col-md-12">
+                          <div class="form-group">
+                          <label>Video : </label>
+                          <input type="text" name="buisness_video[]" class="form-control" id="buisness_video"  placeholder="Enter YouTube or Vimeo Video Link" value="">
+                          </div>
+                      </div>
+
+                      <div class="col-sm-12 col-md-12">
+                          <a id="ad-answer-2" class="btn btn-success add-services" onClick="clone_service()">Add More</a>
+                          <input type="hidden" name="answer_row_count" id="answer_row_count" value="1" />        
+                      </div>
+                  </div>
+              </div> 
+            </div>
+            </div>
+          </div>
+
+          <div class="row">
+           
+            <div class="col-sm-12 col-md-12">
+              <div class="founder-header">
+                  <label>Company Video</label>            
+              </div>
+              <div id="video_sec" >
+                <div id="video_sec_1">
+                  <div class="row">
+
+                      <div class="col-sm-12 col-md-6">
+                          <div class="form-group">
+                          <label>Video : </label>
+                          <input type="text" name="company_video[]" class="form-control" id="company_video"  placeholder="Enter YouTube or Vimeo Video Link" value="">
+                          </div>
+
+                          <a id="ad-answer-3" class="btn btn-success add-services" onClick="clone_video()">Add More</a>
+                          <input type="hidden" name="answer_row_count" id="answer_row_count" value="1" />        
+                      </div>
+                  </div>
+              </div> 
+            </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Industry : <em>*</em></label>
+                 <select name="industry_id[]" class="form-control" multiple="">
+                    <!-- <option>Select Industry Category</option> -->
+                    @if(!empty($industryList))
+                     @foreach($industryList as $s)
+                    <option value="{{ $s->id }}">{{ $s->industry_category }}</option>
+                    @endforeach
+                    @endif
+                  </select>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Create User">
+              </div>
+            </div>
+          </div>
+          </form>
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+          
+        </div>
+        <!-- /.box-footer-->
+      </div>
+      <!-- /.box -->
+    </div>
+  </div>
+</section>
+@endsection
+
+@push('page_js')
+<script type="text/javascript">
+function AutoGeneratePassword() 
+{
+  var length = 8,
+      charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+      retVal = "";
+  for (var i = 0, n = charset.length; i < length; ++i) {
+      retVal += charset.charAt(Math.floor(Math.random() * n));
+  }
+  return retVal;
+}
+$( function() {
+  $("body").on('keypress', '.onlyNumber', function(evt){
+    var charCode = (evt.which) ? evt.which : event.keyCode
+    if (charCode > 31 && (charCode < 48 || charCode > 57))
+      return false;
+    return true;
+  });
+  $('#pwdToggle').on('click', function() {
+    if($('#pwd').attr('type') == 'password') {
+      $('#pwd').attr('type', 'text');
+      $(this).find('.fa').addClass('fa-eye-slash').removeClass('fa-eye');
+    } else {
+      $('#pwd').attr('type', 'password');
+      $(this).find('.fa').addClass('fa-eye').removeClass('fa-eye-slash');
+    }
+  });
+  $('#pwdToggle2').on('click', function() {
+    if($('#pwd2').attr('type') == 'password') {
+      $('#pwd2').attr('type', 'text');
+      $(this).find('.fa').addClass('fa-eye-slash').removeClass('fa-eye');
+    } else {
+      $('#pwd2').attr('type', 'password');
+      $(this).find('.fa').addClass('fa-eye').removeClass('fa-eye-slash');
+    }
+  });
+  $('#autoPWD').on('click', function() {
+    var pw = AutoGeneratePassword();
+    $('#pwd').val(pw);
+    $('#pwd2').val(pw);
+  });
+  $('#role_ids').select2({
+    placeholder: "Select a Role(s)"
+  });
+});
+$('#frmx').validate({
+    errorElement: 'span',
+    errorClass : 'roy-vali-error',
+    rules: {
+
+      
+      email_id: {
+        required: true,
+        email: true
+      },
+      contact_name: {
+        required: true,
+      },
+      password: {
+        required: true,
+        minlength: 6
+      },
+      password2: {
+        required: true,
+        minlength: 6
+      },
+      contact_no: {
+        maxlength: 12,
+        digits: true
+        //number: true
+      },
+      stage_id: {
+        required: true,
+      },
+
+    },
+    messages: {
+
+      email_id: {
+        required: 'Please Enter Email-id.',
+        email: 'Please Enter Valid Email-id.'
+      },
+      password: {
+        required: 'Please Enter Password.'
+      },
+      stage_id: {
+        required: 'Stagename is required..'
+      },
+      contact_name: {
+        required: 'Primary Contact is required..'
+      }
+
+    },
+    errorPlacement: function(error, element) {
+      element.parent('.form-group').addClass('has-error');
+      if (element.attr("data-error-container")) { 
+        error.appendTo(element.attr("data-error-container"));
+      } else if (element.hasClass('select2')) {
+        error.insertAfter(element.next('span'));
+      } else {
+        error.insertAfter(element); 
+      }
+    }
+});
+$(function () { 
+  $('.moduleAll').on('change', function() {
+    if($(this).is(':checked')) {
+      $('.' + $(this).attr('id')).attr('checked', 'checked');
+      $('.' + $(this).attr('id')).prop('checked', true);
+    } else {
+      $('.' + $(this).attr('id')).removeAttr('checked');
+      $('.' + $(this).attr('id')).prop('checked', false);
+    }
+  });
+  $('#allAccess').on('click', function() {
+    $('.all-privileges').attr('checked', 'checked');
+    $('.moduleAll').attr('checked', 'checked');
+    $('.all-privileges').prop('checked', true);
+    $('.moduleAll').prop('checked', true);
+  });
+  $('#rmAllAccess').on('click', function() {
+    $('.all-privileges').removeAttr('checked');
+    $('.moduleAll').removeAttr('checked');
+    $('.all-privileges').prop('checked', false);
+    $('.moduleAll').prop('checked', false);
+  });
+});
+
+
+// code for show file name
+$(document).ready(function(){
+      $('#speech').change(function(e){
+          var pitch_file_name = e.target.files[0].name;
+          $('.speech-file').text(pitch_file_name)
+      });
+      $('#profile-img').change(function(e){
+          var pitch_file_name = e.target.files[0].name;
+          $('.profile-img-name').text(pitch_file_name)
+      });
+  });
+
+
+</script>
+
+
+<script type="text/javascript">
+//code for profile img thumb
+  function readProfileImg(input) {
+      let img_file = document.getElementById('profile-img').files[0];
+      if (img_file) {
+          var reader = new FileReader();
+          reader.onload = function(e) {
+              $('.profile-img-thumb').attr('src', e.target.result);
+          }
+          reader.readAsDataURL(input.files[0]); 
+          }
+      }
+
+      $("#profile-img").change(function() {
+        readProfileImg(this);
+  });
+
+</script>
+
+<script type="text/javascript">
+// code for product img
+
+  function readProductImg(input) {
+    let img_file = document.getElementById('buisness_img_1').files[0];
+    if (img_file) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            $('.product-img-thumb').attr('src', e.target.result);
+        }
+        
+        reader.readAsDataURL(input.files[0]); 
+        }
+    }
+
+    $("#buisness_img_1").change(function() {
+      readProductImg(this);
+    });
+
+  $(document).ready(function(){
+      $('#buisness_img_1').change(function(e){
+          var pitch_file_name = e.target.files[0].name;
+          $('.product-img-name').text(pitch_file_name)
+      });
+  });
+
+
+
+</script>
+
+
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $i=1;
+        $('.add-founder').click(function(){
+            $('.founder').clone().appendTo('.founder-list').removeAttr('class','founder').addClass('founders'+$i).append('<div class="form-group"><a class="btn remove-founder btn-danger" onclick="removeItem('+$i+')">Remove</a></div>');
+
+            $i++;
+        });
+
+        //alert($("#is_raised_invest").val());
+
+        if($("#raise_check").val()==1)
+        {
+            $("#show_raise").show();
+        }
+        else
+        {
+            $("#show_raise").hide();
+        }
+
+        
+
+    });
+
+    function removeItem($j){
+           //alert($j);
+           $(".founders"+$j).remove();
+        }
+        function clone_answer() {  
+
+              var id = $("#answer_row_count").val();
+              var new_id = parseInt(id) + 1;
+              $("#answer_row_count").val(new_id);
+              var table_row = "";
+
+              table_row += '<div id="answer_sec_' + new_id + '">';
+              table_row += '<div class="row">';
+              table_row += '<div class="col-md-12">';
+              table_row += '<div class="form-group">';
+              table_row += '<label>Name : </label>';
+              table_row += '<input type="text" name="founder_name[]" id="founder_name_' + new_id + '" class="form-control" value="" /> ';                                 
+              table_row += '</div>';
+              table_row += '</div>';
+              table_row += '<div class="col-md-12">';
+              table_row += '<div class="form-group">';
+              table_row += '<label>Image :</label>';
+              table_row += ' <div class="custom-file"><input type="file" name="founder_img[]" class="custom-file-input" id="founder_img' + new_id + '" aria-describedby="inputGroupFileAddon02"><label class="custom-file-label" for="inputGroupFile02">Choose file</label></div>';
+
+              table_row += '</div>';
+              table_row += '</div>';
+              table_row += '<div class="col-md-12">';
+              table_row += '<div class="form-group">';
+              table_row += '<label>Profile :</label>';
+              table_row +=  '<textarea class="form-control custom-textarea" name="founder_profile[]" id="founder_profile_' + new_id + '"></textarea>';
+
+              table_row += '</div>';
+              table_row += '</div>';
+              table_row += '<div class="col-md-12">';             
+              table_row += '<a id="rm-answer-' + new_id + '"  class="btn btn-danger btn-remove" onClick="remove_answer(\'' + new_id + '\')">';
+              table_row += 'Remove';      
+              table_row += '</div>';
+              table_row += '</div>';
+              table_row += '</div>';    
+
+
+              $("#answer_sec").append(table_row);
+
+    }
+    function remove_answer(id) {
+
+      
+        $("#answer_sec_" + id).remove();
+      
+
+    }
+    function clone_service() {  
+
+              var id = $("#answer_row_count").val();
+              var new_id = parseInt(id) + 1;
+              $("#answer_row_count").val(new_id);
+              var table_row = "";
+
+              table_row += '<div id="service_sec_' + new_id + '">';
+              table_row += '<div class="row">';
+              table_row += '<div class="col-md-12">';
+              table_row += '<div class="form-group">';
+              table_row += '<label>Image :</label>';
+              table_row += ' <div class="custom-file"><input type="file" name="buisness_img[]" class="custom-file-input" id="buisness_img_' + new_id + '" aria-describedby="inputGroupFileAddon02"><label class="custom-file-label" for="inputGroupFile02">Choose file</label></div>';
+
+
+
+              table_row += '</div>';
+              table_row += '</div>';
+              table_row += '<div class="col-md-12">';
+              table_row += '<div class="form-group">';
+              table_row += '<label>Caption : </label>';
+              table_row += '<input type="text" name="buisness_caption[]" id="buisness_caption_' + new_id + '" class="form-control" value="" /> ';                                 
+              table_row += '</div>';
+              table_row += '</div>';
+              table_row += '<div class="col-md-12">';
+              table_row += '<div class="form-group">';
+              table_row += '<label>Video : </label>';
+              table_row += '<input type="text" name="buisness_video[]" id="buisness_video' + new_id + '" class="form-control" placeholder="Enter YouTube or Vimeo Video Link" value="" /> ';                                 
+              table_row += '</div>';
+              table_row += '</div>';
+              
+              table_row += '<div class="col-md-12">';             
+              table_row += '<a id="rm-answer-' + new_id + '"  class="btn btn-danger btn-remove-services" onClick="remove_service(\'' + new_id + '\')">';
+              table_row += 'Remove';      
+              table_row += '</div>';
+              table_row += '</div>';
+              table_row += '</div>';    
+
+
+              $("#service_sec").append(table_row);
+
+    }
+
+    function remove_service(id) {
+
+      
+        $("#service_sec_" + id).remove();
+      
+
+    }
+
+    function clone_video() {  
+
+        
+
+              var id = $("#answer_row_count").val();
+              var new_id = parseInt(id) + 1;
+              $("#answer_row_count").val(new_id);
+              var table_row = "";
+
+              table_row += '<div id="video_sec_' + new_id + '">';
+              table_row += '<div class="row">';
+               table_row += '<div class="col-md-6">';
+              table_row += '<div class="form-group">';
+              table_row += '<label>Link : </label>';
+              table_row += '<input type="text" name="company_video[]" id="company_video_' + new_id + '" class="form-control"  placeholder="Enter YouTube or Vimeo Video Link"/> ';                                 
+              table_row += '</div>';
+              table_row += '</div>';
+              /*table_row += '<div class="col-md-12">';
+              table_row += '<div class="form-group">';
+              table_row += '<label>Website :</label>';
+              table_row += '<textarea class="form-control" name="buisness_website[]" id="buisness_website_' + new_id + '"></textarea>';
+
+
+
+              table_row += '</div>';
+              table_row += '</div>';*/
+              
+              table_row += '<div class="col-md-12">';             
+              table_row += '<a id="rm-answer-' + new_id + '"  class="btn btn-danger btn-remove" onClick="remove_video(\'' + new_id + '\')">';
+              table_row += 'Remove';      
+              table_row += '</div>';
+              table_row += '</div>';
+              table_row += '</div>';    
+
+              $("#video_sec").append(table_row);
+
+    }
+
+    function remove_video(id) {
+
+      
+        $("#video_sec_" + id).remove();
+      
+
+    }
+
+    function change_hidden_answer_type_value(id){
+    
+    if(id == 1){
+        $("#show_raise").show();        
+    }else{
+        $("#show_raise").hide();        
+    }
+
+    
+
+}   
+</script>
+@endpush

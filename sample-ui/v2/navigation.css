@@ -1,0 +1,134 @@
+.siteHeader {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: auto;
+    background-color: #ffffff;
+    box-shadow: 1px 1px 4px 1px #d5d5d5;
+    z-index: 25;
+}
+
+.navbar-nav .dropdown-toggle::after {
+    display: none;
+}
+
+.pro-pic {
+    width: 35px;
+    height: 35px;
+    display: block;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    box-shadow: 0px 1px 2px 0px #b5b5b5;
+    overflow: hidden;
+}
+
+.pro-pic img {
+    height: 100%;
+}
+
+.nav-search-form select {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: 0;
+}
+.pms-nav .navbar-nav .nav-item {
+    margin-left: 4px;
+}
+
+.pms-nav .navbar-nav .nav-link {
+    color: #000;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.pms-nav .navbar-nav .nav-link i {
+    font-size: 20px;
+    width: 35px;
+    height: 35px;
+    background-color: #ddd;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 31px;
+    border: 2px solid #ffffff;
+    box-shadow: 0px 1px 2px 0px #b5b5b5;
+}
+
+.pms-nav .navbar-nav .dropdown-menu {
+    position: absolute;
+    right: 0;
+    left: auto;
+    padding-top: 0;
+}
+
+.pms-nav .navbar-nav .dropdown-menu::before {
+    content: '';
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 10px 10px 10px;
+    border-color: transparent transparent #45a0d7 transparent;
+    position: absolute;
+    top: -10px;
+    right: 7px;
+}
+
+.pro-drop .dropdown-menu a:first-child {
+    font-size: 18px;
+    font-weight: 600;
+    background-color: #45a0d7;
+    color: #fff;
+    padding-bottom: 10px;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+}
+
+.pro-drop .dropdown-menu p {
+    font-weight: normal;
+    font-size: 14px;
+    margin-bottom: 0;
+}
+
+.dropdown-menu .dropdown-item:focus {
+    background-color: #2d76a1;
+    color: #ffffff;
+}
+
+.pro-drop .dropdown-menu .dropdown-item i {
+    margin-right: 8px;
+}
+
+.btn-post {
+    color: #ffffff;
+    background-color: #2d75a1;
+}
+
+.btn-post:hover {
+    background-color: #21668f;
+    color: #ffffff;
+}
+
+@media (max-width: 767px),
+(max-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+
+    .nav-search-form {
+        position: absolute;
+        top: 100px;
+        left: 0;
+        width: 100%;
+        background-color: #ddd;
+        padding: 5px;
+
+    }
+}
+
+@media (min-width: 991px) {
+    .nav-search-form input[name="search"] {
+        min-width: 300px;
+    }
+}
+
+@media (max-width: 800px) and (orientation: landscape) {
+    .container {
+        max-width: 100%;
+    }
+}

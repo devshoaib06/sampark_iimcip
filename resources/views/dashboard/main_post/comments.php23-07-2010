@@ -1,0 +1,99 @@
+<?php  
+//dd($alldata);        
+
+                 if(!empty($alldata)){
+                             foreach($alldata as $c){
+                                 ?>
+                                    <ul>
+                                        <li>
+                                            <div class="commentWrap">
+                                                
+                                                <div class="userCommemt">
+                                                    <h4><?php echo  $c->contact_name;?> <small><?php echo  date('d-m-Y',strtotime($c->created_at));?></small> <span class="downArrow" onclick="getReply(<?php echo  $c->id;?>)"><i class="fa fa-angle-down" ></i></span></h4>
+                                                    
+                                                    <div class="attachImg-wrap">
+                                                    <p>
+                                                        <?php echo $c->reply_text; ?>
+
+                                                     <br />
+
+                                                        
+                                                        <?php if(!empty($c->images)){
+
+                                                
+
+                                                        foreach($c->images as $im){
+
+                                                             $postImage = asset('public/uploads/posts/images/'. $im->media_path);
+
+                                                          ?>
+
+                                                          <div class="attached-img">
+                                                                <a class="fancybox" rel="group" href="<?php echo  $postImage;?>"><img src="<?php echo  $postImage;?>" width="100" height="100"  class="hover-shadow" /></a>
+                                                            </div>
+
+                                                          <?php }
+                                                         } ?>
+
+                                                         <?php if(!empty($c->videos)){
+
+                                                
+
+                                                        foreach($c->videos as $imv){
+
+                                                             $postVideo = asset('public/uploads/posts/videos/'. $imv->media_path);
+
+                                                          ?>
+
+                                                          <video width="150" height="70" controls class="thumb" data-full="<?php echo  $postVideo;?>">
+                                                             <source src="<?php echo  $postVideo;?>">
+                                                           </video>
+
+
+
+                                                         
+
+                                                          <?php }
+                                                         } ?>
+                                                    </p>
+                                                    
+                                                    </div>
+                                                   
+                                                </div>
+                                            </div>
+                                            <!-- <div id="reply_<?php echo  $c->id;?>"></div> -->
+
+                                            <?php if(!empty($c->reply)){
+
+                                                //dd($c->reply);
+
+                                                foreach($c->reply as $r){
+
+                                                  ?>
+                                            <ul class="replyList rep_<?php echo  $c->id;?>">
+                                                <li>
+                                                    <div class="commentWrap">
+                                                        
+                                                        <div class="userCommemt">
+                                                            <h4><?php  $r->contact_name ;?><small> <?php echo date('d-m-Y',strtotime($r->created_at));?></small> </h4>
+                                                            <p>
+                                                                <?php echo  $r->reply_text ;?>
+
+
+                                                            </p>
+                                                            
+                                                        </div>
+                                                    </div>
+                                                    
+                                                </li>
+                                            </ul>
+
+                                          <?php }
+                                        } ?>
+                                        </li>
+                                    </ul>
+
+                                  <?php }
+                                }
+                                ?>
+

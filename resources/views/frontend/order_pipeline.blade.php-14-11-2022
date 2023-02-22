@@ -1,0 +1,211 @@
+@extends('frontend.layouts.app')
+@section('content')
+    <div class="row">
+        @if(Session::has('msg') && Session::has('msg_class'))
+        <div class="col-sm-12">
+            <div class="postCard">
+                <div class="{{ Session::get('msg_class') }}" style="margin-bottom: 0;">
+                    {{ Session::get('msg') }}
+                </div>
+            </div>
+        </div>
+        @endif
+    </div>
+        {{-- Listing --}}
+ 
+        <div class="col-lg-12 fin-report">
+            <h3>Order Pipeline Report</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>SI#</th>
+                        <th>Month</th>
+                        <th>Financial Year</th>
+                        <th>Product</th>
+                        <th>Volume</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+            @foreach($productList as $key => $list) 
+            <tr>
+          
+                <td>{{$key+1}}</td>
+                <td>{{$list->month}}</td>
+                <td>{{$list->financial_year}}</td>
+                <td>{{$list->getProducts['caption']}}</td>
+                <td>{{$list->volume}}</td>
+                <td>{{number_format($list->amount)}}</td>
+                <td>
+
+                      
+                    <a class="btn btn-primary" href="{{route('orderpipe.edit',$list->id)}}"><i class="fa fa-edit"></i></a>
+
+                    <a class="btn btn-danger" href="javascript:void(0);" onclick="goDelete({{$list->id}})" title="Delete"> <i class="fa fa-trash"></i></a>
+                </td>
+            
+            </tr>
+
+            
+            @endforeach
+          
+                </tbody>
+            </table>
+        </div>     
+
+ {{-- Submition --}}
+    <div class="col-sm-12">
+        <div class="postCard manage-wrap">
+            <div class="postWrap">
+                <div class="pwdbox">
+                    <h3>Add Order Pipeline</h3>
+                    <form name="frm_pfupd" id="frm_pfupd" action="{{ route('front.user.addorderpipeact') }}" method="post" enctype="multipart/form-data">
+                    {{ csrf_field() }}
+                       
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Month:</label>
+                                    <input type="text" class="form-control" name="month"  />
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Financial Year:</label>
+                                    <input type="text" class="form-control" name="financial_year"  />
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                <label>Product :</label>
+                                <select name="product_id[]" class="form-control indusCatIds" multiple= "multiple">
+                                    <option value="">Select Product</option>
+                                    @if(isset($allProducts) && count($allProducts))
+                                    @foreach($allProducts as $c)
+                                    <option value="{{ $c->id }}">{{ $c->caption }}</option>
+                                    @endforeach
+                                    @endif
+                                </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Volume:</label>
+                                    <input type="text" class="form-control" name="volume"  />
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Amount:</label>
+                                    <input type="text" class="form-control" name="amount"  />
+                                </div>
+                            </div>
+                          
+                            
+                            </div>
+                            
+                        </div>
+                        </div>
+                       
+                    </div>
+                    <div class="mt-3">
+                       
+                        <input type="submit" class="btn btn-primary" value="Add Order Pipeline">
+                    </div>
+                </div>
+                        <div class="row">
+                           
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+        <!-- Modal HTML -->
+        <div id="myModal" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <!-- <h4 class="modal-title">Video</h4> -->
+                    </div>
+                    <div class="modal-body">
+                        <iframe id="cartoonVideo" width="560" height="315" src="//www.youtube.com/embed/YE7VzlLtp-4" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</div>
+
+
+<!--Question modal-->
+@include('frontend.includes.add_question_modal')
+
+@push('page_js')
+<script>
+
+$('#frm_pfupd').validate({
+    errorElement: 'span',
+    errorClass: 'roy-vali-error',
+    rules: {
+       
+        contact_name: {
+            required: true
+        },
+        password: {
+            required: true
+        },
+        email_id:{
+            required: true,
+            email: true
+        },
+        password_confirm : {
+                   
+            equalTo : "#password"
+        }
+        
+    },
+    messages: {
+        
+        contact_name: {
+            required: 'Please enter  name'
+        },
+        email_id:{
+            required: 'Please enter email-id',
+            email: 'Please enter valid email-id'
+        },
+        password:{
+            required: 'Please enter password'
+        },
+        
+    },
+    errorPlacement: function(error, element) {
+        if (element.hasClass('indusCatIds')) {
+            error.insertAfter(element.parent());
+        } else {
+            error.insertAfter(element); 
+        }
+    }
+});
+
+
+function goDelete(id){
+        let isConfirm = confirm('Do you want to delete?');
+        if(isConfirm){
+            window.location.href="{{url('orderpipeline/destroy')}}/"+id;
+        }
+</script>
+
+
+
+@endpush
+@endsection
+
+    

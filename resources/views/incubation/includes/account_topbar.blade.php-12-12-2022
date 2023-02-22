@@ -1,0 +1,145 @@
+@php
+    if (Auth::check()) {
+        $user_type = Auth::user()->user_type;
+    }
+@endphp
+
+
+
+
+<header class="siteHeader">
+    <div class="container">
+
+
+        <nav class="navbar navbar-expand-lg pms-nav d-flex justify-content-between">
+            <a class="navbar-brand" href="{{ route('front.user.feed') }}?post=feed">
+                <img src="{{ asset('public/front_end/images/logo-1.png') }}" class="img-fluid" alt="IIM Calcutta">
+            </a>
+            <div class="d-flex align-items-center" id="pmsNavbar">
+                {{-- <div class="ml-auto nav-search-form collapse d-lg-block" id="searchCollapse">
+                        <form name="frmx_src" action="{{ route('front.user.account') }}" method="GET">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <select name="category" class="form-control">
+                                        <option value="">All Posts </option>
+                                        <option value="startup" {{request('category')== "startup" ? 'selected' : '' }}>Startups</option>
+                                        <option value="company" {{request('category')== "company" ? 'selected' : '' }}>Users</option>
+										<option value="mentor" {{request('category')== "mentor" ? 'selected' : '' }}>Mentors</option>
+										
+                                    </select>
+                                    <!--<div class="input-group-text"><i class="fa fa-search"></i></div>-->
+                                </div>
+                                <input type="text" id="autocomplete" name="search" class="form-control"
+                                    placeholder="Search" value="@if (isset($_GET['search'])){{ $_GET['search'] }}  @endif">
+									<button class="input-group-text"><i class="fa fa-search"></i></button>
+                            </div>
+                        </form>
+                    </div> --}}
+                <ul class="navbar-nav flex-row align-items-center ml-lg-5">
+                    {{-- <li class="nav-item d-block d-lg-none">
+                            <a class="nav-link " data-toggle="collapse" href="#searchCollapse" title="Search">
+                                <i class="fa fa-search"></i>
+                            </a>
+                        </li> --}}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('front.user.startup') }}" aria-selected="true"
+                            @if (!isset($_GET['category']) && !isset($_GET['industry']) && !isset($_GET['post'])) aria-selected="true" @endif title="Startup">
+                            <i class="fa fa-coffee"></i>
+                            <span id="pnIndicator" class="pn-ProductNav_Indicator"></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('front.user.company') }}" aria-selected="true"
+                            @if (!isset($_GET['category']) && !isset($_GET['industry']) && !isset($_GET['post'])) aria-selected="true" @endif title="Users">
+                            <i class="fas fa-user"></i>
+                            <span id="pnIndicator" class="pn-ProductNav_Indicator"></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('front.user.myMessages') }}" aria-selected="true"
+                            @if (!isset($_GET['category']) && !isset($_GET['industry']) && !isset($_GET['post'])) aria-selected="true" @endif title="Messages">
+                            <i class="fas fa-comment-dots"></i>
+                            <span id="pnIndicator" class="pn-ProductNav_Indicator"></span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item dropdown pro-drop">
+                        @php
+                            $profileImage = asset('public/front_end/images/profile-pic.png');
+                            if (Auth::user()->image != '' && Auth::user()->image != null) {
+                                $profileImage = asset('public/uploads/user_images/thumb/' . Auth::user()->image);
+                            } else {
+                                $profileImage = asset('public/uploads/user_images/thumb/entreprenaur_photo/noimage.png');
+                            }
+                        @endphp
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="My Profile">
+                            <span class="pro-pic">
+                                <img src="{{ $profileImage }}">
+                            </span>
+                        </a>
+                        <div class="dropdown-menu border-0 shadow" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="#">{{ Auth::user()->contact_name }}
+                                <p>
+                                    {{ Auth::user()->member_company }}
+                                </p>
+                            </a>
+                            <a class="dropdown-item" href="{{ route('front.user.dashboard') }}">
+                                <span><i class="fas fa-laptop"></i></span>Dashboard
+                            </a>
+                            <a class="dropdown-item" href="{{ route('incubatee.user.feed') }}" target="_blank">
+                                <span><i class="fas fa-laptop"></i></span>Incubation Dashboard
+                            </a>
+                            <a class="dropdown-item" href="{{ route('front.user.myposts') }}">
+                                <span><i class="far fa-id-card"></i></span>My Posts
+                            </a>
+                            <a class="dropdown-item" href="{{ route('front.user.feed') }}">
+                                <span><i class="fas fa-rss"></i></span>Feeds
+                            </a>
+                            <a class="dropdown-item" href="{{ route('front.user.myfavposts') }}">
+                                <span><i class="fas fa-heart"></i></span>My Favourites
+                            </a>
+                            @if ($user_type == 2)
+                                <a class="dropdown-item"
+                                    href="{{ route('front.user.addusr', ['timestamp_id' => Auth::user()->timestamp_id]) }}">
+                                    <span><i class="fas fa-user-plus"></i></span>Add User
+                                </a>
+                            @endif
+                            {{-- <a class="dropdown-item"
+                                    href="{{ route('front.user.memberProfile', array('member_company' =>Auth::user()->slug )) }}">
+                                    <span><i class="fas fa-address-book"></i></span>Company Profile
+                                </a> --}}
+
+                            <a class="dropdown-item" href="{{ route('front.user.mnguserprof') }}">
+                                <span><i class="fas fa-user-edit"></i></span>Update My Profile
+                            </a>
+
+                            @if ($user_type == 2)
+                                <a class="dropdown-item" href="{{ route('front.user.mngprof') }}">
+                                    <span><i class="fas fa-edit"></i></span>Update Company Profile
+                                </a>
+                                <a class="dropdown-item" href="{{ route('front.user.mnguserprof') }}">
+                                    <span><i class="fas fa-user-edit"></i></span>Update My Profile
+                                </a>
+                            @endif
+                            <a class="dropdown-item" href="{{ route('front.user.cngpwd') }}">
+                                <span><i class="fas fa-key"></i></span>Change Password
+                            </a>
+                            <a class="dropdown-item" href="{{ route('incubatee.user.logout') }}">
+                                <span><i class="fas fa-sign-out-alt"></i></span>Logout
+                            </a>
+                        </div>
+                    </li>
+                    {{-- <li class="nav-item">
+                            <button class="btn btn-sm btn-post" id="opnQmodal" title="Add Post">
+							
+                                <span class="d-none d-sm-block">Add Post</span>
+                                <span class="d-block d-sm-none"><i class="fa fa-plus"></i></span>
+                            </button>
+                        </li> --}}
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+</header>

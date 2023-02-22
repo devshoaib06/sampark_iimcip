@@ -1,0 +1,493 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\IndustryCategories;
+use App\Models\MemberBusiness;
+use App\Models\Users;
+use App\Models\Posts;
+use App\Models\PostIndustry;
+use App\Models\PostReply;
+use Session;
+use Image;
+use View;
+use Auth;
+use DB;
+use Mail;
+
+class FrontendController extends Controller
+{
+    public function __construct(Request $request) 
+	{	
+        $shareData = array();
+        $shareData['industry_category'] = DB::table('industry_category')->where('status', 1)
+        ->orderBy('industry_category', 'asc')->get();
+        $shareData['privateMember'] = Users::where('user_type', '=', '2')->where('status', '=', 1)
+        ->orderBy('contact_name', 'asc')->get();  
+        View::share($shareData);
+    }
+    
+    public function index()
+    {
+        $DataBag = array();
+        $DataBag['stage'] = DB::table('stage')->orderBy('stage_name', 'asc')->get();
+        return view('frontend.index', $DataBag);
+    }
+
+    public function userSignup(Request $request)
+    {
+        $ckEmail = Users::where('email_id', trim($request->input('email_id')))->first();
+        if (!empty($ckEmail)) {
+            return back()->with('msg', 'Email-id already exist, try another')
+            ->with('msg_class', 'alert alert-danger')
+            ->with('signupError', 'email_exist');
+        }
+
+        $Users = new Users;
+        $Users->user_type = 2;
+        $Users->timestamp_id = md5(microtime(TRUE));
+        $Users->member_company = trim($request->input('member_company'));
+        $Users->contact_name = trim($request->input('contact_name'));
+        $Users->stage_id = trim($request->input('stage_id'));
+        $Users->email_id = trim($request->input('email_id'));
+        $Users->password = md5(trim($request->input('password')));
+        $Users->contact_no = trim($request->input('contact_no'));
+        $Users->mobile = trim($request->input('contact_no'));
+        $Users->country = trim($request->input('country'));
+        $Users->city = trim($request->input('city'));
+        $Users->website = trim($request->input('website'));
+        $Users->legal_status = trim($request->input('legal_status'));
+
+        if( $request->hasFile('image') ) {
+            $image = $request->file('image');
+            $real_path = $image->getRealPath();
+            $file_orgname = $image->getClientOriginalName();
+            $file_size = $image->getClientSize();
+            $file_ext = strtolower($image->getClientOriginalExtension());
+            $file_newname = "user"."_".time().".".$file_ext;
+            $destinationPath = public_path('/uploads/user_images');
+            $original_path = $destinationPath."/original";
+            $thumb_path = $destinationPath."/thumb";
+            
+            $img = Image::make($real_path);
+            $img->resize(150, null, function ($constraint) {
+                $constraint->aspectRatio();
+            })->save($thumb_path.'/'.$file_newname);
+
+            $image->move($original_path, $file_newname);
+            $Users->image = $file_newname;
+        }
+
+        if($Users->save()) {
+            $industry_idsArr = $request->input('industry_category_id');
+            if(!empty($industry_idsArr)){
+                $memberBusiness = array();
+                foreach($industry_idsArr as $v) {
+                    $arr = array();
+                    $arr['member_id'] = $Users->id;
+                    $arr['industry_category_id'] = $v;
+                    array_push($memberBusiness, $arr);
+                }
+                if (!empty($memberBusiness)) {
+                    MemberBusiness::insert($memberBusiness);
+                }
+            }
+
+            $email_id = trim($request->input('email_id'));
+            $password = md5(trim($request->input('password')));
+            if ($this->autoLogin($email_id, $password) == 1) {
+                return redirect()->route('front.user.account')
+                ->with('msg', 'Welcome to IIMCIP')->with('msg_class', 'alert alert-success');
+            } else {
+                return back()->with('msg', 'Account created successfully, Thanks')
+                ->with('msg_class', 'alert alert-success');
+            }
+        }
+
+        return back();
+    }
+
+    public function autoLogin($email_id, $password)
+    {
+    	$loginUser = Users::where('email_id', '=', $email_id)
+    	->where('password', '=', $password)->where('user_type', 2)->where('status', '=', '1')->first(); 
+
+    	if(!empty($loginUser)) {
+            Auth::login($loginUser);
+            Session::put('iimcip_user_id', $loginUser->id);
+            Session::put('is_iimcip_logged_in', 'yes');
+            Session::put('user_type_id', $loginUser->user_type);
+            return 1;
+        }
+        return 0;
+    }
+
+    public function userLogin(Request $request)
+    {
+        $request->validate([
+            'email_id' => 'required',
+            'password' => 'required'
+		],[
+			'email_id.required' => 'Please enter email-id.',
+			'password.required' => 'Please enter password.'
+		]);
+
+    	$email_id = trim($request->input('email_id'));
+    	$password = md5(trim($request->input('password')));
+    	$rm_me = trim($request->input('rm_me'));
+    	$norPwd = trim($request->input('password'));
+        
+    	$loginUser = Users::where('email_id', '=', $email_id)
+    	->where('password', '=', $password)->where('user_type', 2)->where('status', '=', '1')->first(); 
+
+    	if(!empty($loginUser)) {
+    		Auth::login($loginUser);
+    		if( $rm_me == '1' ) {
+    			setcookie("iimcip_email", $email_id, time() + (86400 * 30));
+                setcookie("iimcip_password", $norPwd, time() + (86400 * 30));
+    		} else {
+    			unset($_COOKIE['iimcip_email']);
+                unset($_COOKIE['iimcip_password']);
+                setcookie("iimcip_email", '', time() - 3600);
+                setcookie("iimcip_password", '', time() - 3600);
+    		}
+
+    		Session::put('iimcip_user_id', $loginUser->id);
+            Session::put('is_iimcip_logged_in', 'yes');
+            Session::put('user_type_id', $loginUser->user_type);
+
+            return redirect()->route('front.user.account');
+
+    	} else {
+    		return back()->with('msg', 'Sorry! Incorrect Login Information.');
+    	}
+    }
+
+    public function account()
+    {
+        $DataBag = array();
+        $DataBag['queryString'] = $_SERVER['QUERY_STRING'];
+        
+        $postQuery = Posts::with(['memberInfo'])->where('status', '=', '1');
+
+        if (isset($_GET['post']) && $_GET['post'] != '') {
+            $postFilter = trim($_GET['post']);
+            if ($postFilter == 'public') {
+                $postQuery = $postQuery->where(function($postQuery) {
+                    $postQuery->where('post_type', '=', '1');
+                });
+            }
+            if ($postFilter == 'private') {
+                $postQuery = $postQuery->where(function($postQuery) {
+                    $postQuery->where('post_type', '=', '2');
+                    $postQuery->where('private_member_id', '=', Auth::user()->id);
+                });
+            }
+            if ($postFilter == 'administrator') {
+                $postQuery = $postQuery->where(function($postQuery) {
+                    $postQuery->where('post_type', '=', '1');
+                    $postQuery->where('member_id', '=', '1');
+                });
+            }
+
+        } else {
+            $postQuery = $postQuery->where(function($postQuery) {
+                $postQuery->where('post_type', '=', '1');
+                $postQuery->orWhere(function($postQuery) {
+                    $postQuery->where('post_type', '=', '2');
+                    $postQuery->where('private_member_id', '=', Auth::user()->id);
+                });
+                // $postQuery->orWhere(function($postQuery) {
+                //     $postQuery->where('post_type', '=', '2');
+                //     $postQuery->where('member_id', '=', Auth::user()->id);
+                // });
+            });
+            //dd($postQuery->toSql());
+        }
+        if (isset($_GET['industry']) && $_GET['industry'] != '') {
+            $industryCatID = base64_decode($_GET['industry']);
+            $postQuery = $postQuery->where( function($postQuery) use($industryCatID) {
+                $postQuery = $postQuery->whereHas('postIndistries', function ($postQuery) use($industryCatID) {
+                    $postQuery->where('industry_category_id', '=', $industryCatID);
+                });
+            });
+        }
+        if (isset($_GET['search']) && $_GET['search'] != '') {
+            $search = trim($_GET['search']);
+            if (strpos($search, '(') !== false) {
+                $search = trim(substr($search, 0, strpos($search, '(')));
+            }
+            $postQuery = $postQuery->where( function($postQuery) use($search) {
+                $postQuery->where('post_title', 'LIKE', '%' . $search . '%');
+                $postQuery->orWhereHas('memberInfo', function($postQuery) use ($search) {
+                    $postQuery->where('contact_name', 'LIKE', '%' . $search . '%');
+                    $postQuery->orWhere('member_company', 'LIKE', '%' . $search . '%');
+                });
+            });
+        }
+        $DataBag['normalPost'] = $postQuery->orderBy('post_type', 'desc')->orderBy('id', 'desc')->paginate(15);
+        
+        return view('frontend.account', $DataBag);
+    }
+
+    public function saveMyPost(Request $request)
+    {
+        $Posts = new Posts;
+        $Posts->post_title = trim($request->input('post_title'));
+        $Posts->post_info = trim(htmlentities($request->input('post_info'), ENT_QUOTES));
+        $Posts->member_id = Auth::user()->id;
+        $Posts->post_type = $request->input('post_type');
+        if($request->input('post_type') == '2') {
+            $Posts->private_member_id = $request->input('private_member_id');
+        }
+        if ($Posts->save()) {
+            $postID = $Posts->id;
+            $industry_idsArr = $request->input('industry_category_id');
+            if(!empty($industry_idsArr)){
+                $postIndustry = array();
+                foreach($industry_idsArr as $v) {
+                    $arr = array();
+                    $arr['post_id'] = $postID;
+                    $arr['industry_category_id'] = $v;
+                    array_push($postIndustry, $arr);
+                }
+                if (!empty($postIndustry)) {
+                    PostIndustry::insert($postIndustry);
+                }
+            }
+            return redirect()->route('front.user.account')
+            ->with('msg', 'Your query posted successfully, thankyou')
+            ->with('msg_class', 'alert alert-success');
+        }
+        return back();
+
+    }
+
+    public function logout()
+    {
+        Auth::logout();
+    	Session::flush();
+    	return redirect()->route('signinup');
+    }
+
+    public function autoComplete(Request $request)
+    {
+       if (isset($_GET['query']) && $_GET['query'] != '') {
+            
+            $search = trim($_GET['query']);
+            $autoCompleteArr = array();
+
+            $postQuery = Posts::select('post_master.post_title')
+            ->where('post_master.post_type', '=', '1')
+            ->where(function($postQuery) use($search) {
+                $postQuery->where('post_master.post_title', 'LIKE', '%' . $search . '%');
+                $postQuery->orWhere('post_master.post_info', 'LIKE', '%' . $search . '%');
+            })->get();
+            //return response()->json($postQuery);
+            $userQuery = Users::select('contact_name', 'member_company')
+            ->where('contact_name', 'LIKE', '%' . $search . '%')
+            ->orWhere('member_company', 'LIKE', '%' . $search . '%')
+            ->get();
+            
+            if (!empty($postQuery) && count($postQuery)) {
+                foreach($postQuery as $v) {
+                    $arr = array();
+                    $arr['name'] = $v->post_title;
+                    array_push($autoCompleteArr, $arr);
+                }
+            }
+
+            if (!empty($userQuery) && count($userQuery)) {
+                foreach($userQuery as $v) {
+                    $arr = array();
+                    $arr['name'] = $v->contact_name . ' (' . $v->member_company . ')';
+                    array_push($autoCompleteArr, $arr);
+                }
+            }
+            return response()->json($autoCompleteArr);
+            //return json_encode($autoCompleteArr);
+       }
+    }
+
+    public function changePassword()
+    {
+        $DataBag = array();
+        return view('frontend.change_password', $DataBag);
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $password = md5(trim($request->input('password')));
+        $userID = Auth::user()->id;
+        $Users = Users::findorFail($userID);
+        $Users->password = $password;
+        if ($Users->save()) {
+            return back()->with('msg', 'Your password changed successfully, thankyou')
+            ->with('msg_class', 'alert alert-success');
+        }
+        return back();
+    }
+
+    public function manageProfile()
+    {
+        $DataBag = array();
+        $DataBag['stage'] = DB::table('stage')->orderBy('stage_name', 'asc')->get();
+        $DataBag['currentIndusCats'] = MemberBusiness::where('member_id', '=', Auth::user()->id)
+        ->pluck('industry_category_id')->toArray();
+        return view('frontend.manage_profile', $DataBag);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $ckEmail = Users::where('email_id', trim($request->input('email_id')))
+        ->where('id', '!=', Auth::user()->id)->first();
+        if (!empty($ckEmail)) {
+            return back()->with('msg', 'Email-id already exist, try another')
+            ->with('msg_class', 'alert alert-danger')
+            ->with('signupError', 'email_exist');
+        }
+
+        $UserID = Auth::user()->id;
+        $Users = Users::findOrFail($UserID);
+        $Users->member_company = trim($request->input('member_company'));
+        $Users->contact_name = trim($request->input('contact_name'));
+        $Users->stage_id = trim($request->input('stage_id'));
+        $Users->email_id = trim($request->input('email_id'));
+        $Users->password = md5(trim($request->input('password')));
+        $Users->contact_no = trim($request->input('contact_no'));
+        $Users->mobile = trim($request->input('contact_no'));
+        $Users->country = trim($request->input('country'));
+        $Users->city = trim($request->input('city'));
+        $Users->website = trim($request->input('website'));
+        $Users->legal_status = trim($request->input('legal_status'));
+        $Users->about_you = trim(htmlentities($request->input('about_you'), ENT_QUOTES));
+        $Users->address = trim($request->input('address'));
+
+        if( $request->hasFile('image') ) {
+            $image = $request->file('image');
+            $real_path = $image->getRealPath();
+            $file_orgname = $image->getClientOriginalName();
+            $file_size = $image->getClientSize();
+            $file_ext = strtolower($image->getClientOriginalExtension());
+            $file_newname = "user"."_".time().".".$file_ext;
+            $destinationPath = public_path('/uploads/user_images');
+            $original_path = $destinationPath."/original";
+            $thumb_path = $destinationPath."/thumb";
+            
+            $img = Image::make($real_path);
+            $img->resize(150, null, function ($constraint) {
+                $constraint->aspectRatio();
+            })->save($thumb_path.'/'.$file_newname);
+
+            $image->move($original_path, $file_newname);
+            $Users->image = $file_newname;
+        }
+
+        if($Users->save()) {
+            $industry_idsArr = $request->input('industry_category_id');
+            if(!empty($industry_idsArr)){
+                $memberBusiness = array();
+                foreach($industry_idsArr as $v) {
+                    $arr = array();
+                    $arr['member_id'] = $Users->id;
+                    $arr['industry_category_id'] = $v;
+                    array_push($memberBusiness, $arr);
+                }
+                if (!empty($memberBusiness)) {
+                    MemberBusiness::where('member_id', '=', $UserID)->delete();
+                    MemberBusiness::insert($memberBusiness);
+                }
+            }
+            return back()->with('msg', 'Your profile saved successfully, Thanks')
+            ->with('msg_class', 'alert alert-success');
+        }
+
+        return back();
+    }
+
+    public function editPost($post_id)
+    {
+        $DataBag = array();
+        $DataBag['stage'] = DB::table('stage')->orderBy('stage_name', 'asc')->get();
+        $DataBag['post'] = Posts::findOrFail($post_id);
+        $DataBag['currentIndusCats'] = PostIndustry::where('post_id', '=', $post_id)
+        ->pluck('industry_category_id')->toArray();
+        return view('frontend.edit_post', $DataBag);
+    }
+
+    public function updatePost(Request $request, $post_id)
+    {
+        $Posts = Posts::findOrFail($post_id);
+        $Posts->post_title = trim($request->input('post_title'));
+        $Posts->post_info = trim(htmlentities($request->input('post_info'), ENT_QUOTES));
+        $Posts->post_type = $request->input('post_type');
+        if($request->input('post_type') == '2') {
+            $Posts->private_member_id = $request->input('private_member_id');
+        } else {
+            $Posts->private_member_id = '0';
+        }
+        if ($Posts->save()) {
+            $postID = $Posts->id;
+            $industry_idsArr = $request->input('industry_category_id');
+            if(!empty($industry_idsArr)){
+                $postIndustry = array();
+                foreach($industry_idsArr as $v) {
+                    $arr = array();
+                    $arr['post_id'] = $postID;
+                    $arr['industry_category_id'] = $v;
+                    array_push($postIndustry, $arr);
+                }
+                if (!empty($postIndustry)) {
+                    PostIndustry::where('post_id', '=', $post_id)->delete();
+                    PostIndustry::insert($postIndustry);
+                }
+            }
+            return back()->with('msg', 'Your post updated successfully, thankyou')
+            ->with('msg_class', 'alert alert-success');
+        }
+        return back();
+    }
+
+    public function myPosts()
+    {
+        $DataBag = array();
+        $DataBag['myPosts'] = Posts::where('member_id', '=', Auth::user()->id)
+        ->orderBy('id', 'desc')->paginate(15);
+        return view('frontend.list_post', $DataBag);
+    }
+
+    public function ajaxAddComment(Request $request)
+    {
+        $status = '';
+        $DataBag = array();
+        $post_id = $request->input('post_id');
+        $reply_text = $request->input('reply_text');
+        $replied_on = $request->input('replied_on');
+        $replied_by = Auth::user()->id;
+
+        $PostReply = new PostReply;
+        $PostReply->post_id = $post_id;
+        $PostReply->reply_text = $reply_text;
+        $PostReply->replied_on = $replied_on;
+        $PostReply->replied_by = $replied_by;
+        if ($PostReply->save()) {
+            $DataBag['postInfo'] = $PostReply;
+            $DataBag['memberInfo'] = Users::find($replied_by);
+            $commentCount = PostReply::where('post_id', '=', $post_id)->count();
+            //return view('frontend.comment_render', $DataBag);
+            $status = 'ok';
+            $repComtHtml = view('frontend.comment_render', $DataBag)->render();
+            return response()->json(['repComtHtml' => $repComtHtml, 'commentCount' => $commentCount, 'status' => $status]);
+        }
+        return response()->json(['status' => $status]);
+    }
+
+    public function memberProfile($timestamp_id)
+    {
+        $DataBag = array();
+        $DataBag['memberInfo'] = Users::where('timestamp_id', '=', $timestamp_id)->first();
+        return view('frontend.member_info', $DataBag);
+    }
+    
+}

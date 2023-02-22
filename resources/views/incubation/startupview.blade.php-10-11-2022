@@ -1,0 +1,33 @@
+@extends('incubation.layouts.app')
+@section('content')
+<div class="row">
+   @if(Session::has('msg') && Session::has('msg_class'))
+   <div class="col-sm-12">
+      <div class="postCard">
+         <div class="{{ Session::get('msg_class') }}" style="margin-bottom: 0;">
+            {{ Session::get('msg') }}
+         </div>
+      </div>
+   </div>
+   @endif
+   @foreach($mentorList as $key => $list)
+   <div class="col-md-12">
+      <div class="member-wrap">
+          <div class="member-img member-img-custom">
+            @if ($list->image=='')
+            <img src="{{asset('public/images/dummy_logo.png')}}" width="50" align="left">
+            @else
+            <img src="{{ asset('public/uploads/user_images/thumb')}}/{{ $list->image  }}" width="50" align="left">
+            @endif
+
+
+          </div>
+          <div class="member-info">
+            <h1>{{ $list->member_company }}</h1>
+          </div>
+      </div>
+   </div>
+
+  @endforeach
+  
+@endsection

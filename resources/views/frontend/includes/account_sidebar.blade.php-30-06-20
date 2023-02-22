@@ -1,0 +1,14 @@
+<div class="leftPanel pn-ProductNav_Wrapper">
+    <nav id="pnProductNav" class="pn-ProductNav dragscroll">
+        <div id="pnProductNavContents" class="pn-ProductNav_Contents">
+            <a href="{{ route('front.user.account') }}" @if(!isset($_GET['industry'])) aria-selected="true" @endif class="pn-ProductNav_Link">All Industries</a>
+            @if(isset($industry_category) && !empty($industry_category) && count($industry_category))
+                @foreach($industry_category as $v)
+                    <a href="{{ route('front.user.account') }}?industry={{ base64_encode($v->id) }}" 
+                        @if(isset($_GET['industry']) && base64_decode($_GET['industry']) == $v->id) aria-selected="true" @endif class="pn-ProductNav_Link">{{ $v->industry_category }}</a>
+                @endforeach
+            @endif
+            <span id="pnIndicator" class="pn-ProductNav_Indicator"></span>
+        </div>
+    </nav>
+</div>

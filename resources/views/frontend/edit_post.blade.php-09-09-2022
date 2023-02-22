@@ -1,0 +1,267 @@
+@extends('frontend.layouts.app')
+@section('content')
+<div class="row">
+    @if(Session::has('msg') && Session::has('msg_class'))
+    <div class="col-sm-12">
+        <div class="postCard">
+            <div class="{{ Session::get('msg_class') }}" style="margin-bottom: 0;">
+                {{ Session::get('msg') }}
+            </div>
+        </div>
+    </div>
+    @endif
+    
+    <div class="col-sm-12">
+        <div class="postCard">
+            <div class="postWrap">
+                <div class="pwdbox">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h3>Edit post</h3>
+                        </div>
+                        <div class="col-md-4 text-right">
+                            <!-- <a href="{{ route('front.user.myposts') }}">My all posts</a> -->
+                        </div>
+                    </div>
+                    
+                    @if(isset($post))
+                    <form name="frm_pud" id="frm_pud" action="{{ route('front.user.updatepost', array('post_id' => $post->id)) }}" method="post">
+                    {{ csrf_field() }}
+                        <div class="row mt-5">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Industry Verticals:</label>
+                                    <div>
+                                        <select class="form-control indusCatIds" name="industry_category_id[]" id="indusCatIds" multiple="multiple" required="required" style="width: 100%;">
+                                            <option value="">Select Industry Verticals</option>
+                                            @if(isset($industry_category) && count($industry_category))
+                                                @foreach($industry_category as $v)
+                                                    <option value="{{ $v->id }}" 
+                                                        @if(isset($currentIndusCats) && !empty($currentIndusCats) && in_array($v->id, $currentIndusCats)) selected="selected" @endif>
+                                                            {{ $v->industry_category }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Category:</label>
+                                    <div>
+                                        <select class="form-control indusCatIds" name="category_id[]" id="indusIds" multiple="multiple" required="required" style="width: 100%;">
+                                            <option value="">Select Category</option>
+                                            @if(isset($category) && count($category))
+                                                @foreach($category as $v1)
+                                                    <option value="{{ $v1->id }}" 
+                                                        @if(isset($currentCats) && !empty($currentCats) && in_array($v1->id, $currentCats)) selected="selected" @endif>
+                                                            {{ $v1->name }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12 mt-3">
+                                <div class="form-group">
+                                    <label>Post Title:</label>
+                                    <input type="text" name="post_title" class="form-control" placeholder="Post Title" value="{{ $post->post_title }}" required="required">
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 mt-3">
+                                <div class="form-group">
+                                    <label>Video:</label>
+                                    <input type="text" name="video_link" class="form-control" placeholder="Enter YouTube or Vimeo Video Link" value="{{ $post->video_link }}">
+                                </div>
+                                
+                                 
+
+                                 @if(!empty($post->video_link))
+
+                                  @php
+
+                                            $video_url = $post->video_link;
+
+
+                                            $url =videoType($video_url);
+
+                                            if($url=='youtube')
+                                            {
+                                                $video_id = extractVideoID($video_url);
+
+                                            
+                                                $thumbnail = getYouTubeThumbnailImage($video_id);
+                                            }
+                                            else if($url=='vimeo')
+                                            {
+                                                $video_id = getVimeoId($video_url);
+
+                                            
+                                                $thumbnail = getVimeoThumb($video_id);
+                                            }
+
+                                            $post->video_link =getYoutubeEmbedUrl($post->video_link);
+
+                                        @endphp
+
+                                        <a   onclick ="openVideoModal('{{$post->video_link}}')"><img src="{{$thumbnail}}" class="pitch"></a></li></span>
+
+                            @endif
+                            </div>
+                            <div class="col-md-12 mt-3">
+                                <div class="form-group">
+                                    <textarea name="post_info" id="post_info_edit" class="form-control" data-error-container="#postInfoEdit_error" placeholder="Your query..." style="height: 200px;" required="required">{{ $post->post_info }}</textarea>
+                                    <div id="postInfoEdit_error"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mt-3">
+                                <select name="post_type" class="form-control" id="editPostType">
+                                    <option value="1" @if($post->post_type == '1') selected="selected" @endif>Public</option>
+                                    <option value="2" @if($post->post_type == '2') selected="selected" @endif>Private</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8 mt-3">
+                                <div class="privateMemberBoxDiv_edit" @if($post->post_type == '2') style="display: block;" @else style="display: none;" @endif>
+                                    <select name="private_member_id" id="privateMemberId_edit" class="form-control select2 private_member_id_edit" style="width: 100%;">
+                                        <option value="">Select user</option>
+                                        @php $authID = Auth::user()->id; @endphp
+                                        @if(isset($privateMember) && !empty($privateMember))
+                                            @foreach($privateMember as $pm)
+                                                @if($pm->id != $authID)
+                                                    <option value="{{ $pm->id }}" @if($post->private_member_id == $pm->id) selected="selected" @endif>{{ $pm->contact_name }}</option>
+                                                @endif
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                            </div>
+							
+							 <div class="col-md-12 mt-3">
+                                <div class="form-group">
+								
+                                    <input type="file" name="image" class="form-control">
+									
+									<img id="original" src="{{ url('/public/front_end/images/'.$post->image) }}" height="70" width="70">
+									
+                                    
+									
+									
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-5">
+                            <div class="col-md-6">
+                                <input type="submit" class="btn btn-primary" value="Save Changes">
+                            </div>
+                        </div>
+                    </form>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+        <!-- Modal HTML -->
+        <div id="myModal" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Video</h4>
+                    </div>
+                    <div class="modal-body">
+                        <iframe id="cartoonVideo" width="560" height="315" src="//www.youtube.com/embed/YE7VzlLtp-4" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</div>
+
+
+<!--Question modal-->
+@include('frontend.includes.add_question_modal')
+
+@push('page_js')
+<script>
+$(function() {
+    $('#editPostType').on('change', function() {
+        if($(this).val() == '2') {
+            $('.privateMemberBoxDiv_edit').css({
+                'display': 'block'
+            });
+        } else {
+            $('.privateMemberBoxDiv_edit').css({
+                'display': 'none'
+            });
+            //$('.private_member_id_edit').val('');
+            //$('.private_member_id').val('').trigger('change');
+            $('#privateMemberId_edit-error').text('');
+        }
+    });
+});
+var editorPostInfo = CKEDITOR.replace( 'post_info_edit', {
+  customConfig: "{{ asset('public/assets/ckeditor/minipost_config.js') }}",
+} );
+var QEfm = $('#frm_pud');
+QEfm.on('submit', function() {
+  CKEDITOR.instances.post_info_edit.updateElement();
+});
+QEfm.validate({
+    errorElement: 'span',
+    errorClass : 'roy-vali-error',
+    ignore: [],
+    rules: {
+        post_title: {
+            required: true,
+        },
+        post_info: {
+            required: true
+        },
+        private_member_id: {
+            required: function() {
+                return $("#editPostType").val() == '2';
+            }
+        }
+    },
+    messages: {
+        post_title: {
+            required: 'Please add your post title',
+        },
+        post_info: {
+            required: 'Please add your post details',
+        },
+        "industry_category_id[]": {
+            required: 'Please select industry verticals'
+        },
+        private_member_id: {
+            required: 'Please select an user'
+        }
+    },
+    errorPlacement: function(error, element) {
+        if (element.hasClass('indusCatIds')) {
+            error.insertAfter(element.parent());
+        } else if (element.hasClass('select2')) { 
+            error.insertAfter(element.parent());
+        } else if (element.attr("data-error-container")) { 
+            error.appendTo(element.attr("data-error-container"));
+        } else {
+            error.insertAfter(element); 
+        }
+    }
+});
+ function openVideoModal(video_url)
+
+    {
+         
+        $("#cartoonVideo").attr('src', video_url);
+            //alert(video_url);
+        $("#myModal").modal('show');
+    }
+</script>
+@endpush
+@endsection
+
+    

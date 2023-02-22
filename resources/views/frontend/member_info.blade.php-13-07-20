@@ -1,0 +1,80 @@
+@extends('frontend.layouts.app')
+@section('content')
+<div class="row">
+    @if(Session::has('msg') && Session::has('msg_class'))
+    <div class="col-sm-12">
+        <div class="postCard">
+            <div class="{{ Session::get('msg_class') }}" style="margin-bottom: 0;">
+                {{ Session::get('msg') }}
+            </div>
+        </div>
+    </div>
+    @endif
+    
+    @if(isset($memberInfo))
+    <div class="col-md-12">
+        <div class="member-wrap">
+            <div class="member-img">
+            @php 
+                $profileImage = asset('public/front_end/images/profile-pic.png');
+                if($memberInfo->image != '' && $memberInfo->image != null) {
+                    $profileImage = asset('public/uploads/user_images/thumb/'. $memberInfo->image);
+                }
+            @endphp
+            @if(isset($profileImage) && $profileImage != '')
+                <img src="{{ $profileImage }}" class="img-fluid">
+            @endif
+            </div>
+            <div class="member-info">
+            <h1>{{ $memberInfo->member_company }}</h1> No of Post:{{$number_of_post}}  No of Reply:{{$number_of_reply}}
+            <ul>
+            <li><i class="fas fa-user"></i><strong>Name:</strong><span><a href="#">{{ $memberInfo->contact_name }}</a></span></li>
+            <li><i class="fas fa-envelope"></i><strong>Email:</strong><span><a href="#">{{ $memberInfo->email_id }}</a></span></li>
+            <li><i class="fas fa-phone-volume"></i><strong>Contact Number:</strong><span><a href="#">{{ $memberInfo->contact_no }}</a></span></li>
+            <li><i class="fas fa-building"></i><strong>Industry Verticals:</strong>
+            @if(isset($memberInfo->allIndustryIds) && !empty($memberInfo->allIndustryIds) && count($memberInfo->allIndustryIds))
+                @php $i = 0; $tot = count($memberInfo->allIndustryIds); @endphp
+                @foreach($memberInfo->allIndustryIds as $v)
+                    @if(isset($v->industryInfo) && !empty($v->industryInfo)) 
+                        <span>{{ trim($v->industryInfo->industry_category) }}</span>@if($i < $tot - 1), @endif
+                    @endif
+                @php $i++; @endphp
+                @endforeach
+            @endif
+            </li>
+            @if($memberInfo->website != '')
+                <li><i class="fas fa-globe"></i><strong>Website:</strong><span><a href="#">{{ $memberInfo->website }}</a></span></li>
+            @endif
+            </ul>
+            @if($memberInfo->address != '')
+            <p><i class="fas fa-map-marker-alt"></i><strong>Location:</strong>{{ $memberInfo->address }}</p>
+            @endif
+            </div>
+        </div>
+        @if($memberInfo->about_you != '')
+        <div class="member-about">
+            <h2>About</h2>
+            {!! html_entity_decode($memberInfo->about_you, ENT_QUOTES) !!}
+        </div>
+        @endif
+        <!-- <div class="member-post">
+           
+        </div> -->
+    </div>
+    @endif
+
+
+</div>
+
+
+<!--Question modal-->
+@include('frontend.includes.add_question_modal')
+
+@push('page_js')
+<script>
+
+</script>
+@endpush
+@endsection
+
+    

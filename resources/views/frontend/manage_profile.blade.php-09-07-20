@@ -1,0 +1,664 @@
+@extends('frontend.layouts.app')
+@section('content')
+<div class="row">
+    @if(Session::has('msg') && Session::has('msg_class'))
+    <div class="col-sm-12">
+        <div class="postCard">
+            <div class="{{ Session::get('msg_class') }}" style="margin-bottom: 0;">
+                {{ Session::get('msg') }}
+            </div>
+        </div>
+    </div>
+    @endif
+    
+    <div class="col-sm-12">
+        <div class="postCard">
+            <div class="postWrap">
+                <div class="pwdbox">
+                    <h3>Manage your profile</h3>
+                    <form name="frm_pfupd" id="frm_pfupd" action="{{ route('front.user.updprof') }}" method="post" enctype="multipart/form-data">
+                    {{ csrf_field() }}
+                        <div class="row mt-5">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Industry Verticals:</label>
+                                    <div>
+                                        <select class="form-control indusCatIds" name="industry_category_id[]" id="indusCatIds" multiple="multiple" required="required" style="width: 100%;">
+                                            <option value="">Select Industry Verticals</option>
+                                            @if(isset($industry_category) && count($industry_category))
+                                                @foreach($industry_category as $v)
+                                                    <option value="{{ $v->id }}" 
+                                                        @if(isset($currentIndusCats) && !empty($currentIndusCats) && in_array($v->id, $currentIndusCats)) selected="selected" @endif>
+                                                            {{ $v->industry_category }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 col-lg-6 mt-3">
+                                <div class="form-group">
+                                    <label>Startup Name:</label>
+                                    <input type="text" class="form-control" name="member_company" required="required" value="{{ Auth::user()->member_company }}" />
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Contact Name:</label>
+                                    <input type="text" class="form-control" name="contact_name" required="required" value="{{ Auth::user()->contact_name }}" />
+                                </div>
+
+                                <div class="form-group mt-3">
+                                    <label>Milestone of Startup:</label>
+                                    <input type="text" class="form-control" name="milestone"  value="{{ Auth::user()->milestone }}" />
+                                </div>
+                                <div class="row">
+                                    <div class="founder-header">
+                                                <label>Founder</label>
+                                                
+                                    </div>
+                                    <div id="answer_sec" >
+                                    @if (isset($founders) && count($founders)>0)
+                                        @php
+                                            $c=count($founders);
+                                            $i=1;
+                                        @endphp
+                                        @foreach ($founders as $ca)
+                                        
+                                    <div id="answer_sec_{{$i}}">
+                                            <div class="row">
+                                                    <div class="col-md-3">
+                                                      <div class="form-group">
+
+                                                        <label>Name : </label>
+                                                    <input type="text" name="founder_name[]" class="form-control" id="founder_name_{{$i}}"  value="{{$ca->name}}">
+                                                        
+                                                      </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                      <div class="form-group">
+
+                                                        <label>Profile :</label>
+                                                   
+
+                                                     <textarea class="form-control" name="founder_profile[]" id="founder_profile_{{$i}}">{{$ca->profile}}</textarea>
+
+
+                                                      </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                  <div class="form-group">
+                                                    <label>Image:</label>
+                                                   
+
+                                                     <div class="custom-file">
+                                                                <input type="file" name="founder_img[]" class="custom-file-input" id="founder_img__{{$i}}" aria-describedby="inputGroupFileAddon02">
+                                                            <label class="custom-file-label" for="inputGroupFile02">Choose file</label>
+
+                                                            <input type="hidden" name="founder_img_hidden[]" id="founder_img_hidden{{$i}}" value="{{$ca->image}}" />
+
+                                                            @php 
+                                                                if($ca->image != '' && $ca->image != null) {
+                                                                    $founderImage = asset('public/uploads/founder_images/thumb/'.$ca->image);
+                                                                }
+                                                            @endphp
+                                                            @if(isset($founderImage) && $founderImage != '')
+                                                                <img src="{{ $founderImage }}" style="width: 40px; height: 40px; border-radius:20px;">
+                                                            @endif
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                        <div class="col-md-1">
+
+
+                                            @if ($i != 1) 
+                                            <a  id="rm-answer-{{$i}}" class="btn btn-danger" onClick="remove_answer({{$i}})"><i class="fa fa-times"></i></a>
+                                            @else
+                                            <a id="ad-contact_person-{{$i}}" class="btn btn-success" onClick="clone_answer()"><i class="fa fa-plus"></i></a>
+                                            <input type="hidden" name="answer_row_count" id="answer_row_count" value="{{$c}}" />  
+
+                                            @endif              
+
+
+
+                                            </div>
+                                        </div>
+                                    </div>        
+                                        
+                                        @php
+                                        ++$i;
+                                        @endphp
+                                        @endforeach
+                                    @else   
+                                    <div id="answer_sec_1">
+                                               <div class="row">
+                                                <div class="col-md-3">
+                                                  <div class="form-group">
+                                                    <label>Name : </label>
+                                                    <input type="text" name="founder_name[]" class="form-control" id="founder_name_1"  value="">
+                                                     
+                                                  </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                  <div class="form-group">
+                                                    <label>Profile :</label>
+                                                   
+
+                                                     <textarea class="form-control" name="founder_profile[]" id="founder_profile_1"></textarea>
+                                                  </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                  <div class="form-group">
+                                                    <label>Image:</label>
+                                                   
+
+                                                     <div class="custom-file">
+                                                                <input type="file" name="founder_img[]" class="custom-file-input" id="founder_img_1" aria-describedby="inputGroupFileAddon02">
+                                                            <label class="custom-file-label" for="inputGroupFile02">Choose file</label>
+
+
+                                                    </div>
+                                                  </div>
+                                                </div>
+
+                                                <div class="col-md-1">
+                                                    <a id="ad-answer-1" class="btn btn-success" onClick="clone_answer()"><i class="fa fa-plus"></i></a>
+                                                    <input type="hidden" name="answer_row_count" id="answer_row_count" value="1" />        
+                                                </div>
+                                              </div>
+                                    </div>        
+                                        
+                                    @endif 
+                                </div>
+                                <div class="row">
+                                    <div class="founder-header">
+                                                <label>Service</label>
+                                                
+                                    </div>
+                                    <div id="service_sec" >
+                                    @if (isset($buisness) && count($buisness)>0)
+                                        @php
+                                            $c=count($buisness);
+                                            $i=1;
+                                        @endphp
+                                        @foreach ($buisness as $va)
+                                        
+                                    <div id="service_sec_{{$i}}">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                  <div class="form-group">
+                                                    <label>Image:</label>
+                                                   
+
+                                                     <div class="custom-file">
+                                                                <input type="file" name="buisness_img[]" class="custom-file-input" id="buisness_img_{{$i}}" aria-describedby="inputGroupFileAddon02">
+                                                            <label class="custom-file-label" for="inputGroupFile02">Choose file</label>
+
+                                                            <input type="hidden" name="buisness_img_hidden[]" id="buisness_img_hidden{{$i}}" value="{{$va->image}}" />
+
+                                                            @php 
+                                                                if($va->image != '' && $va->image != null) {
+                                                                    $serviceImage = asset('public/uploads/website_images/thumb/'.$va->image);
+                                                                }
+                                                            @endphp
+                                                            @if(isset($serviceImage) && $serviceImage != '')
+                                                                <img src="{{ $serviceImage }}" style="width: 40px; height: 40px; border-radius:20px;">
+                                                            @endif
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                                    <div class="col-md-3">
+                                                      <div class="form-group">
+
+                                                        <label>Caption : </label>
+                                                    <input type="text" name="buisness_caption[]" class="form-control" id="buisness_caption_{{$i}}"  value="{{$va->caption}}">
+                                                        
+                                                      </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                      <div class="form-group">
+
+                                                        <label>Webisite :</label>
+                                                   
+
+                                                     <textarea class="form-control" name="buisness_website[]" id="buisness_website_{{$i}}">{{$va->website}}</textarea>
+
+
+                                                      </div>
+                                            </div>
+                                            
+                                        <div class="col-md-1">
+
+
+                                            @if ($i != 1) 
+                                            <a  id="rm-answer-{{$i}}" class="btn btn-danger" onClick="remove_service({{$i}})"><i class="fa fa-times"></i></a>
+                                            @else
+                                            <a id="ad-contact_person-{{$i}}" class="btn btn-success" onClick="clone_service()"><i class="fa fa-plus"></i></a>
+                                            <input type="hidden" name="answer_row_count" id="answer_row_count" value="{{$c}}" />  
+
+                                            @endif              
+
+
+
+                                            </div>
+                                        </div>
+                                    </div>        
+                                        
+                                        @php
+                                        ++$i;
+                                        @endphp
+                                        @endforeach
+                                    @else   
+                                    <div id="service_sec_1">
+                                               <div class="row">
+
+                                                <div class="col-md-4">
+                                                  <div class="form-group">
+                                                    <label>Image:</label>
+                                                   
+
+                                                     <div class="custom-file">
+                                                                <input type="file" name="buisness_img[]" class="custom-file-input" id="buisness_img_1" aria-describedby="inputGroupFileAddon02">
+                                                            <label class="custom-file-label" for="inputGroupFile02">Choose file</label>
+
+
+                                                    </div>
+                                                  </div>
+                                                </div>
+
+                                                <div class="col-md-3">
+                                                  <div class="form-group">
+                                                    <label>Caption : </label>
+                                                    <input type="text" name="buisness_caption[]" class="form-control" id="buisness_caption_1"  value="">
+                                                     
+                                                  </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                  <div class="form-group">
+                                                    <label>Website :</label>
+                                                   
+
+                                                     <textarea class="form-control" name="buisness_website[]" id="buisness_website_1"></textarea>
+                                                  </div>
+                                                </div>
+
+                                                
+
+                                                <div class="col-md-1">
+                                                    <a id="ad-answer-2" class="btn btn-success" onClick="clone_service()"><i class="fa fa-plus"></i></a>
+                                                    <input type="hidden" name="answer_row_count" id="answer_row_count" value="1" />        
+                                                </div>
+                                              </div>
+                                    </div>        
+                                        
+                                    @endif 
+                                </div>
+                                    
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Email:</label>
+                                    <input type="email" class="form-control" name="email_id" required="required" value="{{ Auth::user()->email_id }}" />
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Mobile:</label>
+                                    <input type="text" class="form-control onlyNumber" name="contact_no" required="required" value="{{ Auth::user()->contact_no }}" />
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Website:</label>
+                                    <input type="text" class="form-control" name="website" value="{{ Auth::user()->website }}" />
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Image:</label>
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            <input type="file" name="image" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
+                                            <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+
+
+                                            @php 
+                                                if(Auth::user()->image != '' && Auth::user()->image != null) {
+                                                    $profileImage = asset('public/uploads/user_images/thumb/'. Auth::user()->image);
+                                                }
+                                            @endphp
+                                            @if(isset($profileImage) && $profileImage != '')
+                                                <img src="{{ $profileImage }}" style="width: 40px; height: 40px; border-radius:20px;">
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-lg-6 mt-3">
+                                <div class="form-group">
+                                    <label>Startup Stage:</label>
+                                    <select class="form-control" name="stage_id" required="required">
+                                        <option value="">Select Startup Stage</option>
+                                        @if(isset($stage) && count($stage))
+                                            @foreach($stage as $v)
+                                                <option value="{{ $v->id }}" @if(Auth::user()->stage_id == $v->id) selected="selected" @endif>{{ $v->stage_name }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Legal Status:</label>
+                                    <select class="form-control" name="legal_status">
+                                        <option>Status 1</option>
+                                        <option>Status 2</option>
+                                        <option>Status 3</option>
+                                        <option>Status 3</option>
+                                    </select>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Country:</label>
+                                    <input type="text" class="form-control" name="country" required="required" value="{{ Auth::user()->country }}" />
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>City:</label>
+                                    <input type="text" class="form-control" name="city" required="required" value="{{ Auth::user()->city }}" />
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Address:</label>
+                                    <textarea class="form-control" name="address" placeholder="Address..">{{ Auth::user()->address }}</textarea>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Specialist in anything:</label>
+                                    <textarea class="form-control" name="member_spec" placeholder="Specialist..">{{ Auth::user()->member_spec }}</textarea>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>What are you looking for:</label>
+                                    <textarea class="form-control" name="member_looking" placeholder="What are..">{{ Auth::user()->member_looking }}</textarea>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>What can you help in:</label>
+                                    <textarea class="form-control" name="member_help" placeholder="What can you..">{{ Auth::user()->member_help }}</textarea>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Achievements:</label>
+                                    <textarea class="form-control" name="achievements" placeholder="Achievements..">{{ Auth::user()->achievements }}</textarea>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Certifications:</label>
+                                    <textarea class="form-control" name="certifications" placeholder="Certifications..">{{ Auth::user()->certifications }}</textarea>
+                                </div>
+                                 <div class="form-group mt-3">
+                                    <label>Raised Investments:</label>
+                                            <input class="form-check-input" type="radio" name="is_raised_invest" onclick="change_hidden_answer_type_value(1)" id="is_raised_invest" value="1" 
+                                     @if(isset(Auth::user()->is_raised_invest))
+                                        @if(Auth::user()->is_raised_invest == 1) 
+                                            checked
+
+                                        @endif                      
+                                    @endif>Yes
+                                    <input class="form-check-input" type="radio" name="is_raised_invest" id="is_raised_invest" onclick="change_hidden_answer_type_value(0)"  value="0" 
+                                     @if(isset(Auth::user()->is_raised_invest))
+                                        @if(Auth::user()->is_raised_invest == 0) 
+                                            checked
+
+                                        @endif                      
+                                    @endif>No
+
+                                    <input type="hidden" name="raise_check" id="raise_check" value="{{Auth::user()->is_raised_invest}}">
+                                </div>
+
+                                <div class="form-group mt-3" id="show_raise" style="display: none">
+                                    <label>Investment Info :</label>
+                                    <textarea class="form-control" name="invest_name" placeholder="Investment Info..">{{ Auth::user()->invest_name }}</textarea>
+                                </div>
+                                <!-- <div class="form-group mt-3">
+                                    @php 
+                                        if(Auth::user()->image != '' && Auth::user()->image != null) {
+                                            $profileImage = asset('public/uploads/user_images/thumb/'. Auth::user()->image);
+                                        }
+                                    @endphp
+                                    @if(isset($profileImage) && $profileImage != '')
+                                        <img src="{{ $profileImage }}" style="width: 40px; height: 40px; border-radius:20px;">
+                                    @endif
+                                </div> -->
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <label>Tell us about yourself:</label>
+                                <textarea name="about_you" id="aboutMe" class="form-control" placeholder="Tell us about yourself" style="height: 150px;">{!! html_entity_decode(Auth::user()->about_you, ENT_QUOTES) !!}</textarea>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <input type="submit" class="btn btn-primary" value="Save Changes">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!--Question modal-->
+@include('frontend.includes.add_question_modal')
+
+@push('page_js')
+<script>
+var editorPostInfo = CKEDITOR.replace( 'aboutMe', {
+  customConfig: "{{ asset('public/assets/ckeditor/mini_config.js') }}",
+} );
+$('#frm_pfupd').validate({
+    errorElement: 'span',
+    errorClass: 'roy-vali-error',
+    rules: {
+        member_company: {
+            required: true
+        },
+        contact_name: {
+            required: true
+        },
+        "industry_category_id[]": {
+            required: true
+        },
+        stage_id: {
+            required: true
+        },
+        email_id:{
+            required: true,
+            email: true
+        },
+        contact_no:{
+            required: true
+        },
+        country:{
+            required: true
+        },
+        city:{
+            required: true
+        }
+    },
+    messages: {
+        member_company: {
+            required: 'Please enter your startup name'
+        },
+        contact_name: {
+            required: 'Please enter contact name'
+        },
+        "industry_category_id[]": {
+            required: 'Please select industies'
+        },
+        stage_id: {
+            required: 'Please select startup stage'
+        },
+        email_id:{
+            required: 'Please enter email-id',
+            email: 'Please enter valid email-id'
+        },
+        contact_no:{
+            required: 'Please enter contact number'
+        },
+        country:{
+            required: 'Please enter country'
+        },
+        city:{
+            required: 'Please enter city'
+        }
+    },
+    errorPlacement: function(error, element) {
+        if (element.hasClass('indusCatIds')) {
+            error.insertAfter(element.parent());
+        } else {
+            error.insertAfter(element); 
+        }
+    }
+});
+</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $i=1;
+        $('.add-founder').click(function(){
+            $('.founder').clone().appendTo('.founder-list').removeAttr('class','founder').addClass('founders'+$i).append('<div class="form-group"><a class="btn remove-founder btn-danger" onclick="removeItem('+$i+')">Remove</a></div>');
+
+            $i++;
+        });
+
+        //alert($("#is_raised_invest").val());
+
+        if($("#raise_check").val()==1)
+        {
+            $("#show_raise").show();
+        }
+        else
+        {
+            $("#show_raise").hide();
+        }
+
+        
+
+    });
+
+    function removeItem($j){
+           //alert($j);
+           $(".founders"+$j).remove();
+        }
+        function clone_answer() {  
+
+              var id = $("#answer_row_count").val();
+              var new_id = parseInt(id) + 1;
+              $("#answer_row_count").val(new_id);
+              var table_row = "";
+
+              table_row += '<div id="answer_sec_' + new_id + '">';
+              table_row += '<div class="row">';
+              table_row += '<div class="col-md-3">';
+              table_row += '<div class="form-group">';
+              table_row += '<label>Name : </label>';
+              table_row += '<input type="text" name="founder_name[]" id="founder_name_' + new_id + '" class="form-control" value="" /> ';                                 
+              table_row += '</div>';
+              table_row += '</div>';
+              table_row += '<div class="col-md-4">';
+              table_row += '<div class="form-group">';
+              table_row += '<label>Profile :</label>';
+              table_row += '<textarea class="form-control" name="founder_profile[]" id="founder_profile_' + new_id + '"></textarea>';
+
+
+
+              table_row += '</div>';
+              table_row += '</div>';
+              table_row += '<div class="col-md-4">';
+              table_row += '<div class="form-group">';
+              table_row += '<label>Image :</label>';
+              table_row += ' <div class="custom-file"><input type="file" name="founder_img[]" class="custom-file-input" id="founder_img' + new_id + '" aria-describedby="inputGroupFileAddon02"><label class="custom-file-label" for="inputGroupFile02">Choose file</label></div>';
+
+
+
+              table_row += '</div>';
+              table_row += '</div>';
+              table_row += '<div class="col-md-1">';             
+              table_row += '<a id="rm-answer-' + new_id + '"  class="btn btn-danger" onClick="remove_answer(\'' + new_id + '\')">';
+              table_row += '<i class="fa fa-times"></i></a>';      
+              table_row += '</div>';
+              table_row += '</div>';
+              table_row += '</div>';    
+
+
+              $("#answer_sec").append(table_row);
+
+    }
+    function remove_answer(id) {
+
+      
+        $("#answer_sec_" + id).remove();
+      
+
+    }
+    function clone_service() {  
+
+              var id = $("#answer_row_count").val();
+              var new_id = parseInt(id) + 1;
+              $("#answer_row_count").val(new_id);
+              var table_row = "";
+
+              table_row += '<div id="service_sec_' + new_id + '">';
+              table_row += '<div class="row">';
+              table_row += '<div class="col-md-4">';
+              table_row += '<div class="form-group">';
+              table_row += '<label>Image :</label>';
+              table_row += ' <div class="custom-file"><input type="file" name="buisness_img[]" class="custom-file-input" id="buisness_img_' + new_id + '" aria-describedby="inputGroupFileAddon02"><label class="custom-file-label" for="inputGroupFile02">Choose file</label></div>';
+
+
+
+              table_row += '</div>';
+              table_row += '</div>';
+              table_row += '<div class="col-md-3">';
+              table_row += '<div class="form-group">';
+              table_row += '<label>Caption : </label>';
+              table_row += '<input type="text" name="buisness_caption[]" id="buisness_caption_' + new_id + '" class="form-control" value="" /> ';                                 
+              table_row += '</div>';
+              table_row += '</div>';
+              table_row += '<div class="col-md-4">';
+              table_row += '<div class="form-group">';
+              table_row += '<label>Website :</label>';
+              table_row += '<textarea class="form-control" name="buisness_website[]" id="buisness_website_' + new_id + '"></textarea>';
+
+
+
+              table_row += '</div>';
+              table_row += '</div>';
+              
+              table_row += '<div class="col-md-1">';             
+              table_row += '<a id="rm-answer-' + new_id + '"  class="btn btn-danger" onClick="remove_service(\'' + new_id + '\')">';
+              table_row += '<i class="fa fa-times"></i></a>';      
+              table_row += '</div>';
+              table_row += '</div>';
+              table_row += '</div>';    
+
+
+              $("#service_sec").append(table_row);
+
+    }
+
+    function remove_service(id) {
+
+      
+        $("#service_sec_" + id).remove();
+      
+
+    }
+
+    function change_hidden_answer_type_value(id){
+    
+    if(id == 1){
+        $("#show_raise").show();        
+    }else{
+        $("#show_raise").hide();        
+    }
+
+    
+
+}   
+</script>
+
+
+@endpush
+@endsection
+
+    

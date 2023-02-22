@@ -1,0 +1,75 @@
+@extends('frontend.layouts.app')
+@section('content')
+<div class="row">
+    @if(Session::has('msg') && Session::has('msg_class'))
+    <div class="col-sm-12">
+        <div class="postCard">
+            <div class="{{ Session::get('msg_class') }}" style="margin-bottom: 0;">
+                {{ Session::get('msg') }}
+            </div>
+        </div>
+    </div>
+    @endif
+    
+    @if(isset($memberInfo))
+    <div class="col-sm-12">
+        <div class="postCard">
+            <div class="postWrap">
+                <div class="pwdbox">
+                    <h3>{{ $memberInfo->contact_name }} - Profile</h3>
+                    <div class="row mt-5">
+                        <div class="col-md-2">
+                        @php 
+                            if($memberInfo->image != '' && $memberInfo->image != null) {
+                                $profileImage = asset('public/uploads/user_images/thumb/'. $memberInfo->image);
+                            }
+                        @endphp
+                        @if(isset($profileImage) && $profileImage != '')
+                            <img src="{{ $profileImage }}" style="width: 100%; border-radius:5px;">
+                        @endif
+                        </div>
+                        <div class="col-md-8">
+                            <ul class="ml-3">
+                                <li>
+                                    <strong>Contact Name : </strong> {{ $memberInfo->contact_name }}
+                                </li>
+                                <li>
+                                    <strong>Email : </strong> {{ $memberInfo->email_id }}
+                                </li>
+                                <li>
+                                    <strong>Contact Number : </strong> {{ $memberInfo->contact_no }}
+                                </li>
+                                <li>
+                                    <strong>Startup Name : </strong> {{ $memberInfo->member_company }}
+                                </li>
+                                @if($memberInfo->website != null)
+                                <li>
+                                    <strong>Website : </strong> {{ $memberInfo->website }}
+                                </li>
+                                @endif
+                                <li>
+                                    <strong>Location : </strong> {{ $memberInfo->city }} , {{ $memberInfo->country }}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+</div>
+
+
+<!--Question modal-->
+@include('frontend.includes.add_question_modal')
+
+@push('page_js')
+<script>
+
+</script>
+@endpush
+@endsection
+
+    

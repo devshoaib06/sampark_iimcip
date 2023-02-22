@@ -1,0 +1,29 @@
+<?php
+Route::get('/incubationdemo', 'IncubationController@allSite');
+
+Route::group(['prefix' => 'incubation'], function () {
+ 
+    Route::group(['middleware' => 'IfIncubateeNotLogIn'], function () {
+       Route::get('/', 'IncubationController@index')->name('signin');
+        Route::post('/signin', 'IncubationController@userLogin')->name('incubate.user.login');
+        
+    });
+
+    Route::group(['middleware' => 'IfIncubateeLogIn'], function () {
+      Route::get('/incubatee/mentor/startup', 'IncubationController@mentorStartup')->name('incubatee.mentor.startup');
+      Route::get('/incubatee/home', 'IncubationController@feed')->name('incubatee.user.feed');
+    //Route::get('/incubatee/count', 'IncubationController@userCount');
+      Route::get('/incubatee/account', 'IncubationController@account')->name('incubatee.user.account');
+
+      Route::get('/incubatee/logout', 'IncubationController@logout')->name('incubatee.user.logout');
+
+       Route::get('/incubatee/todo', 'IncubationController@todo')->name('incubatee.user.todo');
+      Route::get('/incubatee/todo/create', 'IncubationController@todoCreate')->name('incubatee.task.create');
+      Route::get('/incubatee/todo/edit/{id}', 'IncubationController@todoEdit')->name('incubatee.task.edit');
+      Route::delete('/incubatee/todo/destroy/{id}', 'IncubationController@todoDestroy')->name('incubatee.task.destroy');
+       Route::post('/incubatee/todo/store', 'IncubationController@todoStore')->name('incubatee.task.store');
+      Route::post('/incubatee/todo/update/{id}', 'IncubationController@todoUpdate')->name('incubatee.task.update'); 
+
+    });
+
+}); //end incubation prefix

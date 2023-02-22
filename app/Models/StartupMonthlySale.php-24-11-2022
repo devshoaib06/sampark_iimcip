@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class StartupMonthlySale extends Model
+{
+	protected $guarded = [];
+   
+	protected $table = 'startup_monthly_sales';
+
+
+	public function getProducts() {
+        return $this->belongsTo('App\Models\MemberService', 'product_id', 'id');
+    }
+    
+}

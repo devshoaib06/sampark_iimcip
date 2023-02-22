@@ -1,0 +1,222 @@
+@php
+    $block1Arr = array(
+       
+        'administrator' => 'IIMCIP Posts'
+    )
+
+
+@endphp
+
+<?php 
+ if (Auth::check()) {
+	 $user_type = Auth::user()->user_type;
+ }
+?>
+
+
+
+<!-- 'public' => 'Public',-->
+
+
+
+<div class="leftPanel pn-ProductNav_Wrapper">
+    <nav id="pnProductNav" class="pn-ProductNav dragscroll">
+        <div id="pnProductNavContents" class="pn-ProductNav_Contents">
+            <a href="{{ route('front.user.startup') }}" aria-selected="true" @if(!isset($_GET['category']) && !isset($_GET['industry']) && !isset($_GET['post'])) aria-selected="true" @endif class="pn-ProductNav_Link">View All StartUps</a>
+            <span id="pnIndicator" class="pn-ProductNav_Indicator"></span>
+        </div>
+    </nav>
+</div>
+
+
+@if($user_type == 6)
+	<!-- Mentor-> 6 -->
+<div class="leftPanel pn-ProductNav_Wrapper">
+    <nav id="pnProductNav" class="pn-ProductNav dragscroll">
+        <div id="pnProductNavContents" class="pn-ProductNav_Contents">
+            <a href="{{ route('front.mentor.startup') }}" aria-selected="true" @if(!isset($_GET['category']) && !isset($_GET['industry']) && !isset($_GET['post'])) aria-selected="true" @endif class="pn-ProductNav_Link">View My StartUps</a>
+            <span id="pnIndicator" class="pn-ProductNav_Indicator"></span>
+        </div>
+    </nav>
+</div>
+
+<!--
+<div class="leftPanel pn-ProductNav_Wrapper">
+    <nav id="pnProductNav" class="pn-ProductNav dragscroll">
+        <div id="pnProductNavContents" class="pn-ProductNav_Contents">
+            <a href="{{ route('front.mentor.incubereports') }}" aria-selected="true" @if(!isset($_GET['category']) && !isset($_GET['industry']) && !isset($_GET['post'])) aria-selected="true" @endif class="pn-ProductNav_Link">Incubate Reoprt</a>
+            <span id="pnIndicator" class="pn-ProductNav_Indicator"></span>
+        </div>
+    </nav>
+</div>
+-->
+
+<div class="leftPanel pn-ProductNav_Wrapper">
+    <nav class="pn-ProductNav dragscroll">
+        <div id="pnProductNavContents" class="pn-ProductNav_Contents">
+            <a href="{{ url('risk') }}" aria-selected="true" >Risk</a>
+            <span id="pnIndicator" class="pn-ProductNav_Indicator"></span>
+        </div>
+    </nav>
+</div>
+
+
+
+<div class="leftPanel pn-ProductNav_Wrapper">
+    <nav class="pn-ProductNav dragscroll">
+        <div id="pnProductNavContents" class="pn-ProductNav_Contents">
+            <a href="{{ url('appointment/list') }}" aria-selected="true" >Appointment</a>
+            <span id="pnIndicator" class="pn-ProductNav_Indicator"></span>
+        </div>
+    </nav>
+</div>
+
+@else
+	
+@endif
+
+
+
+<div class="leftPanel pn-ProductNav_Wrapper">
+    <nav id="pnProductNav" class="pn-ProductNav dragscroll">
+        <div id="pnProductNavContents" class="pn-ProductNav_Contents">
+            <a href="{{ route('front.user.company') }}" aria-selected="true"  @if(!isset($_GET['category']) && !isset($_GET['industry']) && !isset($_GET['post'])) aria-selected="true" @endif class="pn-ProductNav_Link">View All Users</a>
+            <span id="pnIndicator" class="pn-ProductNav_Indicator"></span>
+        </div>
+    </nav>
+</div>
+
+@if($user_type == 2)
+
+<div class="leftPanel pn-ProductNav_Wrapper">
+    <nav id="pnProductNav" class="pn-ProductNav dragscroll">
+        <div id="pnProductNavContents" class="pn-ProductNav_Contents">
+            <a href="{{ url('incubate_report_list') }}" aria-selected="true"  @if(!isset($_GET['category']) && !isset($_GET['industry']) && !isset($_GET['post'])) aria-selected="true" @endif class="pn-ProductNav_Link">Incubate Report</a>
+            <span id="pnIndicator" class="pn-ProductNav_Indicator"></span>
+        </div>
+    </nav>
+</div>
+<div class="leftPanel pn-ProductNav_Wrapper">
+    <nav id="pnProductNav" class="pn-ProductNav dragscroll">
+        <div id="pnProductNavContents" class="pn-ProductNav_Contents">
+            <a href="{{ url('/appointment/list') }}" aria-selected="true"   class="pn-ProductNav_Link">Appointment</a>
+            <span id="pnIndicator" class="pn-ProductNav_Indicator"></span>
+        </div>
+    </nav>
+</div>
+@else
+	
+@endif
+
+
+
+<div class="leftPanel pn-ProductNav_Wrapper">
+    <nav id="pnProductNav" class="pn-ProductNav dragscroll">
+        <div id="pnProductNavContents" class="pn-ProductNav_Contents">
+            <a href="{{ route('front.user.myMessages') }}" aria-selected="true" @if(!isset($_GET['category']) && !isset($_GET['industry']) && !isset($_GET['post'])) aria-selected="true" @endif class="pn-ProductNav_Link">My Messages</a>
+            <span id="pnIndicator" class="pn-ProductNav_Indicator"></span>
+        </div>
+    </nav>
+</div>
+
+
+
+
+
+
+
+<div class="leftPanel-top" style="padding-top: 0">
+<h4>Posts</h4>
+</div>
+
+<div class="leftPanel-top">
+    <ul>
+        
+            <li @if(isset($_GET['post']) &&  $_GET['post']=='feed') class="active" @endif  >
+                <a href="{{ route('front.user.feed') }}?post=feed"  >Relevant Posts</a>
+            </li>
+        
+            <li @if(!isset($_GET['post']) && !isset($_GET['category'])) class="active" @endif >
+                <a href="{{ route('front.user.account') }}">All Posts</a>
+            </li>
+        
+            <li @if(isset($_GET['category']) &&  $_GET['category']=='Mg==') class="active" @endif>
+                <a href="{{ route('front.user.account') }}?category=Mg==">Announcements</a>
+            </li>
+        
+            <li @if(isset($_GET['category']) &&  $_GET['category']=='NA==') class="active" @endif >
+                <a href="{{ route('front.user.account') }}?category=NA==">Achievements</a>
+            </li>
+        
+            <li @if(isset($_GET['category']) &&  $_GET['category']=='NQ==') class="active" @endif  >
+                <a href="{{ route('front.user.account') }}?category=NQ==">Opportunities</a>
+            </li>
+             
+    </ul>
+</div>
+
+<div class="leftPanel-top">
+    <ul>
+        @if(isset($block1Arr))
+            @foreach($block1Arr as $pk => $pv)
+            <li @if(isset($_GET['post']) && $_GET['post'] == $pk) class="active" @endif 
+                @if(!isset($_GET['post']) && $pk == 'public') class="active" @endif>
+                <a href="{{ route('front.user.account') }}?post={{ $pk }}@if(isset($_GET['industry']) && $_GET['industry'] != '')&industry={{ $_GET['industry'] }}@endif">{{ $pv }}</a>
+            </li>
+            @endforeach
+        @endif
+    </ul>
+</div>
+
+<div class="leftPanel pn-ProductNav_Wrapper res-height"  style=" 
+    overflow-y: scroll;">
+    <nav id="pnProductNav" class="pn-ProductNav dragscroll">
+        <div id="pnProductNavContents" class="pn-ProductNav_Contents">
+            <a href="{{ route('front.user.account') }}@if(isset($_GET['post']) && $_GET['post'] != '')?post={{ $_GET['post'] }}@endif" @if(!isset($_GET['industry'])) aria-selected="true" @endif class="pn-ProductNav_Link">All Industries</a>
+            @if(isset($industry_category_show) && !empty($industry_category_show) && count($industry_category_show))
+                @foreach($industry_category_show as $v)
+                    <a href="{{ route('front.user.account') }}?industry={{ base64_encode($v->id) }}@if(isset($_GET['post']) && $_GET['post'] != '')&post={{ $_GET['post'] }}@endif" 
+                        @if(isset($_GET['industry']) && base64_decode($_GET['industry']) == $v->id) aria-selected="true" @endif class="pn-ProductNav_Link">{{ $v->industry_category }}</a>
+                @endforeach
+            @endif
+            <span id="pnIndicator" class="pn-ProductNav_Indicator"></span>
+        </div>
+    </nav>
+</div>
+
+
+
+<!--
+<div class="leftPanel pn-ProductNav_Wrapper">
+    <nav id="pnProductNav" class="pn-ProductNav dragscroll">
+        <div id="pnProductNavContents" class="pn-ProductNav_Contents">
+            <a href="{{ route('front.user.account') }}@if(isset($_GET['post']) && $_GET['post'] != '')?post={{ $_GET['post'] }}@endif" @if(!isset($_GET['category'])) aria-selected="true" @endif class="pn-ProductNav_Link">All Categories</a>
+            @if(isset($category) && !empty($category) && count($category))
+                @foreach($category as $v1)
+                    <a href="{{ route('front.user.account') }}?category={{ base64_encode($v1->id) }}@if(isset($_GET['post']) && $_GET['post'] != '')&post={{ $_GET['post'] }}@endif" 
+                        @if(isset($_GET['category']) && base64_decode($_GET['category']) == $v1->id) aria-selected="true" @endif class="pn-ProductNav_Link">{{ $v1->name }}</a>
+                @endforeach
+            @endif
+            <span id="pnIndicator" class="pn-ProductNav_Indicator"></span>
+        </div>
+    </nav>
+</div>
+-->
+
+
+
+<!-- <style type="text/css">
+   .leftPanel-top h4 {
+    background: #2d75a1;
+    color: #fff;
+    padding: 9px 15px;
+    border-radius: 4px 4px 0 0;
+}
+.leftPanel-top h4 {
+    padding: 9px 15px;
+    border-radius: 4px 4px 0 0;
+    border-top: 5px solid #dc3135;
+}
+    .shadow-none{ box-shadow: inherit;  }
+    .border-bottom{border-bottom:1px solid #ccc;}
+</style> -->

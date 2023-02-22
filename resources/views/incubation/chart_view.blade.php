@@ -1,0 +1,143 @@
+@extends('incubation.layouts.app')
+@section('accountRightMenu')
+    @include('incubation.includes.account_right_menu')
+@endsection
+@section('content')
+    @php $mesg = 'No Chart Found...'; @endphp
+
+    @if (!empty($data))
+        <html>
+
+        <head>
+            <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+            <script type="text/javascript">
+                google.charts.load('current', {
+                    'packages': ['corechart']
+                });
+
+                // google.charts.load('current', {
+                //     'packages': ['line']
+                // });
+
+
+                google.charts.setOnLoadCallback(drawChart);
+                google.charts.setOnLoadCallback(drawChartMonth);
+
+                function drawChart() {
+                    console.log("{{ $data }}");
+                    var data = google.visualization.arrayToDataTable([
+                        ['Year', 'Revenue', 'Expenses', 'Net Profit(INR)'],
+                        @php echo $data; @endphp
+                    ]);
+
+                    var options = {
+                        title: 'Yearly Financials Report',
+                        curveType: 'function',
+                        legend: {
+                            position: 'bottom'
+                        }
+                    };
+
+                    var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+
+                    chart.draw(data, options);
+                }
+
+                function drawChartMonth() {
+                    var product = <?php echo $data_month; ?>;
+
+                    var data = google.visualization.arrayToDataTable(product);
+
+
+                    var options = {
+
+                        title: 'Monthly Financials Report(2022-23)',
+
+
+                        series: {
+                            // Gives each series an axis name that matches the Y-axis below.
+                            0: {
+                                axis: 'Months'
+                            },
+                            1: {
+                                axis: 'Total'
+                            }
+                        },
+                        axes: {
+                            // Adds labels to each axis; they don't have to match the axis names.
+                            y: {
+                                Months: {
+                                    label: 'Months'
+                                },
+                                Total: {
+                                    label: 'Total'
+                                }
+                            }
+                        }
+                    };
+
+                    var chart = new google.visualization.LineChart(document.getElementById('curve_chart_month'));
+
+                    chart.draw(data, options);
+                }
+
+                // function drawChartMonth() {
+
+                //     var data = new google.visualization.DataTable();
+                //     data.addColumn('string', 'Month');
+                //     data.addColumn('number', 'Credit Sale');
+                //     data.addColumn('number', 'Cash Sale');
+                //     data.addColumn('string', 'Product');
+
+
+                //     data.addRows([
+                //         @php echo $data_month; @endphp
+                //     ]);
+
+                //     var options = {
+                //         chart: {
+                //             title: 'Monthly Financials Report(2022-23)',
+                //             subtitle: ''
+                //         },
+                //         // width: 900,
+                //         // height: 500
+                //     };
+
+                //     var chart = new google.charts.Line(document.getElementById('curve_chart_month'));
+
+                //     chart.draw(data, google.charts.Line.convertOptions(options));
+                // }
+            </script>
+        </head>
+
+        <body>
+            <div class="col-sm-12 fin-report">
+                <h3 align="center">Company Performance Report</h3>
+                <div class="postCard">
+                    <div class="postWrap">
+                        <div class="postTop">
+
+                            <div id="curve_chart" style="width: 900px; height: 500px"></div>
+
+                            <div id="curve_chart_month" style="width: 900px; height: 500px"></div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </body>
+
+        </html>
+    @else
+        <div class="col-sm-12">
+            <div class="postCard">
+                <div class="postWrap">
+                    <div class="postTop">
+                        <p>{{ $mesg }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+@endsection

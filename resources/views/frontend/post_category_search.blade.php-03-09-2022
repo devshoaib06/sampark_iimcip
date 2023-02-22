@@ -1,0 +1,10 @@
+@extends('frontend.layouts.app')
+@section('content')
+
+
+<p>
+{{$postdata->post_title}}
+{{$postdata->name}}
+</p>
+
+@endsection 

@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+
+class ResponseBrief extends Model
+{
+	protected $guarded = [];
+
+	protected $table = 'response_briefs';
+
+
+	public function getMentorName()
+	{
+		return $this->belongsTo('App\Models\Users', 'mentor_id', 'id');
+	}
+
+	public function getIncubatee()
+	{
+		return $this->belongsTo('App\Models\Incubatee', 'incubatee_id', 'id');
+	}
+
+	public function getParameter()
+	{
+		return $this->belongsTo('App\Models\Parameter', 'parameter_id', 'id');
+	}
+
+	public function getResponseDetails()
+	{
+		return $this->hasMany(ResponseDetail::class, 'response_id', 'id');
+	}
+}

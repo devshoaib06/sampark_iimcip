@@ -1,0 +1,23 @@
+<?php
+Route::get('/incubationdemo', 'IncubationController@allSite');
+
+Route::group(['prefix' => 'incubation'], function () {
+ 
+    Route::group(['middleware' => 'IfIncubateeNotLogIn'], function () {
+       Route::get('/', 'IncubationController@index')->name('signin');
+        Route::post('/signin', 'IncubationController@userLogin')->name('incubate.user.login');
+        
+    });
+
+    Route::group(['middleware' => 'IfIncubateeLogIn'], function () {
+      Route::get('/incubatee/mentor/startup', 'IncubationController@mentorStartup')->name('incubatee.mentor.startup');
+      Route::get('/incubatee/home', 'IncubationController@feed')->name('incubatee.user.feed');
+    //Route::get('/incubatee/count', 'IncubationController@userCount');
+      Route::get('/incubatee/account', 'IncubationController@account')->name('incubatee.user.account');
+
+      Route::get('/incubatee/logout', 'IncubationController@logout')->name('incubatee.user.logout');
+      
+
+    });
+
+}); //end incubation prefix

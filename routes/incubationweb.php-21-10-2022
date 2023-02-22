@@ -1,0 +1,17 @@
+<?php
+Route::get('/incubationdemo', 'IncubationController@allSite');
+
+Route::group(['prefix' => 'incubation'], function () {
+
+    Route::group(['middleware' => 'IfIncubateeNotLogIn'], function () {
+        Route::get('/', 'IncubationController@index')->name('signin');
+        Route::post('/signin', 'IncubationController@userLogin')->name('incubate.user.login');
+        
+    });
+
+    Route::group(['middleware' => 'IfIncubateeLogIn'], function () {
+        Route::get('/account', 'IncubationController@account')->name('incubate.user.account');
+
+    });
+
+}); //end incubation prefix

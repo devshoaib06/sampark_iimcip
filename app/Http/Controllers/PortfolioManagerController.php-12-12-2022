@@ -1,0 +1,701 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use App\Models\Users;
+use App\Models\Invitations;
+use App\Models\Stages;
+use App\Models\IndustryCategories;
+use App\Models\MemberBusiness;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+use Image;
+use App\Models\FounderTransaction;
+use App\Models\MemberService;
+use App\Models\MemberVideo;
+use App\Models\CompanyType;
+use App\Models\LegalStatus;
+use Auth;
+use DB;
+use Session;
+use PHPMailer\PHPMailer\PHPMailer;
+use Carbon\Carbon;
+use Validator;
+use Mail;
+
+
+class PortfolioManagerController extends Controller
+{
+
+    public function index() {
+        
+         
+        $dataBag = array();
+        $dataBag['GparentMenu'] = 'pmmanagement';
+        $dataBag['parentMenu'] = 'pmManagement';
+        $dataBag['childMenu'] = 'pmList';
+        $dataBag['userList'] = $userList= Users::whereIn('user_type', [4])->orderBy('id', 'desc')->get();
+        $dataBag['startupList'] =  Users::whereNull('founder_id')->whereIn('user_type', [2])
+        ->orderBy('member_company', 'asc')->get();
+        //dd($dataBag['userList']->toArray());
+        return view('dashboard.pm.index', $dataBag);
+    }
+
+
+      public function assignStartupList(Request $request) {
+        
+         
+        $pm_id = $request->input('pmID');
+
+        $ids_array = DB::table('member_pm_rel')->where('pm_id', '=', $pm_id)->get()->toArray();
+        $ids = array();
+        foreach ($ids_array as $key => $value) {
+            $ids[] = $value->member_id; 
+        }
+     
+        $dataBag['startupList'] =  Users::whereNull('founder_id')->where('user_type', [2])->whereNotIn('id', $ids)->orderBy('member_company', 'asc')->get();
+
+
+        $body = "<table class='table table-striped table-hover responsive' id='example'><thead><tr><th style='width: 70px;''></th><th>Startup Name</th><th>Primary Contact</th><th>Email-id</th><th>Phone</th><th>Location</th></tr></thead><tbody>";
+
+
+        foreach ($dataBag['startupList'] as $key => $value) {
+            $body.= '<tr><td><input type="checkbox" name="startup_ids" class="ckbs" value="'.$value->id.'"></td><td>' . $value->member_company . '</td><td>' . $value->contact_name . '</td><td>' . $value->email_id . '</td><td>' . $value->contact_no . '</td><td>' . $value->address . '</td></tr>';
+        }
+
+
+        $body = $body."</tbody></table>";
+
+        echo $data = $body;
+
+       // print_r($dataBag['startupList']); die;
+
+        
+    }
+
+
+
+    public function editPM($user_id) {
+        $dataBag = array();
+        $dataBag['GparentMenu'] = 'pmmanagement';
+        $dataBag['parentMenu'] = 'pmManagement';
+        $dataBag['childMenu'] = 'pmEdit';
+
+        $dataBag['stageList'] = Stages::orderBy('id', 'desc')->get();
+        $dataBag['industryList'] = IndustryCategories::orderBy('id', 'desc')->get();
+
+
+        $user = Users::where('id', '=', $user_id)->first();
+        $dataBag['user_data'] = $user;
+
+        //dd($dataBag['user_data']);
+
+
+
+        $dataBag['founders'] = DB::table('founder_transactions')->where('member_id', '=', $user->id)->orderBy('id', 'asc')->get();
+
+        //dd($DataBag['founders']);
+
+        $dataBag['founderscount'] = DB::table('founder_transactions')->where('member_id', '=', $user->id)->count();
+
+         $dataBag['buisness'] = DB::table('member_services')->where('member_id', '=', $user->id)->orderBy('id', 'asc')->get();
+
+        $dataBag['memberBusiness'] = MemberBusiness::where('member_id', '=', $user->id)->pluck('industry_category_id')->toArray();
+        //dd($dataBag['memberBusiness']);
+
+        $dataBag['company_videos'] = DB::table('member_videos')->where('member_id', '=', $user->id)->orderBy('id', 'asc')->get();
+
+
+        //dd($dataBag['company_videos']);
+        
+        $dataBag['companyTypeList'] = CompanyType::orderBy('company_type.company_type', 'asc')->get();
+        $dataBag['legalStatusList'] = LegalStatus::orderBy('legal_status.legal_status', 'asc')->get();
+        
+        return view('dashboard.pm.edit', $dataBag);
+    }
+
+
+    public function updatePM(Request $request, $user_id) {
+
+        $User = Users::where('id', '=', $user_id)->first();
+        if( !empty($User) ) {
+
+            $request->validate([
+            
+            'email_id' => 'required|email|unique:users,email_id,'.$User->id
+            ],[
+            
+                'email_id.unique' => 'This Email-id Already Exist, Try Another.'
+            ]);
+
+            $updateData = array();
+            $updateData['member_company'] = trim($request->input('member_company'));
+
+            $updateData['slug'] = Str::slug($updateData['member_company'], '-');
+
+            $updateData['contact_name'] = trim($request->input('name'));
+            $updateData['first_name'] = trim($request->input('name'));
+            $updateData['email_id'] = trim($request->input('email_id'));
+            $updateData['contact_no'] = trim($request->input('mobile'));
+          
+           
+
+            $updateData['address'] = trim($request->input('address'));
+
+            $updateData['country'] = trim($request->input('country'));
+            $updateData['city'] = trim($request->input('city'));
+            $updateData['website'] = trim($request->input('website'));
+            $updateData['legal_status'] = trim($request->input('legal_status'));
+            $updateData['profile_info'] = trim($request->input('profile_info'));
+            
+            
+            $updateData['company_type'] = trim($request->input('company_type'));
+            $updateData['about_you'] = trim(htmlentities($request->input('about_you'), ENT_QUOTES));
+             
+         
+
+
+
+            $updateData['milestone'] = trim($request->input('milestone'));
+
+            $updateData['member_spec'] = trim($request->input('member_spec'));
+            $updateData['member_looking'] = trim($request->input('member_looking'));
+            $updateData['member_help'] = trim($request->input('member_help'));
+            $updateData['achievements'] = trim($request->input('achievements'));
+            $updateData['certifications'] = trim($request->input('certifications'));
+
+            $updateData['is_raised_invest'] = trim($request->input('is_raised_invest'));
+
+            if($updateData['is_raised_invest']==1)
+            {
+                $updateData['invest_name'] = trim($request->input('invest_name'));
+            }
+            else
+            {
+                $updateData['invest_name'] = "";
+            }
+
+            $updateData['invest_name'] = trim($request->input('invest_name'));
+
+            
+            
+            if( $request->hasFile('speech') ) {
+            
+
+            $file = $request->file('speech');
+   
+      //Display File Name
+      $file_newname=$file->getClientOriginalName();
+      echo '<br>';
+   
+      //Display File Extension
+      echo 'File Extension: '.$file->getClientOriginalExtension();
+      echo '<br>';
+   
+      //Display File Real Path
+      echo 'File Real Path: '.$file->getRealPath();
+      echo '<br>';
+   
+      //Display File Size
+      echo 'File Size: '.$file->getSize();
+      echo '<br>';
+   
+      //Display File Mime Type
+      echo 'File Mime Type: '.$file->getMimeType();
+   
+      $destinationPath = public_path('/uploads/user_images');
+      $file->move($destinationPath,$file->getClientOriginalName());
+
+
+            $updateData['speech'] = $file_newname;
+        }
+
+            
+            $updateData['updated_by'] = Auth::user()->id;
+            $updateData['updated_at'] = date('Y-m-d H:i:s');
+            if( $request->hasFile('image') ) {
+
+                $image = $request->file('image');
+                $real_path = $image->getRealPath();
+                $file_orgname = $image->getClientOriginalName();
+                $file_size = $image->getClientSize();
+                $file_ext = strtolower($image->getClientOriginalExtension());
+                $file_newname = "user"."_".time().".".$file_ext;
+
+                $destinationPath = public_path('/uploads/user_images');
+                $original_path = $destinationPath."/original";
+                $thumb_path = $destinationPath."/thumb";
+                
+                $img = Image::make($real_path);
+                $img->resize(150, 150, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($thumb_path.'/'.$file_newname);
+
+                $image->move($original_path, $file_newname);
+                $updateData['image'] = $file_newname;
+            }
+            $res = Users::where('id', '=', $user_id)->update($updateData);
+            if( $res ) {
+
+                $childs =Users::where('founder_id', '=', $User->id)->get();
+
+                foreach ($childs as $key => $child) {
+                    $update_child_data = array(
+                    'slug' => $updateData['slug']
+                    );
+
+                    //dd($update_data);
+                    Users::where('id', '=', $child->id)->update($update_child_data);
+                }
+
+                //founder
+                $founder_name = $request->input('founder_name');
+                $founder_profile = $request->input('founder_profile');
+
+                $founder_img=$request->file('founder_img');
+
+                //dd($founder_img);
+
+                $founder_img_hidden=$request->input('founder_img_hidden');
+
+                if(!empty($founder_name))
+                {
+                    if(!empty($founder_img_hidden))
+                    {
+                        $count_hidden =count($founder_img_hidden);
+                        $memberFounder = array();
+                        foreach($founder_name as $key=>$v) {
+
+                            
+                            if(!empty($v))
+                            {
+                                $memberFounder[$key]['member_id'] = $User->id;
+                                $memberFounder[$key]['name'] = $v;
+                                $memberFounder[$key]['profile'] = $founder_profile[$key];
+
+                                //$key +=$count_hidden;
+
+                                //echo $key;die;
+
+
+                                if( isset($founder_img[$key]) ) {
+                                    $image = $founder_img[$key];
+                                    $real_path = $image->getRealPath();
+                                    $file_orgname = $image->getClientOriginalName();
+                                    $file_size = $image->getClientSize();
+                                    $file_ext = strtolower($image->getClientOriginalExtension());
+                                    $file_newname = "founder"."_".time().$key.".".$file_ext;
+                                    $destinationPath = public_path('/uploads/founder_images');
+                                    $original_path = $destinationPath."/original";
+                                    $thumb_path = $destinationPath."/thumb";
+                                    
+                                    $img = Image::make($real_path);
+                                    $img->resize(150, null, function ($constraint) {
+                                        $constraint->aspectRatio();
+                                    })->save($thumb_path.'/'.$file_newname);
+
+                                    $image->move($original_path, $file_newname);
+                                    $memberFounder[$key]['image'] = $file_newname;
+                                }
+                                else
+                                {
+                                    $file_newname =$founder_img_hidden[$key];
+                                    $memberFounder[$key]['image'] = $file_newname;
+                                }
+                            }
+                            
+                        }
+
+                        
+                        if (!empty($memberFounder)) {
+                            FounderTransaction::where('member_id', '=', $User->id)->delete();
+                            FounderTransaction::insert($memberFounder);
+                        }
+                    }
+                    else
+                    {
+                    
+                    $memberFounder = array();
+                    foreach($founder_name as $key=>$v) {
+
+                        if(!empty($v))
+                        {
+                        
+                            $memberFounder[$key]['member_id'] = $User->id;
+                            $memberFounder[$key]['name'] = $v;
+                            $memberFounder[$key]['profile'] = $founder_profile[$key];
+
+                            //$key +=$count_hidden;
+
+                            //echo $key;die;
+                            if( $founder_img[$key] ) {
+                                $image = $founder_img[$key];
+                                $real_path = $image->getRealPath();
+                                $file_orgname = $image->getClientOriginalName();
+                                $file_size = $image->getClientSize();
+                                $file_ext = strtolower($image->getClientOriginalExtension());
+                                $file_newname = "founder"."_".time().$key.".".$file_ext;
+                                $destinationPath = public_path('/uploads/founder_images');
+                                $original_path = $destinationPath."/original";
+                                $thumb_path = $destinationPath."/thumb";
+                                
+                                $img = Image::make($real_path);
+                                $img->resize(150, null, function ($constraint) {
+                                    $constraint->aspectRatio();
+                                })->save($thumb_path.'/'.$file_newname);
+
+                                $image->move($original_path, $file_newname);
+                                $memberFounder[$key]['image'] = $file_newname;
+                            }
+                        }
+                    }
+
+                    //dd($memberFounder);
+
+                   
+                }
+                
+                }
+
+
+                //dd($company_videoArr);
+
+                return back()->with('msg_class', 'alert alert-success')
+                ->with('msg', 'PM Updated Succesfully.');
+            } else {
+                return back()->with('msg_class', 'alert alert-danger')
+                ->with('msg', 'Something Went Wrong.');
+            }
+        } else {
+            return back()->with('msg_class', 'alert alert-danger')
+            ->with('msg', 'Something Went Wrong. User Missmatch');
+        }
+    }
+
+
+    public function pmMemberList($user_id) {  
+        $dataBag = array();
+        $dataBag['GparentMenu'] = 'pmmanagement';
+        $dataBag['parentMenu'] = 'pmManagement';
+        $dataBag['childMenu'] = 'pmEdit';
+        $ids_array = DB::table('member_pm_rel')->where('pm_id', '=', $user_id)->get()->toArray();
+        $ids = array();
+        foreach ($ids_array as $key => $value) {
+            $ids[] = $value->member_id; 
+        }
+        //dd($ids);
+        $dataBag['userList'] = DB::table('users')->whereIn('id', $ids)
+                  ->where('status', 1)
+                  ->get();
+        if(!empty($dataBag['userList'])){
+            $memberBusiness= array();
+            foreach($dataBag['userList'] as $user){ 
+               $mentor_id = DB::table('member_mentor_rel')
+                ->select('mentor_id')
+                ->where("member_id", "=", $user->id)->get();
+                 $count = count($mentor_id); 
+                if($count != 0){
+                    $mentor_name = DB::table('users')
+                    ->select('first_name')
+                    ->where("id", "=", $mentor_id[0]->mentor_id)->first();
+                    $user->mentor = $mentor_name->first_name; 
+                  }
+                  else{
+                    $user->mentor = "NA";
+                  }
+                //dd($user);
+            }
+           // dd($dataBag['userList']);
+        }
+        $dataBag['memberList'] = Users::whereIn('user_type', [6])->orderBy('id', 'desc')->get();
+        //dd($dataBag['userList']->toArray());
+        return view('dashboard.pm.member_list', $dataBag);
+    }
+
+    public function deletePM($member_id,$pm_id) {
+       $res = DB::table('member_pm_rel')->where('member_id', $member_id)->where('pm_id', $pm_id)->delete();
+        if( $res ) {
+            return back()->with('msg_class', 'alert alert-success')
+            ->with('msg', 'Startup Delinked Succesfully.');
+        } else {
+            return back()->with('msg_class', 'alert alert-danger')
+            ->with('msg', 'Something Went Wrong.');
+        }
+    }
+
+
+
+
+    public function createPM() {
+        $dataBag = array();
+        $dataBag['GparentMenu'] = 'pmmanagement';
+        $dataBag['parentMenu'] = 'pmManagement';
+        $dataBag['childMenu'] = 'pmCreate';
+        $dataBag['stageList'] = Stages::orderBy('id', 'desc')->get();
+        $dataBag['industryList'] = IndustryCategories::orderBy('industry_category.industry_category', 'asc')->get();
+        
+        $dataBag['companyTypeList'] = CompanyType::orderBy('company_type.company_type', 'asc')->get();
+        $dataBag['legalStatusList'] = LegalStatus::orderBy('legal_status.legal_status', 'asc')->get();
+        
+        return view('dashboard.pm.create', $dataBag);    
+    }
+
+
+    public function savePM(Request $request) {
+
+        $request->validate([
+            
+            'email_id' => 'required|email|unique:users,email_id'
+        ],[
+        
+            'email_id.unique' => 'This Email-id Already Exist, Try Another.'
+        ]);
+
+
+        $Users = new Users;
+        $Users->timestamp_id = md5(microtime(TRUE));
+        $Users->first_name = trim($request->input('name'));
+        $Users->contact_name = trim($request->input('name'));
+        $Users->slug  =Str::slug($Users->member_company, '-');
+        $Users->email_id = trim($request->input('email_id'));
+        $Users->contact_no = trim($request->input('mobile'));
+        $Users->address = trim($request->input('address'));
+        $Users->password = md5('iImCiP@2020$');
+        $Users->user_type = 4;
+
+        $Users->milestone = trim($request->input('milestone'));
+
+        $Users->member_spec = trim($request->input('member_spec'));
+        $Users->member_looking = trim($request->input('member_looking'));
+        $Users->member_help = trim($request->input('member_help'));
+        $Users->achievements = trim($request->input('achievements'));
+        $Users->certifications = trim($request->input('certifications'));
+        $Users->company_type = trim($request->input('company_type'));
+        
+        $Users->legal_status = trim($request->input('legal_status'));
+        $Users->about_you = trim(htmlentities($request->input('about_you'), ENT_QUOTES));
+
+        $Users->is_raised_invest = trim($request->input('is_raised_invest'));
+
+        if($Users->is_raised_invest==1)
+        {
+            $Users->invest_name = trim($request->input('invest_name'));
+        }
+        else
+        {
+            $Users->invest_name = "";
+        }
+
+        if( $request->hasFile('image') ) {
+
+                $image = $request->file('image');
+                $real_path = $image->getRealPath();
+                $file_orgname = $image->getClientOriginalName();
+                $file_size = $image->getClientSize();
+                $file_ext = strtolower($image->getClientOriginalExtension());
+                $file_newname = "user"."_".time().".".$file_ext;
+
+                $destinationPath = public_path('/uploads/user_images');
+                $original_path = $destinationPath."/original";
+                $thumb_path = $destinationPath."/thumb";
+                
+                $img = Image::make($real_path);
+                $img->resize(150, 150, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($thumb_path.'/'.$file_newname);
+
+                $image->move($original_path, $file_newname);
+                
+
+                $Users->image = $file_newname;
+            }
+        
+        
+        if( $request->hasFile('speech') ) {
+            
+
+            $file = $request->file('speech');
+   
+      //Display File Name
+      $file_newname=$file->getClientOriginalName();
+      echo '<br>';
+   
+      //Display File Extension
+      echo 'File Extension: '.$file->getClientOriginalExtension();
+      echo '<br>';
+   
+      //Display File Real Path
+      echo 'File Real Path: '.$file->getRealPath();
+      echo '<br>';
+   
+      //Display File Size
+      echo 'File Size: '.$file->getSize();
+      echo '<br>';
+   
+      //Display File Mime Type
+      echo 'File Mime Type: '.$file->getMimeType();
+   
+      $destinationPath = public_path('/uploads/user_images');
+      $file->move($destinationPath,$file->getClientOriginalName());
+
+
+            $Users->speech = $file_newname;
+        }
+
+
+
+        $Users->mobile = trim($request->input('mobile'));
+        $Users->stage_id = trim($request->input('stage_id'));
+        $Users->country = trim($request->input('country'));
+        $Users->city = trim($request->input('city'));
+        $Users->website = trim($request->input('website'));
+        $Users->legal_status = trim($request->input('legal_status'));
+        $Users->profile_info = trim($request->input('profile_info'));
+        $Users->created_by = Auth::user()->id;
+
+        $Users->last_login =date("Y-m-d H:i:s", strtotime('+5 hours +30 minutes'));
+
+        //$Users->current_login =date("Y-m-d H:i:s", strtotime('+5 hours +30 minutes'));
+
+        //dd($Users);
+
+
+        if( $Users->save() ) {
+            //founder
+                $founder_name = $request->input('founder_name');
+                $founder_profile = $request->input('founder_profile');
+
+                $founder_img=$request->file('founder_img');
+
+
+                $user_id = $Users->id;
+
+                $new_time = date("Y-m-d H:i:s", strtotime('+5 hours +30 minutes'));
+                
+                $update_data = array(
+                    'current_login' => $new_time,
+                );
+                Users::where('id', '=', $user_id)->update($update_data);
+
+
+                //dd($founder_img);
+
+                if(!empty($founder_name))
+                {
+                    
+                    $memberFounder = array();
+                    foreach($founder_name as $key=>$v) {
+
+                        if(!empty($v))
+                        {
+                        
+                            $memberFounder[$key]['member_id'] = $Users->id;
+                            $memberFounder[$key]['name'] = $v;
+                            $memberFounder[$key]['profile'] = $founder_profile[$key];
+
+                            //$key +=$count_hidden;
+
+                            //echo $key;die;
+                            if( $founder_img[$key] ) {
+                                $image = $founder_img[$key];
+                                $real_path = $image->getRealPath();
+                                $file_orgname = $image->getClientOriginalName();
+                                $file_size = $image->getClientSize();
+                                $file_ext = strtolower($image->getClientOriginalExtension());
+                                $file_newname = "founder"."_".time().$key.".".$file_ext;
+                                $destinationPath = public_path('/uploads/founder_images');
+                                $original_path = $destinationPath."/original";
+                                $thumb_path = $destinationPath."/thumb";
+                                
+                                $img = Image::make($real_path);
+                                $img->resize(150, null, function ($constraint) {
+                                    $constraint->aspectRatio();
+                                })->save($thumb_path.'/'.$file_newname);
+
+                                $image->move($original_path, $file_newname);
+                                $memberFounder[$key]['image'] = $file_newname;
+                            }
+                        }
+                    }
+
+                    //dd($memberFounder);
+
+                    
+                    if (!empty($memberFounder)) {
+                        //FounderTransaction::where('member_id', '=', $Users->id)->delete();
+                        FounderTransaction::insert($memberFounder);
+                    }
+                
+                
+                }
+
+                 
+
+             
+
+ 
+            return back()->with('msg_class', 'alert alert-success')
+            ->with('msg', 'New PM Created Succesfully.');
+
+        } else {
+            return back()->with('msg_class', 'alert alert-danger')
+            ->with('msg', 'Something Went Wrong.');
+        }
+    }
+
+    public function assignPM(Request $request){
+        $pm_id = $request->input('pmID'); 
+        $startup_ids = explode(",",$request->input('startupIDs'));
+        //var_dump($startup_ids); die;
+        foreach ($startup_ids as $key => $value) {
+                $res = DB::table('member_pm_rel')->insert([
+                'member_id' => $value,
+                'pm_id' => $pm_id
+                ]);
+        }
+        echo "1";
+    }
+	
+	
+	
+	
+	public function assignedStartup(){
+	
+		//$pm_id = $request->input('pmID'); 
+		 //$ids_array = DB::table('member_pm_rel')->where('member_id', '=', $pm_id)->get()->toArray();
+		  $dataBag = array();
+        $dataBag['GparentMenu'] = 'pmmanagement';
+        $dataBag['parentMenu'] = 'pmManagement';
+        $dataBag['childMenu'] = 'pmList';
+		//$dataBag['userList'] = $userList= Users::where('founder_id')->whereIn('user_type', [4])->orderBy('id', 'desc')->get();
+        //$dataBag['userList'] = $userList= Users::whereIn('user_type', [4])->orderBy('id', 'desc')->get();
+		//$dataBag['startupList'] =  Users::where('founder_id')->whereIn('user_type', [4])->orderBy('member_company', 'asc')->get();
+		
+		/*$dataBag = DB::table('member_pm_rel')
+
+        -rightjoin('users', 'member_pm_rel.member_id', '=', 'users.id' )
+		->select( 'users.*', 'member_pm_rel.pm_id')
+		//->from('users', 'member_pm_rel')
+		->orderBy('users.member_company', 'asc')
+		->where('users.id', '=', Auth::user()->id)
+        ->get();
+		dd($dataBag);*/
+        //return view('dashboard.pm.index', $dataBag);
+		
+		$dataBag = Users::join('member_pm_rel','member_pm_rel.member_id', '=', 'users.id')
+						->select('users.*')
+						->where('member_pm_rel.pm_id', '=', Auth::user()->id )
+						->get();
+						
+						
+						
+						return view('dashboard.pm.startup',["dataBag"=>$dataBag] );
+						//dd( $dataBag);
+		
+		
+		
+	}
+
+}

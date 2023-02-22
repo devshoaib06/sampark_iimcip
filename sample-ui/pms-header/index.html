@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IIM Calcutta | Innovation park </title>
+    <link rel="icon" href="https://pms.karmickdev.com/public/front_end/images/favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://pms.karmickdev.com/public/front_end/css/bootstrap.min.css" />
+
+    <link rel="stylesheet" href="navigation.css">
+
+    <script src="https://pms.karmickdev.com/public/front_end/js/jquery.min.js"></script>
+    <script src="https://pms.karmickdev.com/public/front_end/js/popper.min.js"></script>
+    <script src="https://pms.karmickdev.com/public/front_end/js/bootstrap.min.js"></script>
+
+    <style>
+        .bodyCont {
+            padding-top: 90px;
+            padding-bottom: 100px;
+        }
+
+        .post-nav li a.nav-link {
+            background-color: #2d75a1;
+            color: #fff;
+            border-radius: 4px;
+            align-items: center;
+            display: flex;
+        }
+
+        .post-nav li:not(:last-child) {
+            margin-right: 8px;
+        }
+
+        .post-nav li a.nav-link i {
+            margin-right: 4px;
+        }
+
+        .post-nav li a.dropdown-toggle::after {
+            display: none;
+        }
+
+        .post-nav li .dropdown-menu {
+            right: 0;
+            left: auto !important;
+            transform: translate3d(0, 40px, 0px) !important;
+            width: 400px;
+        }
+
+        .post-nav li .dropdown-menu h5 {
+            font-size: 16px;
+        }
+
+        .post-nav .custom-control-label::before {
+            top: 5px;
+        }
+
+        .twin-box .custom-control {
+            width: 49%;
+            display: inline-block;
+        }
+        .drop-box {
+            max-height: 300px;
+            overflow: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="siteHeader">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg pms-nav d-flex justify-content-between">
+                <a class="navbar-brand" href="https://pms.karmickdev.com/feeds?post=feed">
+                    <img src="https://pms.karmickdev.com/public/front_end/images/logo-1.png" class="img-fluid"
+                        alt="IIM Calcutta">
+                </a>
+                <div class="d-flex align-items-center" id="pmsNavbar">
+                    <div class="ml-auto nav-search-form collapse d-lg-block" id="searchCollapse">
+                        <form name="frmx_src" action="https://pms.karmickdev.com/account" method="GET">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <select name="category" class="form-control">
+                                        <option value="">All Posts </option>
+                                        <option value="startup">Startups</option>
+                                        <option value="company">Users</option>
+                                    </select>
+                                    <div class="input-group-text"><i class="fa fa-search"></i></div>
+                                </div>
+                                <input type="text" id="autocomplete" name="search" class="form-control"
+                                    placeholder="Search" value="">
+                            </div>
+                        </form>
+                    </div>
+                    <ul class="navbar-nav flex-row align-items-center ml-lg-5">
+                        <li class="nav-item d-block d-lg-none">
+                            <a class="nav-link" data-toggle="collapse" href="#searchCollapse" title="Search">
+                                <i class="fa fa-search"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" title="Startup">
+                                <i class="fa fa-coffee"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" title="Users">
+                                <i class="fas fa-user"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" title="Messages">
+                                <i class="fas fa-comment-dots"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown pro-drop">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="My Profile">
+                                <span class="pro-pic">
+                                    <img
+                                        src="https://pms.karmickdev.com/public/uploads/user_images/thumb/user_1642936984.png">
+                                </span>
+                            </a>
+                            <div class="dropdown-menu border-0 shadow" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="#">Sitaram Komaragiri
+                                    <p>
+                                        Khadyam Speciality Foods Pvt Ltd
+                                    </p>
+                                </a>
+                                <a class="dropdown-item" href="https://pms.karmickdev.com/dashboard">
+                                    <span><i class="fas fa-laptop"></i></span>Dashboard
+                                </a>
+                                <a class="dropdown-item" href="https://pms.karmickdev.com/my-posts">
+                                    <span><i class="far fa-id-card"></i></span>My Posts
+                                </a>
+                                <a class="dropdown-item" href="https://pms.karmickdev.com/feeds">
+                                    <span><i class="fas fa-rss"></i></span>Feeds
+                                </a>
+                                <a class="dropdown-item" href="https://pms.karmickdev.com/myfav-posts">
+                                    <span><i class="fas fa-heart"></i></span>My Favourites
+                                </a>
+                                <a class="dropdown-item"
+                                    href="https://pms.karmickdev.com/add_user?timestamp_id=65e5937efd9d6d12548c073078f0b56d">
+                                    <span><i class="fas fa-user-plus"></i></span>Add User
+                                </a>
+                                <a class="dropdown-item"
+                                    href="https://pms.karmickdev.com/member-profile/khadyam-speciality-foods-pvt-ltd-1">
+                                    <span><i class="fas fa-address-book"></i></span>Company Profile
+                                </a>
+                                <a class="dropdown-item" href="https://pms.karmickdev.com/manage-profile">
+                                    <span><i class="fas fa-edit"></i></span>Update Company Profile
+                                </a>
+                                <a class="dropdown-item" href="https://pms.karmickdev.com/manage-user-profile">
+                                    <span><i class="fas fa-user-edit"></i></span>Update My Profile
+                                </a>
+                                <a class="dropdown-item" href="https://pms.karmickdev.com/change-password">
+                                    <span><i class="fas fa-key"></i></span>Change Password
+                                </a>
+                                <a class="dropdown-item" href="https://pms.karmickdev.com/logout">
+                                    <span><i class="fas fa-sign-out-alt"></i></span>Logout
+                                </a>
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <button class="btn btn-sm btn-post" title="Add Post">
+                                <span class="d-none d-sm-block">Add Post</span>
+                                <span class="d-block d-sm-none"><i class="fa fa-plus"></i></span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+
+    </header>
+
+    <div class="bodyCont">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <ul class="nav mt-3 justify-content-end post-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" title="My Favovurites">
+                                <i class="fas fa-heart"></i>
+                                <span class="d-none d-sm-block">My Favovurites</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" title="Notification">
+                                <i class="fas fa-bell"></i>
+                                <span class="d-none d-sm-block">Notification</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <div class="dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" id="dropdownFilter"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Filter">
+                                    <i class="fas fa-filter"></i>
+                                    <span class="d-none d-sm-block">Filter</span>
+                                </a>
+                                <div class="dropdown-menu checkbox-menu allow-focus">
+                                    <div class="drop-box">
+                                        <div class="relevant-post px-3">
+                                            <h5>Relevant Post</h5>
+                                            <div class="twin-box">
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="checkbox1">
+                                                    <label class="custom-control-label" for="checkbox1">All Posts</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="checkbox2">
+                                                    <label class="custom-control-label"
+                                                        for="checkbox2">Announcements</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="checkbox3">
+                                                    <label class="custom-control-label" for="checkbox3">Achievements</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="checkbox4">
+                                                    <label class="custom-control-label"
+                                                        for="checkbox4">Opportunities</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="dropdown-divider"></div>
+                                        <div class="relevant-post px-3">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="checkbox5">
+                                                <label class="custom-control-label" for="checkbox5">IIMCIP Posts</label>
+                                            </div>
+                                        </div>
+                                        <div class="dropdown-divider"></div>
+                                        <div class="relevant-post px-3 mb-3">
+                                            <h5>Relevant Post</h5>
+                                            <div class="twin-box">
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="checkbox6">
+                                                    <label class="custom-control-label" for="checkbox6">All Posts</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="checkbox7">
+                                                    <label class="custom-control-label"
+                                                        for="checkbox7">Announcements</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="checkbox8">
+                                                    <label class="custom-control-label" for="checkbox8">Achievements</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="checkbox9">
+                                                    <label class="custom-control-label"
+                                                        for="checkbox9">Opportunities</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="relevant-post px-3 mb-3">
+                                            <h5>Relevant Post</h5>
+                                            <div class="twin-box">
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="checkbox6">
+                                                    <label class="custom-control-label" for="checkbox6">All Posts</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="checkbox7">
+                                                    <label class="custom-control-label"
+                                                        for="checkbox7">Announcements</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="checkbox8">
+                                                    <label class="custom-control-label" for="checkbox8">Achievements</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="checkbox9">
+                                                    <label class="custom-control-label"
+                                                        for="checkbox9">Opportunities</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="relevant-post px-3 mb-3">
+                                            <h5>Relevant Post</h5>
+                                            <div class="twin-box">
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="checkbox6">
+                                                    <label class="custom-control-label" for="checkbox6">All Posts</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="checkbox7">
+                                                    <label class="custom-control-label"
+                                                        for="checkbox7">Announcements</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="checkbox8">
+                                                    <label class="custom-control-label" for="checkbox8">Achievements</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="checkbox9">
+                                                    <label class="custom-control-label"
+                                                        for="checkbox9">Opportunities</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown-divider"></div>
+                                    <div class="px-3 text-center">
+                                        <button type="button" class="btn btn-primary btn-block">Apply Filter</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(".checkbox-menu").on("change", "input[type='checkbox']", function () {
+            $(this).closest("li").toggleClass("active", this.checked);
+        });
+
+        $(document).on('click', '.allow-focus', function (e) {
+            e.stopPropagation();
+        });
+    </script>
+</body>
+
+</html>

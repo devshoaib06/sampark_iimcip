@@ -1,0 +1,140 @@
+@extends('frontend.layouts.app')
+@section('content')
+<div class="row">
+    @if(Session::has('msg') && Session::has('msg_class'))
+    <div class="col-sm-12">
+        <div class="postCard">
+            <div class="{{ Session::get('msg_class') }}" style="margin-bottom: 0;">
+                {{ Session::get('msg') }}
+            </div>
+        </div>
+    </div>
+    @endif
+    
+    @if (isset($normalPost) && !empty($normalPost) && count($normalPost))
+        @foreach($normalPost as $post)
+            @php
+                if (isset($post->memberInfo) && !empty($post->memberInfo)) {
+                    $memberInfo = $post->memberInfo;
+                }
+            @endphp
+            <div class="col-sm-12">
+                <div class="postCard">
+                    <div class="postWrap">
+                        <div class="postTop">
+                            <div class="postTopLeft">
+                                @if(isset($post->postIndistries) && !empty($post->postIndistries) && count($post->postIndistries))
+                                <ul class="incat">
+                                    @foreach($post->postIndistries as $pi)
+                                        @if(isset($pi->industryInfo) && !empty($pi->industryInfo) && $pi->industryInfo->industry_category != '')
+                                            <li>
+                                                <a href="{{ route('front.user.account') }}?industry={{ base64_encode($pi->industryInfo->id) }}">{{ $pi->industryInfo->industry_category }}</a>
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                </ul>
+                                @endif
+                            </div>
+                            <div class="postTopRight">
+                                @if($post->member_id == Auth::user()->id)
+                                    <a href="{{ route('front.user.editpost', array('post_id' => $post->id)) }}"><i class="fas fa-edit"></i></a>
+                                @endif
+                            </div>
+                        </div>
+                        @php 
+                            $profileImage = asset('public/front_end/images/profile-pic.png');
+                            if(isset($memberInfo) && !empty($memberInfo) && $memberInfo->image != null) {
+                                $profileImage = asset('public/uploads/user_images/thumb/'. $memberInfo->image);
+                            }
+                        @endphp
+                        <div class="postUser">
+                            <div class="userImg">
+                                <img src="{{ $profileImage }}" class="img-fluid" />
+                            </div>
+                            <div class="userInfo">
+                                <h3>
+                                    @if(isset($memberInfo) && !empty($memberInfo))
+                                    <a href="{{ route('front.user.account') }}?search={{ $memberInfo->contact_name }}">{{ $memberInfo->contact_name }}</a> 
+                                    @endif
+                                    <span>{{ date('F d, Y', strtotime($post->created_at)) }}</span>
+                                </h3>
+                                @if(isset($memberInfo) && !empty($memberInfo)) 
+                                    <h4><a href="{{ route('front.user.account') }}?search={{ $memberInfo->member_company }}">{{ $memberInfo->member_company }}</a></h4>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="postTitle">
+                            <h2>{{ $post->post_title }}</h2>
+                        </div>
+                        <div class="postDetails">
+                            <p>{!! html_entity_decode($post->post_info, ENT_QUOTES) !!}</p>
+                        </div>
+                        <div class="postFooter">
+                            <ul>
+                                <li>
+                                    <a href="#"><i class="fas fa-reply"></i> 12</a>
+                                </li>
+                                <li class="commentLink">
+                                    <a href="#"><i class="far fa-comment-alt"></i> 22</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="commentWrap">
+                        <div class="postComment">
+                            <img src="images/user-2.png" class="img-fluid" />
+                            <input type="text" class="form-control input-comment" placeholder="Add a comment..." />
+                            <input type="submit" class="btn-comment" value="Add comment">
+                        </div>
+                        <div class="previousComment">
+                            <div class="postUser">
+                                <div class="userImg">
+                                    <img src="images/user-3.png" class="img-fluid" />
+                                </div>
+                                <div class="userInfo">
+                                    <h3><a href="#">Adam Smith</a> <span>Apr 22, 2020</span></h3>
+                                    <h4><a href="#">Karmick Solutions Pvt Ltd</a></h4>
+                                </div>
+                            </div>
+                            <div class="postDetails">
+                                <p>
+                                    Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequa vel illum q ui dolorem eum fugiat quo. Nam convallis tristique urna, vitae vulputate velit pulvinar vel. Vestibulum in odio nec ipsum mattis rhoncus in
+                                    sagittis risus. Duis rhoncus commodo mollis.<span>(more)</span>
+                                </p>
+                            </div>
+                            <div class="postFooter">
+                                <ul>
+                                    <li>
+                                        <a href="#"><i class="fas fa-reply"></i> 12</a>
+                                    </li>
+                                    <li>
+                                        <a href="#"><i class="far fa-comment-alt"></i> 22</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="post-comment-mobile">
+                    <p>Add your comment</p>
+                    <form>
+                        <textarea class="form-control" placeholder="Your comment..."></textarea>
+                        <button type="button" class="btn btn-secondary cancel">Cancel</button>
+                        <button type="button" class="btn btn-primary">Add comment</button>
+                    </form>
+                </div>
+            </div>
+        @endforeach
+        <div class="col-sm-12 mt-2">
+            @if(isset($normalPost) && count($normalPost)) {{ $normalPost->appends(request()->query())->links() }} @endif
+        </div>
+    @endif
+
+</div>
+
+
+<!--Question modal-->
+@include('frontend.includes.add_question_modal')
+@endsection
+
+    

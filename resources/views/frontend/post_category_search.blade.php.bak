@@ -1,0 +1,62 @@
+@extends('frontend.layouts.app')
+@section('content')
+
+{{--@if(Session::has('msg') && Session::has('msg_class'))
+    <div class="col-sm-12">
+        <div class="postCard">
+            <div class="{{ Session::get('msg_class') }}" style="margin-bottom: 0;">
+                {{ Session::get('msg') }}
+            </div>
+        </div>
+    </div>
+    @endif
+	
+	 <div class="col-sm-12">
+                <div class="postCard">
+                    <div class="postWrap">
+	
+								@if(isset($checkPosts) )
+								@foreach ($checkPosts as $post )
+								
+								
+								<ul>
+								<li>{{$post->post_title}}</li>
+								<li>{{$post->name}}</li>
+								</ul>
+								@endforeach 
+								@endif
+	</div>
+	</div>
+</div>--}}
+	
+	
+	<div class="row">
+    @if(Session::has('msg') && Session::has('msg_class'))
+    <div class="col-sm-12">
+        <div class="postCard">
+            <div class="{{ Session::get('msg_class') }}" style="margin-bottom: 0;">
+                {{ Session::get('msg') }}
+            </div>
+        </div>
+    </div>
+    @endif
+    
+    @if (isset($checkPosts) && !empty($checkPosts) )
+        @foreach($checkPosts as $posts)
+	
+			@php
+                if (isset($post->memberInfo) && !empty($post->memberInfo)) {
+                    $memberInfo = $post->memberInfo;
+                }
+            @endphp
+		<ul>
+								<li>{{$posts->post_title}}</li>
+								<li>{{$posts->name}}</li>
+								</ul>{{$posts->image}}</li>
+			
+	@endforeach
+	
+	@endif
+	
+	
+@endsection 

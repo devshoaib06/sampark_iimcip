@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Parameter extends Model
+{
+    protected $guarded = [];
+
+    /**
+     * Get all of the comments for the Parameter
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function getAllQuestions()
+    {
+        return $this->hasMany(Question::class, 'parameter_id', 'id');
+    }
+}

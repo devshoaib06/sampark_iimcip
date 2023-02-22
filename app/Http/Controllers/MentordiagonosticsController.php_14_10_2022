@@ -1,0 +1,112 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\ResponseBrief;
+use App\Models\ResponseDetail;
+use App\Models\Users;
+use App\Models\Incubatee;
+
+use File;
+use Storage;
+use Image;
+use Auth;
+use DB;
+
+class MentordiagonosticsController extends Controller
+{
+
+    public function all_mentordiagonostics() {
+        $DataBag = array();
+        $DataBag['GparentMenu'] = 'mentordiagonostics';
+        $DataBag['childMenu'] = 'allmentordiagonostics';
+        $DataBag['allFCats'] = ResponseBrief::orderBy('id', 'asc')->get();
+		$DataBag['userList'] = Users::whereIn('user_type', [6])->orderBy('id', 'desc')->get();
+	
+	
+		$DataBag['mentorList'] = ResponseBrief::with(['getMentorName', 'getIncubatee'])->select([ DB::raw('DISTINCT(mentor_id)')])->get();
+		
+		//dd($mentor);
+		//$DataBag['incubateeList'] = Incubatee::where('status', '!=', '3')->orderBy('id', 'asc')->get();
+		
+		/* $DataBag['userList'] = DB::table('response_briefs')
+            ->join('users', 'response_briefs.mentor_id', '=', 'users.id')
+            ->join('incubatee_masters', 'response_briefs.incubatee_id', '=', 'incubatee_masters.id')
+            ->select('response_briefs.*', 'users.*', 'incubatee_masters.*' )
+            ->get(); */
+			
+			//dd($DataBag['userList']);
+			
+        return view('dashboard.mentordiagonostic.all_mentordiagonostics', $DataBag);
+		
+    }
+
+   /*  public function create_parameters() {
+        $DataBag = array();
+        $DataBag['GparentMenu'] = 'parameters';
+        $DataBag['childMenu'] = 'addparameters';
+        $DataBag['allFCats'] = Parameter::where('status', '!=', '3')->get();
+        return view('dashboard.parameter.create_parameters', $DataBag);
+    }
+
+    public function save_parameters(Request $request) {
+        $Parameters = new Parameter;
+        $Parameters->parameter_name = trim( ucfirst($request->input('parameter_name')) );
+        //$LegalStatus->description = trim( htmlentities( $request->input('description'), ENT_QUOTES) );
+
+        $display_order = 0;
+
+        
+        $Parameters->status = trim($request->input('status'));
+        //$LegalStatus->created_by = Auth::user()->id;
+        if( $Parameters->save() ) {
+            $file_category_id = $Parameters->id;
+
+            return back()->with('msg', 'Parameters Created Successfully.')
+            ->with('msg_class', 'alert alert-success');
+        }
+    return back()->with('msg', 'Something Went Wrong')
+    ->with('msg_class', 'alert alert-danger');
+    }
+
+    public function del_parameters($id) {
+        $LegalStatus = Parameter::findOrFail($id);
+        $LegalStatus->status = '3';
+        if( $LegalStatus->save() ) {
+            
+            //LegalStatusMap::where('file_category_id', '=', $id)->orWhere('file_subcategory_id', '=', $id)->delete();
+
+            return back()->with('msg', 'Parameters Deleted Successfully.')
+            ->with('msg_class', 'alert alert-success');
+        }
+
+        return back()->with('msg', 'Something Went Wrong')->with('msg_class', 'alert alert-danger');
+    }
+
+    public function edit_parameters($file_category_id) {
+        $DataBag = array();
+        $DataBag['GparentMenu'] = 'legalStatus';
+        $DataBag['childMenu'] = 'flCats';
+        $DataBag['fileCat'] = Parameter::findOrFail($file_category_id);
+        $DataBag['allFCats'] = Parameter::where('status', '!=', '3')
+        ->where('id', '!=', $file_category_id)->get();
+        return view('dashboard.parameter.create_parameters', $DataBag);
+    }
+
+    public function update_parameters(Request $request, $file_category_id) {
+        $Parameters = Parameter::find($file_category_id);
+        $Parameters->parameter_name = trim( ucfirst($request->input('parameter_name')) );
+        
+        
+        //$LegalStatus->updated_by = Auth::user()->id;
+        if( $Parameters->save() ) {
+
+            return back()->with('msg', 'Parameters Updated Successfully.')
+            ->with('msg_class', 'alert alert-success');
+        }
+        return back()->with('msg', 'Something Went Wrong')
+        ->with('msg_class', 'alert alert-danger');
+    } */
+
+}

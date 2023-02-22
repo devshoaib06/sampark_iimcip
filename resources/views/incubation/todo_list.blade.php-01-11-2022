@@ -1,0 +1,156 @@
+
+@extends('incubation.layouts.app')
+@section('content')
+ {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w==" crossorigin="anonymous" /> --}}
+
+        {{-- Bootstrap CSS --}}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+<div>
+        <div class="float-start">
+            <h4 class="pb-3">My Tasks</h4>
+        </div>
+        {{-- <div class="float-end">
+            <a href="{{ route('incubatee.task.create') }}" class="btn btn-info">
+               <i class="fa fa-plus-circle"></i> Create Task
+            </a>
+            
+        </div> --}}
+        <div>
+             <ul class="nav mt-3 justify-content-end post-nav">
+                      
+                        <li class="nav-item">
+                            <div class="dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" id="dropdownFilter"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Filter">
+                                    <i class="fas fa-filter"></i>
+                                    <span class="d-none d-sm-block">Filter</span>
+                                </a>
+								<form action="{{ route('incubatee.task.status') }}" method="GET">
+								
+                                <div class="dropdown-menu checkbox-menu allow-focus">
+                                    <div class="drop-box">
+                                        <div class="relevant-post px-3">
+                                            <h5>Filter</h5>
+                                            <div class="twin-box">
+
+                                             @if(isset($statuses))	
+                                            @foreach($statuses as $c)
+                                            
+                                             <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input filterCheckbox" id="checkbox{{ $c['value'] }}" name="status[]" value="{{$c['value']}}" 
+                                                >
+                                                <label class="custom-control-label" for="checkbox{{$c['value'] }}">{{ $c['label'] }}</label>
+                                            </div> 
+                                            
+                                            @endforeach
+                                            @endif
+                                            
+                                        
+                                        </div>	
+                                        </div>
+                                     
+                                      
+                                   
+                                    </div>
+									<div class="dropdown-divider"></div>
+                                    <div class="px-3 text-center">
+                                        <button type="submit" class="btn btn-primary btn-block">Apply Filter</button>
+                                    </div>
+                                </div>
+								</form>
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                        <a href="{{ route('incubatee.task.create') }}" class="nav-link dropdown-toggle">
+                                    <i class="fa fa-plus-circle"></i> Create Task
+                                    </a>
+                        </li>
+            </ul>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+
+    @foreach ($tasks as $task)
+        <div class="card mt-3">
+            <h5 class="card-header">
+         
+                @if ($task->status == '1')
+                 <i class="fa fa-circle  text-success"></i>
+                    {{ $task->task_title }}
+                 @else
+                 <i class="fa fa-circle  text-warning"></i>
+                    {{ $task->task_title }}
+                @endif
+
+                {{-- <span class="badge rounded-pill bg-warning text-dark">
+                    {{ $task->created_at->diffForHumans() }}
+                </span> --}}
+            </h5>
+
+            <div class="card-body">
+                <div class="card-text">
+                    <div class="float-start">
+                        @if ($task->status == '1')
+                            {{ $task->task_details }}
+                        @else
+                           {{ $task->task_details }}
+                        @endif
+                        <br>
+
+                      
+
+                        <small>Last Updated - {{ $task->updated_at->diffForHumans() }} </small>
+
+                          
+
+                    </div>
+                    @if ($task->status === '1')
+                            <span class="badge rounded-pill bg-info text-dark">
+                                Completed
+                            </span>
+                        @elseif($task->status === '0')
+                            <span class="badge rounded-pill bg-success text-white">
+                               Pending 
+                            </span>
+                          @else
+                          <span class="badge rounded-pill bg-warning text-white">
+                               In Process
+                            </span>
+
+                        @endif
+                    <div class="float-end">
+                        <a href="{{ route('incubatee.task.edit', $task->id) }}" class="btn btn-success">
+                           <i class="fa fa-edit"></i>
+                        </a>
+
+                        <form action="{{ route('incubatee.task.destroy', $task->id) }}" style="display: inline" method="POST" onsubmit="return confirm('Are you sure to delete ?')">
+                           {{ csrf_field() }}
+                           {{ method_field('delete') }}
+
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </form>
+
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
+    @if (count($tasks) === 0)
+        <div class="alert alert-danger p-2">
+            No Task Found. Please Create one task
+            <br>
+            <br>
+            <a href="{{ route('incubatee.task.create') }}" class="btn btn-info">
+                <i class="fa fa-plus-circle"></i> Create Task
+             </a>
+        </div>
+    @endif
+
+
+
+@endsection

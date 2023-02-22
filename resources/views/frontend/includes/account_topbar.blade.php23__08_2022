@@ -1,0 +1,150 @@
+
+
+
+
+<header class="siteHeader">
+    <div class="container">
+        <div class="row align-items-center no-gutters">
+            <div class="col-2 col-sm-2 col-md-2 col-lg-2 col-xl-2">
+                <div class="logo">
+                    <a href="{{ route('front.user.feed') }}?post=feed">
+                        <img src="{{ asset('public/front_end/images/logo-1.png') }}" class="img-fluid" alt="IIM Calcutta" />
+                    </a>
+                </div>
+            </div>
+            <div class="col-1 col-sm-5 col-md-6 col-lg-7 col-xl-6">
+                <!--<div class="searchMobile">
+                    <form name="frmx_src" action="{{ route('front.user.account') }}" method="GET">
+                        <span class="search-icon"><i class="fas fa-search"></i></span>
+                        <div class="search-m-wrap">
+                            <span class="search-close"><i class="fas fa-times"></i></span>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <button><i class="fas fa-search"></i></button>
+                                </div>
+                                <input type="text" name="search" class="form-control" placeholder="Search"
+                                    value="@if(isset($_GET['search'])){{ $_GET['search'] }}@endif">
+                            </div>
+                        </div>
+                    </form>
+                </div>-->
+	<div class="search search-desktop">
+		<form name="frmx_src" action="{{ route('front.user.account') }}" method="GET">
+			<div class="input-group">
+				
+				<div class="input-group-prepend">
+					<select name="category">
+				
+					  <option value="">All Posts </option>
+					   
+					 
+					  <option value="startup" {{request('category') == "startup" ? 'selected': ''}}>Startups</option>
+					  <option value="company" {{request('category') == "company" ? 'selected': ''}}>Users</option>
+						  {{-- <option value="mentor" {{request('category') == "mentor" ? 'selected': ''}}>Mentors</option>--}}
+					
+					</select>
+					<div class="input-group-text"><i class="fas fa-search"></i></div>
+				</div>
+				
+					
+				<input type="text" id="autocomplete" name="search" class="form-control" placeholder="Search" 
+				value="@if(isset($_GET['search']  )){{ $_GET['search'] }}  @endif">
+			</div>
+		</form>
+	</div>
+            </div>
+            <div class="col-9 col-sm-5 col-md-4 col-lg-3 col-xl-4">
+                <div class="topRight">
+                    <ul>
+                        <li>
+                            <div class="searchMobile">
+							{{--  <form name="frmx_src" action="{{ route('front.user.account') }}" method="GET">
+                                    <span class="search-icon"><i class="fas fa-search"></i></span>
+                                    <div class="search-m-wrap">
+                                        <span class="search-close"><i class="fas fa-times"></i></span>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <button><i class="fas fa-search"></i></button>
+                                            </div>
+                                            <input type="text" name="search" class="form-control" placeholder="Search Post"
+                                                value="@if(isset($_GET['search'])){{ $_GET['search'] }}@endif">
+                                        </div>
+                                    </div>
+									
+							</form>--}}
+                            </div>
+                        </li>
+                        <li>
+                             @php 
+
+                              //echo Auth::user()->fresh()->last_login;die;
+                                if(empty(Auth::user()->fresh()->last_login))
+                                {
+                                    $postcount =0;
+                                }
+                                else
+                                {
+                                    if( Auth::user()->fresh()->post_read ==1)
+                                    {
+                                        $postcount =0;
+                                    }
+                                    else
+                                    {
+                                        //echo Auth::user()->fresh()->last_login;die;
+
+                                        $postcount = DB::table('post_master')->join('users', 'users.id', '=', 'post_master.member_id')->where('post_master.created_at','>=', Auth::user()->fresh()->last_login)->where('post_master.member_id','!=',Auth::user()->fresh()->id)->count();
+                                    }
+
+                                }
+
+                               
+                                //echo $postcount;die;
+
+                                
+                            @endphp
+                            <a href="{{ route('front.user.last-login_post') }}"><img src="{{ asset('public/front_end/images/notification-icon.png') }}" width="50" class="width-inheherit">@if($postcount)<span id="post_count">{{ $postcount }}</span>@endif</a></li>
+                        <li class="dropdown">
+                            @php 
+                                $profileImage = asset('public/front_end/images/profile-pic.png');
+                                if(Auth::user()->image != '' && Auth::user()->image != null) {
+                                    $profileImage = asset('public/uploads/user_images/thumb/'. Auth::user()->image);
+                                }
+                                else
+                                {
+                                    $profileImage = asset('public/uploads/user_images/thumb/entreprenaur_photo/noimage.png');
+                                }
+                            @endphp
+                            <a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="profile-picture "><img src="{{ $profileImage }}" class="width-inheherit1" ></a></span>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="#">{{ Auth::user()->contact_name }} <span style="font-size: 14px;font-weight: normal;">{{ Auth::user()->member_company }}</span>
+                                    <span></span></a>
+                                <div class="dropdown-divider"></div> 
+                                 <a class="dropdown-item" href="{{ route('front.user.dashboard') }}"><span><i class="far fa-address-book"></i></span>Dashboard</a>
+
+                                <a class="dropdown-item" href="{{ route('front.user.myposts') }}"><span><i class="far fa-address-book"></i></span>My Posts</a>
+
+                                <a class="dropdown-item" href="{{ route('front.user.feed') }}"><span><i class="far fa-address-book"></i></span>Feeds</a>
+
+                                 <a class="dropdown-item" href="{{ route('front.user.myfavposts') }}"><span><i class="far fa-address-book"></i></span>My Favourites</a>
+
+
+                                 <a class="dropdown-item" href="{{ route('front.user.addusr', array('timestamp_id' => Auth::user()->timestamp_id )) }}"><span><i class="fas fa-user"></i></span>Add User</a>
+
+                                <a class="dropdown-item" href="{{ route('front.user.memberProfile', array('member_company' =>Auth::user()->slug )) }}"><span><i class="fas fa-user"></i></span>Company Profile</a>
+
+                                <a class="dropdown-item" href="{{ route('front.user.mngprof') }}"><span><i class="fas fa-user"></i></span>Update Company Profile</a>
+                                <a class="dropdown-item" href="{{ route('front.user.mnguserprof') }}"><span><i class="fas fa-user"></i></span>Update My Profile</a>
+                                <a class="dropdown-item" href="{{ route('front.user.cngpwd') }}"><span><i class="fas fa-cog"></i></span>Change Password</a>
+                                <a class="dropdown-item" href="{{ route('front.user.logout') }}"><span><i class="fas fa-sign-out-alt"></i></span>Logout</a>
+                            </div>
+                        </li>
+                        <li class="addQuestion">
+                            <a href="#" id="opnQmodal">Add Post</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>

@@ -1,0 +1,184 @@
+                 <div class="row">
+                     <div class="col-lg-12">
+
+                         <ul class="nav mt-3 justify-content-end post-nav">
+                             @php
+                                 $url = ['feeds'];
+                                 $currentUrl = request()->route()->uri;
+                             @endphp
+                             @if (in_array($currentUrl, $url))
+                                 <li class="nav-item">
+                                     <a class="nav-link" href="{{ route('front.user.myfavposts') }}" title="My Favourites">
+                                         <i class="fas fa-heart"></i>
+                                         <span class="d-none d-sm-block">My Favourites</span>
+                                     </a>
+                                 </li>
+                                 <li class="nav-item">
+
+                                     <a class="nav-link" href="{{ route('front.user.notification') }}">
+                                         <i class="fas fa-bell"></i>
+                                         <span class="d-none d-sm-block">Notification</span>
+                                     </a>
+
+                                 </li>
+                             @endif
+
+                             @php
+                                 $urln = ['feeds', 'company', 'startup'];
+                                 $currentUrl = request()->route()->uri;
+                             @endphp
+                             @if (in_array($currentUrl, $urln))
+
+                                 <li class="nav-item">
+                                     <div class="dropdown">
+                                         <a class="nav-link dropdown-toggle" href="#" role="button"
+                                             id="dropdownFilter" data-toggle="dropdown" aria-haspopup="true"
+                                             aria-expanded="false" title="Filter">
+                                             <i class="fas fa-filter"></i>
+                                             <span class="d-none d-sm-block">Filter</span>
+                                         </a>
+                                         <form action="{{ route('front.user.allcheckpost') }}" method="GET">
+
+                                             <div class="dropdown-menu checkbox-menu allow-focus">
+                                                 <div class="drop-box">
+                                                     <div class="relevant-post px-3">
+                                                         <h5>Relevant Post</h5>
+                                                         <div class="twin-box">
+                                                             <div class="custom-control custom-checkbox">
+                                                                 <input type="checkbox" class="custom-control-input"
+                                                                     id="checkbox1" name="all_post_filter[]">
+                                                                 <label class="custom-control-label" for="checkbox1">All
+                                                                     Posts</label>
+                                                             </div>
+
+
+                                                             @if (!empty($category))
+                                                                 @foreach ($category as $c)
+                                                                     <div class="custom-control custom-checkbox">
+                                                                         <input type="checkbox"
+                                                                             class="custom-control-input filterCheckbox"
+                                                                             id="checkbox{{ $c->id }}"
+                                                                             name="post_filter[]"
+                                                                             value="{{ $c->id }}">
+                                                                         <label class="custom-control-label"
+                                                                             for="checkbox{{ $c->id }}">{{ $c->name }}</label>
+                                                                     </div>
+                                                                 @endforeach
+                                                             @endif
+
+
+                                                             {{-- <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="checkbox3">
+                                                <label class="custom-control-label" for="checkbox3">Achievements</label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="checkbox4">
+                                                <label class="custom-control-label" for="checkbox4">Opportunities</label>
+                                            </div> --}}
+                                                         </div>
+                                                     </div>
+                                                     <div class="dropdown-divider"></div>
+                                                     {{-- <div class="relevant-post px-3">
+                                        <div class="twin-box">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="checkbox5">
+                                                <label class="custom-control-label" for="checkbox5">IIMCIP Posts</label>
+                                            </div>
+                                        </div>	
+                                        <div class="dropdown-divider"></div>
+                                        </div> --}}
+                                                     <div class="relevant-post px-3">
+                                                         <h5>Industry Verticals</h5>
+                                                         <div class="twin-box">
+                                                             @if (!empty($industry_category))
+                                                                 @foreach ($industry_category as $ic)
+                                                                     <div class="custom-control custom-checkbox">
+                                                                         <input type="checkbox" name="industry_filter[]"
+                                                                             class="custom-control-input"
+                                                                             id="checkbox{{ $ic->industry_category }}"
+                                                                             value="{{ $ic->id }}">
+                                                                         <label class="custom-control-label"
+                                                                             for="checkbox{{ $ic->industry_category }}">{{ $ic->industry_category }}</label>
+                                                                     </div>
+                                                                 @endforeach
+                                                             @endif
+                                                             {{-- <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="checkbox7">
+                                                <label class="custom-control-label" for="checkbox7">Announcements</label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="checkbox8">
+                                                <label class="custom-control-label" for="checkbox8">Achievements</label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="checkbox9">
+                                                <label class="custom-control-label" for="checkbox9">Opportunities</label>
+                                            </div> --}}
+                                                         </div>
+                                                     </div>
+                                                 </div>
+                                                 <div class="dropdown-divider"></div>
+                                                 <div class="px-3 text-center">
+                                                     <button type="submit" class="btn btn-primary btn-block">Apply
+                                                         Filter</button>
+                                                 </div>
+                                             </div>
+                                         </form>
+                                     </div>
+                                 </li>
+
+
+
+
+                             @endif
+
+                             @php
+                                 $urln = ['manage-profile', 'public-profile', 'private-profile', 'add_customer', 'add_financials','add_financials_month'];
+
+                                 $currentUrl = request()->route()->uri;
+
+                             @endphp
+                             
+                             @if (in_array($currentUrl, $urln))
+                                 <li class="nav-item">
+                                     <a class="nav-link" href="{{ route('front.user.pblprof') }}" title="Public info">
+                                         <i class="fas fa-heart"></i>
+                                         <span class="d-none d-sm-block">Public info</span>
+                                     </a>
+                                 </li>
+
+                                 <li class="nav-item">
+                                     <a class="nav-link" href="{{ route('front.user.pvtprof') }}"
+                                         title="Investment info">
+                                         <i class="fas fa-heart"></i>
+                                         <span class="d-none d-sm-block">Investment info</span>
+                                     </a>
+                                 </li>
+
+                                 <li class="nav-item">
+                                     <a class="nav-link" href="{{ route('front.user.addcust') }}" title="Add Customer">
+                                         <i class="fas fa-user-plus"></i>
+                                         <span class="d-none d-sm-block">Add Customer</span>
+                                     </a>
+                                 </li>
+
+                                 <li class="nav-item">
+                                     <a class="nav-link" href="{{ route('front.user.addfin') }}"
+                                         title="Add Financial Report">
+                                         <i class="fas fa-user-plus"></i>
+                                         <span class="d-none d-sm-block">Add Financial Year</span>
+                                     </a>
+                                 </li>
+
+                                  <li class="nav-item">
+                                     <a class="nav-link" href="{{ route('front.user.addfinmon') }}"
+                                         title="Add Financial Month">
+                                         <i class="fas fa-user-plus"></i>
+                                         <span class="d-none d-sm-block">Add Financial Month </span>
+                                     </a>
+                                 </li>
+                             @endif
+
+                         </ul>
+                     </div>
+                 </div>
