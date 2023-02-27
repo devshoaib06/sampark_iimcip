@@ -1,4 +1,18 @@
 <?php
+
+Route::get('/updateapp', function()
+{
+    \Artisan::call('dump-autoload');
+    echo 'dump-autoload complete';
+});
+Route::get('/config-cache', function() {
+    $exitCode = Artisan::call('config:cache');
+    return 'Config cache cleared';
+});
+Route::get('/clear-cache', function() {
+    $exitCode = Artisan::call('cache:clear');
+    return 'Application cache cleared';
+});
 Route::group(['middleware' => 'IfUserNotLogIn'], function () {
 	Route::get('/', 'FrontendController@index')->name('signinup');
 	Route::get('/email-signup', 'FrontendController@signup')->name('email.signinup');

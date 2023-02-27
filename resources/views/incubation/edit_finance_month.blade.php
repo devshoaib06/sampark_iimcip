@@ -33,7 +33,7 @@
                     <form action="{{ route('startup.finmonth.update', $finmonth->id) }}" method="POST">
                         {{ csrf_field() }}
                         <div class="row">
-
+                            <input type="hidden" name="startup_id" value="{{ $finmonth->startup_id }}">
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="month" class="form-label">Month</label>
@@ -57,7 +57,7 @@
                                         <select name="financial_year" required class="form-control">
                                             @if (isset($finYear) && count($finYear) > 0)
                                                 @foreach ($finYear as $finY)
-                                                    <option value="{{ $finY->id }}" {{$finM->id == $finmonth->financial_year ? 'selected': '' }}>{{ $finY->display_year }}</option>
+                                                    <option value="{{ $finY->id }}" {{$finY->id == $finmonth->financial_year ? 'selected': '' }}>{{ $finY->display_year }}</option>
                                                 @endforeach
                                             @endif
                                         </select>

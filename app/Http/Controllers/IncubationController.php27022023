@@ -790,7 +790,7 @@ class IncubationController extends Controller
 
         }
         $DataBag['data_month'] = json_encode($res);
-        dd($DataBag['results_month']);
+        // dd($DataBag['results_month']);
 
         $DataBag['data'] = "";
 
@@ -1429,7 +1429,7 @@ class IncubationController extends Controller
 
         $DataBag['startUpId'] = $startUpId;
 
-        $financial_year =in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
+        $financial_year = $request->input('financial_year');
         $revenue = $request->input('revenue');
         $gmv = $request->input('gmv');
         $expense = $request->input('expense');
@@ -1522,7 +1522,7 @@ class IncubationController extends Controller
 
         //$finance->startup_id = Auth::user()->id;
 
-        $finance->financial_year  = in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
+        $finance->financial_year = $request->input('financial_year');
 
         $finance->revenue = $request->input('revenue');
 
@@ -1574,8 +1574,7 @@ class IncubationController extends Controller
         ]);
 
         $prods = $request->product_id;
-       // $financial_year = $request->input('financial_year');
-        $financial_year = in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
+        $financial_year = $request->input('financial_year');
         $month = $request->input('month');
         $volume = $request->input('volume');
         $credit_sale = $request->input('credit_sale');
@@ -1607,11 +1606,9 @@ class IncubationController extends Controller
             $finsale->startup_id = $startUpId;
     
             $finsale->month = $request->input('month');
-            
-            //$finsale->financial_year = $request->input('financial_year');
-            #sumantra
-            $finsale->financial_year = in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
-           
+    
+            $finsale->financial_year = $request->input('financial_year');
+    
             $finsale->product_id = $prods;
     
             $finsale->volume = $request->input('volume');
@@ -1622,25 +1619,6 @@ class IncubationController extends Controller
     
             $finsale->save();
         }
-
-
-        $yearly_revenue =
-        StartupMonthlySale::select(DB::raw("SUM(credit_sale + cash_sale) as yearly_revenue"))
-
-        ->where('financial_year', $finsale->financial_year)
-        ->where('startup_id', $startUpId)
-        ->first();
-
-        StartupYearlyFinancial::updateOrCreate(
-            ['startup_id' => $startUpId, 'financial_year' => $finsale->financial_year],
-            [
-                'startup_id' => $startUpId,
-                'financial_year' => $finsale->financial_year,
-                'revenue' => $yearly_revenue->yearly_revenue,
-                'net_profit' => DB::raw("revenue - expense")
-
-            ]
-        );
         // foreach ($prods as $prod) {
 
         // }
@@ -1685,7 +1663,7 @@ class IncubationController extends Controller
 
         $finmonth->month = $request->input('month');
 
-        $finmonth->financial_year =  in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
+        $finmonth->financial_year = $request->input('financial_year');
         
         $finmonth->product_id = $prods;
 
@@ -1698,7 +1676,7 @@ class IncubationController extends Controller
         
         /** Update records on yearly  */
         
-        $financial_year =  in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
+        $financial_year = $request->input('financial_year');
         $startup_id = $request->startup_id; 
 
         $finmonth = StartupMonthlySale::findOrFail($id);
@@ -1733,19 +1711,7 @@ class IncubationController extends Controller
 
             $fin->revenue = $updated_revenue;
             $fin->save();
-
-
         }
-
-        StartupYearlyFinancial::where('startup_id',  $finmonth->startup_id)->where('financial_year', $finmonth->financial_year)
-        ->update(
-
-            [
-
-            
-                'net_profit' => DB::raw("revenue - expense")
-            ]
-        );
 
 
         /**End update records yearly */
@@ -1777,7 +1743,7 @@ class IncubationController extends Controller
 
         return view('incubation.financial_expenses', $DataBag);
     }
-     #SUMANTRA
+
     public function addFinancialExpenseAction(Request $request, $startUpId)
     {
 
@@ -1793,7 +1759,7 @@ class IncubationController extends Controller
 
         $finexp->month = $request->input('month');
 
-        $finexp->financial_year = in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
+        $finexp->financial_year = $request->input('financial_year');
 
         $finexp->raw_material = $request->input('raw_material');
 
@@ -1805,33 +1771,9 @@ class IncubationController extends Controller
 
         $finexp->save();
 
-        $yearly_expenses =
-            StartupMonthlyExpenditure::select(DB::raw("SUM(salary_wages + other_expenses + capex) as yearly_expenses"))
-
-            ->where('financial_year', $finexp->financial_year)
-            ->where('startup_id', $startUpId)
-            ->first();
-        // dd(DB::getQueryLog());        
-
-        // dd($yearly_revenue);
-        //  DB::enableQueryLog(); 
-        StartupYearlyFinancial::updateOrCreate(
-            ['startup_id' => $startUpId, 'financial_year' => $finexp->financial_year],
-            [
-                'startup_id' => $startUpId,
-                'financial_year' => $finexp->financial_year,
-                'expense' => $yearly_expenses->yearly_expenses,
-                'net_profit' => DB::raw("revenue - expense")
-            ]
-        );
-
-
-
-
         return back()->with('msg', 'Financial Expenses has been saved successfully!')
             ->with('msg_class', 'alert alert-success');
     }
-
 
     public function financialExpenseEdit($id)
     {
@@ -1871,7 +1813,7 @@ class IncubationController extends Controller
 
         /** Update records on yearly  */
         
-        $financial_year = in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
+        $financial_year = $request->input('financial_year');
         $startup_id = $request->startup_id; 
         
         $monthly_expense_yearly = StartupMonthlyExpenditure::where(['startup_id'=>$startup_id,'financial_year'=>$financial_year])->get();
@@ -1910,14 +1852,7 @@ class IncubationController extends Controller
             $fin->save();
         }
 
-        StartupYearlyFinancial::where('startup_id', $finexpense->startup_id)->where('financial_year', $finexpense->financial_year)
-            ->update(
 
-                [
-                
-                    'net_profit' => DB::raw("revenue - expense")
-                ]
-            );
         /**End update records yearly */
 
         return back()->with('msg', 'Financial Expenses has been Updated successfully!')

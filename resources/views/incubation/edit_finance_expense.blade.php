@@ -44,6 +44,8 @@
                         @endforeach
                     @endif
                 </select>
+                <input type="hidden" name="startup_id" value="{{ $finexpense->startup_id }}">
+
                 {{-- <input type="text" class="form-control" id="month" name="month" value="{{ $finexpense->month }}"> --}}
             </div>
             </div>

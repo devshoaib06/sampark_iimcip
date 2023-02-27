@@ -254,7 +254,7 @@
             function goDelete(id) {
                 let isConfirm = confirm('Do you want to delete?');
                 if (isConfirm) {
-                    window.location.href = "{{ url('financialsexp/destroy') }}/" + id;
+                    window.location.href = "{{ url('financialsexpenses/destroy') }}/" + id;
                 }
             }
         </script>
