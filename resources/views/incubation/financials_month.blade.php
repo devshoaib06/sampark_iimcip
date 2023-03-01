@@ -80,6 +80,17 @@
             <div class="postWrap">
                 <div class="pwdbox">
                     <h3>Add Financial Info (Monthly)</h3>
+                    <div class="row">
+                        <div class="col-md-12">
+                            @if ($errors->any())
+                                <div class="alert alert-danger" role="alert">
+                                    @foreach ($errors->all() as $message)
+                                        <div> {{ $message }} </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                     <form name="frm_pfupd" id="frm_pfupd" action="{{ route('startup.addfinmonact', [$startUpId]) }}"
                         method="post" enctype="multipart/form-data">
                         {{ csrf_field() }}
@@ -91,7 +102,7 @@
                                     <select name="month" required class="form-control">
                                         @if (isset($finMonth) && count($finMonth) > 0)
                                             @foreach ($finMonth as $finM)
-                                                <option value="{{ $finM->id }}">{{ $finM->display_month }}</option>
+                                                <option value="{{ old('month', $finM->id) }}">{{ $finM->display_month }}</option>
                                             @endforeach
                                         @endif
                                     </select>
@@ -103,7 +114,7 @@
                                     <select name="financial_year" required class="form-control">
                                         @if (isset($finYear) && count($finYear) > 0)
                                             @foreach ($finYear as $finY)
-                                                <option value="{{ $finY->id }}">{{ $finY->display_year }}</option>
+                                                <option value="{{ old( 'financial_year', $finY->id) }}">{{ $finY->display_year }}</option>
                                             @endforeach
                                         @endif
                                     </select>
@@ -113,7 +124,8 @@
 
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <input type="text" class="form-control" name="product_id" placeholder="Product" />
+                                    <input type="text" class="form-control" name="product_id"
+                                     placeholder="Product" value="{{ old('product_id') }}"/>
 
                                     {{-- <select name="product_id[]" class="form-control indusCatIds" multiple="multiple">
                                         <option value="" disabled>Select Product</option>
@@ -129,7 +141,8 @@
                             <div class="col-md-3">
                                 <div class="form-group">
 
-                                    <input type="text" class="form-control" name="volume" placeholder="Volume" />
+                                    <input type="text" class="form-control" name="volume" 
+                                    placeholder="Volume" value="{{ old('volume') }}"/>
                                 </div>
                             </div>
 
@@ -137,7 +150,7 @@
                                 <div class="form-group">
 
                                     <input type="text" class="form-control" name="credit_sale"
-                                        placeholder="Credit Sale(Rs.)" />
+                                        placeholder="Credit Sale(Rs.)"  value="{{ old('credit_sale') }}"/>
                                 </div>
                             </div>
 
@@ -147,7 +160,7 @@
                                 <div class="form-group">
 
                                     <input type="text" class="form-control" name="cash_sale"
-                                        placeholder="Cash Sale(Rs.)" />
+                                        placeholder="Cash Sale(Rs.)" value="{{ old('cash_sale') }}"/>
                                 </div>
                             </div>
 

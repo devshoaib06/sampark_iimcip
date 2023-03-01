@@ -20,7 +20,7 @@
 	  
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.js" charset="UTF-8"></script> 
   
-<script src=”https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js”></script>
+{{-- <script src=”https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js”></script> --}}
 
     <script>
     // $.fn.modal.Constructor.prototype._enforceFocus = function() {

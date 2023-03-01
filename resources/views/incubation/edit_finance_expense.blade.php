@@ -29,6 +29,17 @@
       <div class="postCard manage-wrap">
          <div class="postWrap">
             <div class="pwdbox">
+                <div class="row">
+                    <div class="col-md-12">
+                        @if ($errors->any())
+                            <div class="alert alert-danger" role="alert">
+                                @foreach ($errors->all() as $message)
+                                    <div> {{ $message }} </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                </div>
         {{-- <form action="{{ route('incubatee.task.update', $task->id) }}" method="POST"> --}}
              <form action="{{route('startup.finexp.update', $finexpense->id)}}" method="POST">
             {{ csrf_field() }}
@@ -40,7 +51,7 @@
                 <select name="month" required class="form-control">
                     @if (isset($finMonth) && count($finMonth) > 0)
                         @foreach ($finMonth as $finM)
-                            <option value="{{ $finM->id }}" {{$finM->id == $finexpense->month ? 'selected': '' }}>{{ $finM->display_month }}</option>
+                            <option value="{{ old('month', $finM->id) }}" {{old('month', $finM->id) == $finexpense->month ? 'selected': '' }}>{{ $finM->display_month }}</option>
                         @endforeach
                     @endif
                 </select>
@@ -55,7 +66,7 @@
                 <select name="financial_year" required class="form-control">
                     @if (isset($finYear) && count($finYear) > 0)
                         @foreach ($finYear as $finY)
-                            <option value="{{ $finY->id }}" {{$finY->id == $finexpense->financial_year ? 'selected': '' }}>{{ $finY->display_year }}</option>
+                            <option value="{{ old('financial_year', $finY->id)}}" {{old('financial_year', $finY->id) == $finexpense->financial_year ? 'selected': '' }}>{{ $finY->display_year }}</option>
                         @endforeach
                     @endif
                 </select>
@@ -65,25 +76,29 @@
             <div class="col-md-4">
                      <div class="form-group">
                 <label for="raw_material" class="form-label">Raw Material</label>
-                <input type="text" class="form-control" id="raw_material" name="raw_material" value="{{ $finexpense->raw_material }}">
+                <input type="text" class="form-control" id="raw_material" name="raw_material" 
+                value="{{ old('raw_material', $finexpense->raw_material) }}">
             </div>
             </div>
             <div class="col-md-4">
                      <div class="form-group">
                 <label for="salary_wages" class="form-label">Salary Wages</label>
-                <input type="text" class="form-control" id="salary_wages" name="salary_wages" value="{{ $finexpense->salary_wages }}">
+                <input type="text" class="form-control" id="salary_wages" name="salary_wages" 
+                value="{{ old('salary_wages', $finexpense->salary_wages)  }}">
             </div>
             </div>
             <div class="col-md-4">
                      <div class="form-group">
                 <label for="other_expenses" class="form-label">Other Expenses</label>
-                <input type="text" class="form-control" id="other_expenses" name="other_expenses" value="{{ $finexpense->other_expenses }}">
+                <input type="text" class="form-control" id="other_expenses" name="other_expenses" 
+                value="{{ old('other_expenses', $finexpense->other_expenses) }}">
             </div>
             </div>
             <div class="col-md-4">
                      <div class="form-group">
                 <label for="capex" class="form-label">capex</label>
-                <input type="text" class="form-control" id="capex" name="capex" value="{{ $finexpense->capex }}">
+                <input type="text" class="form-control" id="capex" name="capex" 
+                value="{{ old('capex', $finexpense->capex) }}">
             </div>
             </div>
           

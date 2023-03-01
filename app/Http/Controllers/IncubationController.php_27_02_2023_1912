@@ -1379,8 +1379,8 @@ class IncubationController extends Controller
     public function custDestroy($id)
     {
 
-        $cust_startup_incub = StartupCustomer::findOrFail($id);
-        $cust_startup_incub->delete();
+        $custs = StartupCustomer::findOrFail($id);
+        $custs->delete();
 
         return redirect()->back()->with('success', 'Customer Deleted Successfully');
     }
@@ -1496,8 +1496,8 @@ class IncubationController extends Controller
 
     public function financialDestroy($id)
     {
-        $financial_year_incub  = StartupYearlyFinancial::findOrFail($id);
-        $financial_year_incub->delete();
+        $custs = StartupYearlyFinancial::findOrFail($id);
+        $custs->delete();
 
         return redirect()->back()->with('msg', 'Financial Report Deleted Successfully')->with('msg_class', 'alert alert-success');;
     }
@@ -1550,14 +1550,10 @@ class IncubationController extends Controller
 
         $DataBag['startUpId'] = $startUpId;
 
-        $DataBag['financials'] = StartupMonthlySale::with(['getFinancialYear', 'getFinancialMonth'])
-        ->where('startup_id', '=', $startUpId)
-        ->groupBy('financial_year')
-        ->orderBy('id', 'desc')
-        ->get();
+        $DataBag['financials'] = StartupMonthlySale::with(['getFinancialYear', 'getFinancialMonth'])->where('startup_id', '=', $startUpId)->orderBy('id', 'desc')->get();
 
         $DataBag['finYear'] = FinancialYear::orderBy('id', 'desc')->get();
-        $DataBag['finMonth'] = FinancialMonth::orderBy('id', 'asc')->get();
+        $DataBag['finMonth'] = FinancialMonth::orderBy('id', 'desc')->get();
 
 
         $DataBag['allProducts'] = MemberService::orderBy('id', 'Desc')->get();
@@ -1574,12 +1570,7 @@ class IncubationController extends Controller
     public function  addFinancialMonthAction(Request $request, $startUpId)
     {
         $request->validate([
-            'financial_year' => 'required',
-            'product_id' => 'required|integer',
-            'volume' => 'required|integer',
-            'cash_sale' => 'required|numeric',
-            'credit_sale' => 'required|numeric',
-
+            'financial_year' => 'required'
         ]);
 
         $prods = $request->product_id;
@@ -1675,25 +1666,21 @@ class IncubationController extends Controller
 
         $DataBag['finYear'] = FinancialYear::orderBy('id', 'desc')->get();
 
-        $DataBag['finMonth'] = FinancialMonth::orderBy('id', 'asc')->get();
+        $DataBag['finMonth'] = FinancialMonth::orderBy('id', 'desc')->get();
         // dd($DataBag,$id);
         return view('incubation.edit_finance_month', $DataBag);
     }
 
     public function financialMonthUpdate(Request $request, $id)
     {
-        
+        $finmonth = StartupMonthlySale::findOrFail($id);
 
         $request->validate([
-            'financial_year' => 'required',
-            'product_id' => 'required|integer',
-            'volume' => 'required|integer',
-            'cash_sale' => 'required|numeric',
-            'credit_sale' => 'required|numeric',
-
+            'financial_year' => 'required'
         ]);
+
         
-        $finmonth = StartupMonthlySale::findOrFail($id);
+        
         $prods = $request->product_id;
 
         $finmonth->month = $request->input('month');
@@ -1712,11 +1699,11 @@ class IncubationController extends Controller
         /** Update records on yearly  */
         
         $financial_year =  in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
-        $startup_id = $finmonth->startup_id; 
+        $startup_id = $request->startup_id; 
 
         $finmonth = StartupMonthlySale::findOrFail($id);
         $monthly_sale_yearly = StartupMonthlySale::where(['startup_id'=>$startup_id,'financial_year'=>$financial_year])->get();
-        $total_credit_sale = $total_cash_sale = $total_sale = $acc_sale =  0;
+        $total_credit_sale =$total_cash_sale = $total_sale =  0;
         foreach ($monthly_sale_yearly as $msy) {
             $total_credit_sale = $total_credit_sale + $msy->credit_sale;
             $total_cash_sale = $total_cash_sale + $msy->cash_sale;
@@ -1754,7 +1741,8 @@ class IncubationController extends Controller
         ->update(
 
             [
-     
+
+            
                 'net_profit' => DB::raw("revenue - expense")
             ]
         );
@@ -1781,14 +1769,10 @@ class IncubationController extends Controller
         $DataBag = array();
         $DataBag['startUpId'] = $startUpId;
 
-        $DataBag['finex'] = StartupMonthlyExpenditure::with(['getFinancialYear', 'getFinancialMonth'])
-        ->where('startup_id', '=', $startUpId)
-        ->groupBy('financial_year')
-        ->orderBy('id', 'desc')
-        ->get();
+        $DataBag['finex'] = StartupMonthlyExpenditure::with(['getFinancialYear', 'getFinancialMonth'])->where('startup_id', '=', $startUpId)->orderBy('id', 'desc')->get();
 
         $DataBag['finYear'] = FinancialYear::orderBy('id', 'desc')->get();
-        $DataBag['finMonth'] = FinancialMonth::orderBy('id', 'asc')->get();
+        $DataBag['finMonth'] = FinancialMonth::orderBy('id', 'desc')->get();
 
 
         return view('incubation.financial_expenses', $DataBag);
@@ -1797,15 +1781,10 @@ class IncubationController extends Controller
     public function addFinancialExpenseAction(Request $request, $startUpId)
     {
 
-         $request->validate([
-            'financial_year' => 'required',
-            'month' => 'required',
-            'raw_material' => 'required|numeric',
-            'salary_wages' => 'required|numeric',
-            'other_expenses' => 'required|numeric',
-            'capex' => 'required|numeric',
-
+        $request->validate([
+            'financial_year' => 'required'
         ]);
+
         $DataBag['startUpId'] = $startUpId;
 
         $finexp = new StartupMonthlyExpenditure;
@@ -1816,33 +1795,25 @@ class IncubationController extends Controller
 
         $finexp->financial_year = in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
 
-       
-        $finexp->raw_material = request('raw_material', 0);
+        $finexp->raw_material = $request->input('raw_material');
 
-        $finexp->salary_wages = request('salary_wages', 0);
+        $finexp->salary_wages = $request->input('salary_wages');
 
-        $finexp->other_expenses = request('other_expenses', 0);
+        $finexp->other_expenses = $request->input('other_expenses');
 
-        $finexp->capex = request('capex', 0);
-
-        $finexp->raw_material == null ? 0 : $finexp->raw_material;
-        $finexp->salary_wages == null ? 0 : $finexp->raw_material;
-        $finexp->other_expenses == null ? 0 : $finexp->raw_material;
-        $finexp->capex == null ? 0 : $finexp->raw_material;
+        $finexp->capex = $request->input('capex');
 
         $finexp->save();
 
         $yearly_expenses =
-            StartupMonthlyExpenditure::select(DB::raw("SUM(salary_wages + other_expenses + capex + raw_material) as yearly_expenses"))
+            StartupMonthlyExpenditure::select(DB::raw("SUM(salary_wages + other_expenses + capex) as yearly_expenses"))
 
             ->where('financial_year', $finexp->financial_year)
             ->where('startup_id', $startUpId)
             ->first();
-
-          //  echo $yearly_expenses;  exit;
         // dd(DB::getQueryLog());        
 
-        // dd($yearly_expenses);
+        // dd($yearly_revenue);
         //  DB::enableQueryLog(); 
         StartupYearlyFinancial::updateOrCreate(
             ['startup_id' => $startUpId, 'financial_year' => $finexp->financial_year],
@@ -1869,7 +1840,7 @@ class IncubationController extends Controller
 
         $DataBag['finYear'] = FinancialYear::orderBy('id', 'desc')->get();
 
-        $DataBag['finMonth'] = FinancialMonth::orderBy('id', 'asc')->get();
+        $DataBag['finMonth'] = FinancialMonth::orderBy('id', 'desc')->get();
         return view('incubation.edit_finance_expense', $DataBag);
     }
 
@@ -1877,17 +1848,12 @@ class IncubationController extends Controller
     public function financialExpenseUpdate(Request $request, $id)
     {
 
-        $request->validate([
-            'financial_year' => 'required',
-            'month' => 'required',
-            'raw_material' => 'required|numeric',
-            'salary_wages' => 'required|numeric',
-            'other_expenses' => 'required|numeric',
-            'capex' => 'required|numeric',
+        $finexpense = StartupMonthlyExpenditure::findOrFail($id);
 
+        $request->validate([
+            'financial_year' => 'required'
         ]);
 
-        $finexpense = StartupMonthlyExpenditure::findOrFail($id);
 
         $finexpense->month = $request->input('month');
 
@@ -1911,15 +1877,13 @@ class IncubationController extends Controller
         $monthly_expense_yearly = StartupMonthlyExpenditure::where(['startup_id'=>$startup_id,'financial_year'=>$financial_year])->get();
         // dd($monthly_expense_yearly,$startup_id);
 
-        $total_salary_wages = $total_other_expenses = $total_capex =  $total_expense = $total_raw_material = $acc_expenses = 0;
+        $total_salary_wages = $total_other_expenses = $total_capex =  $total_expense =  0;
         foreach ($monthly_expense_yearly as $mey) {
             $total_salary_wages = $total_salary_wages + $mey->salary_wages;
-            $total_raw_material = $total_raw_material + $mey->raw_material;
             $total_other_expenses = $total_other_expenses + $mey->other_expenses;
             $total_capex = $total_capex + $mey->capex;
 
-            $acc_expenses = $total_salary_wages + $total_other_expenses + $total_capex + $total_raw_material;
-
+            $acc_expenses = $total_salary_wages + $total_other_expenses + $total_capex;
 
         }
         $total_expense = $acc_expenses + $total_expense;
@@ -1993,27 +1957,26 @@ class IncubationController extends Controller
         ]);
 
         $prods = $request->product_id;
-        // dd($prods);
 
-        $orderspipe = new StartupMonthlyOrderPipeline;
+        foreach ($prods as $prod) {
 
-        $orderspipe->startup_id = $startUpId;
+            $orderspipe = new StartupMonthlyOrderPipeline;
 
-        $orderspipe->month = $request->input('month');
+            $orderspipe->startup_id = $startUpId;
 
-        $orderspipe->financial_year = $request->input('financial_year');
+            $orderspipe->month = $request->input('month');
 
-        $orderspipe->product_id = $prods;
+            $orderspipe->financial_year = $request->input('financial_year');
 
-        $orderspipe->volume = $request->input('volume');
+            $orderspipe->product_id = $prod;
 
-        $orderspipe->amount = $request->input('amount');
+            $orderspipe->volume = $request->input('volume');
+
+            $orderspipe->amount = $request->input('amount');
 
 
-        $orderspipe->save();
-        // foreach ($prods as $prod) {
-
-        // }
+            $orderspipe->save();
+        }
 
         return back()->with('msg', 'Order Pipeline has been saved successfully!')
             ->with('msg_class', 'alert alert-success');
@@ -2027,7 +1990,7 @@ class IncubationController extends Controller
 
         $DataBag['finYear'] = FinancialYear::orderBy('id', 'desc')->get();
 
-        $DataBag['finMonth'] = FinancialMonth::orderBy('id', 'asc')->get();
+        $DataBag['finMonth'] = FinancialMonth::orderBy('id', 'desc')->get();
 
         $DataBag['allProducts'] = MemberService::orderBy('id', 'Desc')->get();
 

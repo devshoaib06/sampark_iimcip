@@ -38,7 +38,7 @@
                         <td>{{ $key + 1 }}</td>
                         <td>{{ $list->getFinancialMonth['display_month'] }}</td>
                         <td>{{ $list->getFinancialYear['display_year'] }}</td>
-                        <td>{{ $list->getProducts['caption'] }}</td>
+                        <td>{{ $list->product_id }}</td>
                         <td>{{ $list->volume }}</td>
                         <td>{{ number_format($list->amount) }}</td>
                         @if($userType == 4)
@@ -100,15 +100,15 @@
 
                             <div class="col-md-3">
                                 <div class="form-group">
-
-                                    <select name="product_id[]" class="form-control indusCatIds" multiple="multiple">
+                                    <input type="text" class="form-control" name="product_id" id="product_id">
+                                    {{-- <select name="product_id[]" class="form-control indusCatIds" multiple="multiple">
                                         <option value="" disabled>Select Product</option>
                                         @if (isset($allProducts) && count($allProducts))
                                             @foreach ($allProducts as $c)
                                                 <option value="{{ $c->id }}">{{ $c->caption }}</option>
                                             @endforeach
                                         @endif
-                                    </select>
+                                    </select> --}}
                                 </div>
                             </div>
 

@@ -29,6 +29,17 @@
         <div class="postCard manage-wrap">
             <div class="postWrap">
                 <div class="pwdbox">
+                    <div class="row">
+                        <div class="col-md-12">
+                            @if ($errors->any())
+                                <div class="alert alert-danger" role="alert">
+                                    @foreach ($errors->all() as $message)
+                                        <div> {{ $message }} </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                     {{-- <form action="{{ route('incubatee.task.update', $task->id) }}" method="POST"> --}}
                     <form action="{{ route('startup.finmonth.update', $finmonth->id) }}" method="POST">
                         {{ csrf_field() }}
@@ -42,7 +53,7 @@
                                         <select name="month" required class="form-control">
                                             @if (isset($finMonth) && count($finMonth) > 0)
                                                 @foreach ($finMonth as $finM)
-                                                    <option value="{{ $finM->id }}" {{$finM->id == $finmonth->month ? 'selected': '' }}>{{ $finM->display_month }}</option>
+                                                    <option value="{{ old('month', $finM->id) }}" {{old('month', $finM->id) == $finmonth->month ? 'selected': '' }}>{{ $finM->display_month }}</option>
                                                 @endforeach
                                             @endif
                                         </select>
@@ -57,7 +68,8 @@
                                         <select name="financial_year" required class="form-control">
                                             @if (isset($finYear) && count($finYear) > 0)
                                                 @foreach ($finYear as $finY)
-                                                    <option value="{{ $finY->id }}" {{$finY->id == $finmonth->financial_year ? 'selected': '' }}>{{ $finY->display_year }}</option>
+                                                    <option value="{{ old('financial_year', $finY->id) }}" 
+                                                        {{old('financial_year', $finY->id) == $finmonth->financial_year ? 'selected': '' }}>{{ $finY->display_year }}</option>
                                                 @endforeach
                                             @endif
                                         </select>
@@ -68,7 +80,7 @@
                                 <div class="form-group">
                                     <label for="revenue" class="form-label">Product</label>
                                     <input type="text" class="form-control" id="product_id" name="product_id"
-                                        value="{{ $finmonth->product_id }}">
+                                        value="{{ old('product_id', $finmonth->product_id) }}">
                                     {{-- <select name="product_id[]" class="form-control indusCatIds" multiple="multiple">
                                         <option value="">Select Product</option>
                                         @if (isset($allProducts) && count($allProducts))
@@ -87,7 +99,7 @@
                                 <div class="form-group">
                                     <label for="volume" class="form-label">volume</label>
                                     <input type="text" class="form-control" id="volume" name="volume"
-                                        value="{{ $finmonth->volume }}">
+                                        value="{{ old('volume', $finmonth->volume) }}">
                                 </div>
                             </div>
 
@@ -95,7 +107,7 @@
                                 <div class="form-group">
                                     <label for="credit_sale" class="form-label">Credit Sale</label>
                                     <input type="text" class="form-control" id="credit_sale" name="credit_sale"
-                                        value="{{ $finmonth->credit_sale }}">
+                                        value="{{ old('credit_sale', $finmonth->credit_sale) }}">
                                 </div>
                             </div>
 
@@ -103,7 +115,7 @@
                                 <div class="form-group">
                                     <label for="cash_sale" class="form-label">Cash Sale</label>
                                     <input type="text" class="form-control" id="cash_sale" name="cash_sale"
-                                        value="{{ $finmonth->cash_sale }}">
+                                        value="{{ old('cash_sale', $finmonth->cash_sale) }}">
                                 </div>
                             </div>
 
