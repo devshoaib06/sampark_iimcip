@@ -29,6 +29,17 @@
       <div class="postCard manage-wrap">
          <div class="postWrap">
             <div class="pwdbox">
+            <div class="row">
+                    <div class="col-md-12">
+                        @if ($errors->any())
+                        <div class="alert alert-danger" role="alert">
+                            @foreach ($errors->all() as $message)
+                            <div> {{ $message }} </div>
+                            @endforeach
+                        </div>
+                        @endif
+                    </div>
+                </div>
         {{-- <form action="{{ route('incubatee.task.update', $task->id) }}" method="POST"> --}}
              <form action="{{route('orderpipe.update', $orderpipe->id)}}" method="POST">
             {{ csrf_field() }}
@@ -40,7 +51,7 @@
                 <select name="month" required class="form-control">
                     @if (isset($finMonth) && count($finMonth) > 0)
                         @foreach ($finMonth as $finM)
-                            <option value="{{ $finM->id }}" {{$finM->id == $orderpipe->month ? 'selected': '' }}>{{ $finM->display_month }}</option>
+                            <option value="{{ old( 'month', $finM->id) }}" {{old( 'month', $finM->id) == $orderpipe->month ? 'selected': '' }}>{{ $finM->display_month }}</option>
                         @endforeach
                     @endif
                 </select>
@@ -54,7 +65,7 @@
                 <select name="financial_year" required class="form-control">
                     @if (isset($finYear) && count($finYear) > 0)
                         @foreach ($finYear as $finY)
-                            <option value="{{ $finY->id }}" {{$finY->id == $orderpipe->financial_year ? 'selected': '' }}>{{ $finY->display_year }}</option>
+                            <option value="{{ old( 'financial_year', $finY->id) }}" {{old( 'financial_year', $finY->id) == $orderpipe->financial_year ? 'selected': '' }}>{{ $finY->display_year }}</option>
                         @endforeach
                     @endif
                 </select>
@@ -65,12 +76,12 @@
             <div class="col-md-4">
                      <div class="form-group">
                 <label for="revenue" class="form-label">Product</label>
-                <input type="text" name="product_id" class="form-control" value="{{ $orderpipe->product_id }}">
+                <input type="text" name="product_id" class="form-control" value="{{ old( 'product_id', $orderpipe->product_id) }}">
                 {{-- <select name="product_id[]" class="form-control indusCatIds" multiple= "multiple">
                     <option value="">Select Product</option>
                     @if(isset($allProducts) && count($allProducts))
                     @foreach($allProducts as $c)
-                    <option value="{{ $c->id }}" {{ $c->id == $orderpipe->product_id?'selected':''}}>{{ $c->caption }}</option>
+                    <option value="{{  old( 'product_id', $c->id) }}" {{  old( 'product_id', $c->id) == $orderpipe->product_id?'selected':''}}>{{ $c->caption }}</option>
                     @endforeach
                     @endif
                 </select> --}}
@@ -80,14 +91,14 @@
             <div class="col-md-4">
                      <div class="form-group">
                 <label for="volume" class="form-label">volume</label>
-                <input type="text" class="form-control" id="volume" name="volume" value="{{ $orderpipe->volume }}">
+                <input type="text" class="form-control" id="volume" name="volume" value="{{ old( 'volume', $orderpipe->volume) }}">
             </div>
             </div>
 
              <div class="col-md-4">
                      <div class="form-group">
                 <label for="amount" class="form-label">Amount</label>
-                <input type="text" class="form-control" id="amount" name="amount" value="{{ $orderpipe->amount }}">
+                <input type="text" class="form-control" id="amount" name="amount" value="{{ old( 'amount', $orderpipe->amount)}}">
             </div>
             </div>
           

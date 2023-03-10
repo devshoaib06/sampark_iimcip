@@ -29,6 +29,17 @@
       <div class="postCard manage-wrap">
          <div class="postWrap">
             <div class="pwdbox">
+            <div class="row">
+                    <div class="col-md-12">
+                        @if ($errors->any())
+                        <div class="alert alert-danger" role="alert">
+                            @foreach ($errors->all() as $message)
+                            <div> {{ $message }} </div>
+                            @endforeach
+                        </div>
+                        @endif
+                    </div>
+                </div>
         {{-- <form action="{{ route('incubatee.task.update', $task->id) }}" method="POST"> --}}
              <form action="{{route('startup.targets.update', $targets->id)}}" method="POST">
             {{ csrf_field() }}
@@ -40,25 +51,25 @@
                 <select name="financial_year" required class="form-control">
                     @if (isset($finYear) && count($finYear) > 0)
                         @foreach ($finYear as $finY)
-                            <option value="{{ $finY->id }}" {{$finY->id == $targets->financial_year ? 'selected': '' }}>{{ $finY->display_year }}</option>
+                            <option value="{{ old( 'financial_year', $finY->id) }}" {{old( 'financial_year', $finY->id)  == $targets->financial_year ? 'selected': '' }}>{{ $finY->display_year }}</option>
                         @endforeach
                     @endif
                 </select>
-                {{-- <input type="text" class="form-control" id="financial_year" name="financial_year" value="{{ $targets->financial_year }}"> --}}
+                {{-- <input type="text" class="form-control" id="financial_year" name="financial_year" value="{{ old( 'financial_year',$targets->financial_year) }}"> --}}
             </div>
             </div>
 
             <div class="col-md-4">
                      <div class="form-group">
                 <label for="revenue" class="form-label">Revenue</label>
-                <input type="text" class="form-control" id="revenue" name="revenue" value="{{ $targets->revenue }}">
+                <input type="text" class="form-control" id="revenue" name="revenue" value="{{ old( 'revenue', $targets->revenue) }}">
             </div>
             </div>
 
             <div class="col-md-4">
                      <div class="form-group">
                 <label for="volume" class="form-label">Volume</label>
-                <input type="text" class="form-control" id="volume" name="volume" value="{{ $targets->volume }}">
+                <input type="text" class="form-control" id="volume" name="volume" value="{{ old( 'volume', $targets->volume) }}">
             </div>
             </div>
           

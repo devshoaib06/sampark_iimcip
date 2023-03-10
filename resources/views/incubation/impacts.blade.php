@@ -63,6 +63,17 @@
         <div class="postCard manage-wrap">
             <div class="postWrap">
                 <div class="pwdbox">
+                <div class="row">
+                    <div class="col-md-12">
+                        @if ($errors->any())
+                        <div class="alert alert-danger" role="alert">
+                            @foreach ($errors->all() as $message)
+                            <div> {{ $message }} </div>
+                            @endforeach
+                        </div>
+                        @endif
+                    </div>
+                </div>
                     <h3>Add Impacts</h3>
                     <form name="frm_pfupd" id="frm_pfupd" action="{{ route('startup.addimpactact', [$startUpId]) }}"
                         method="post" enctype="multipart/form-data">
@@ -73,8 +84,8 @@
                             <div class="col-md-3">
                                 <div class="form-group">
 
-                                    <input type="text" class="form-control" name="indirect_employees"
-                                        placeholder="Indirect Employees" />
+                                    <input type="number" min="0" class="form-control" name="indirect_employees" id="indirect_employees"
+                                        placeholder="Indirect Employees" value ="{{ old( 'indirect_employees') }}"/>
                                 </div>
                             </div>
 
@@ -82,8 +93,8 @@
                             <div class="col-md-3">
                                 <div class="form-group">
 
-                                    <input type="text" class="form-control" name="employee_count"
-                                        placeholder="Employee Count" />
+                                    <input type="number" min="0" class="form-control" name="employee_count" id="employee_count"
+                                        placeholder="Employee Count" value ="{{ old( 'employee_count') }}" />
                                 </div>
                             </div>
 
@@ -92,16 +103,16 @@
                             <div class="col-md-3">
                                 <div class="form-group">
 
-                                    <input type="text" class="form-control" name="women_employee_count"
-                                        placeholder="Women Employee Count" />
+                                    <input type="number" min="0" class="form-control" name="women_employee_count" id="women_employee_count"
+                                        placeholder="Women Employee Count" value ="{{ old( 'women_employee_count') }}" />
                                 </div>
                             </div>
 
                             <div class="col-md-3">
                                 <div class="form-group">
 
-                                    <input type="text" class="form-control" name="total_beneficiaries"
-                                        placeholder="Total Beneficiaries" />
+                                    <input type="text" class="form-control" name="total_beneficiaries" id="total_beneficiaries"
+                                        placeholder="Total Beneficiaries" readonly value ="{{ old( 'total_beneficiaries') }} "/>
                                 </div>
                             </div>
 
@@ -220,7 +231,17 @@
             });
 
             $(document).ready(function() {
-                $("#unselectableTh").hide()
+                $("#unselectableTh").hide();
+
+                $("#indirect_employees, #employee_count, #women_employee_count").on("change",function(){
+                    let indirect_emp =  $("#indirect_employees").val()!=''?$("#indirect_employees").val():0;
+                    let employee_count =  $("#employee_count").val()!=''?$("#employee_count").val():0;
+                    let women_employee_count =  $("#women_employee_count").val()!=''?$("#women_employee_count").val():0;
+                    debugger
+                    let totalVal = parseInt(indirect_emp) + parseInt(employee_count)  + parseInt(women_employee_count);
+                    $("#total_beneficiaries").val(totalVal);
+                    
+                })
             });
 
             function goDelete(id) {

@@ -133,7 +133,7 @@ class IncubationController extends Controller
     public function mentorStartup()
     {
 
-        $user_id  = Auth::user()->id;
+        $user_id = Auth::user()->id;
 
         $ids_array = DB::table('member_mentor_rel')->where('mentor_id', '=', $user_id)->get()->toArray();
         $ids = array();
@@ -218,14 +218,20 @@ class IncubationController extends Controller
         $startUpCount = Users::where(function (Builder $query) {
             /***:- checking for mentor -:***/
             if (Auth()->user()->user_type == 6) {
-                $query->whereHas('getMentor', function (Builder $query) {
-                    $query->where('member_mentor_rel.mentor_id',  Auth()->user()->id);
-                });
+                $query->whereHas(
+                    'getMentor',
+                    function (Builder $query) {
+                        $query->where('member_mentor_rel.mentor_id', Auth()->user()->id);
+                    }
+                );
             } else {
                 /***:- for portfolio manager -:***/
-                $query->whereHas('startUpCount', function (Builder $query) {
-                    $query->where('member_pm_rel.pm_id',  Auth()->user()->id);
-                });
+                $query->whereHas(
+                    'startUpCount',
+                    function (Builder $query) {
+                        $query->where('member_pm_rel.pm_id', Auth()->user()->id);
+                    }
+                );
             }
         });
 
@@ -268,7 +274,7 @@ class IncubationController extends Controller
 
         //dd(DB::getQueryLog());
 
-        $DataBag['mesg']  = "Sorry! No post found.";
+        $DataBag['mesg'] = "Sorry! No post found.";
         return view('incubation.feed_post', $DataBag);
     }
 
@@ -291,9 +297,9 @@ class IncubationController extends Controller
         }
 
         /* 
-			if(isset($_GET['category']) && $_GET['category'] =='company' ){
-				return redirect()->route('front.user.company', ['category' =>'company', 'search'=> $_GET['search']]);
-			} */
+        if(isset($_GET['category']) && $_GET['category'] =='company' ){
+        return redirect()->route('front.user.company', ['category' =>'company', 'search'=> $_GET['search']]);
+        } */
 
         if ($request->category == "company") {
 
@@ -347,10 +353,12 @@ class IncubationController extends Controller
         } else {
             $postQuery = $postQuery->where(function ($postQuery) {
                 $postQuery->where('post_type', '=', '1');
-                $postQuery->orWhere(function ($postQuery) {
-                    $postQuery->where('post_type', '=', '2');
-                    $postQuery->where('private_member_id', '=', Auth::user()->id);
-                });
+                $postQuery->orWhere(
+                    function ($postQuery) {
+                        $postQuery->where('post_type', '=', '2');
+                        $postQuery->where('private_member_id', '=', Auth::user()->id);
+                    }
+                );
                 // $postQuery->orWhere(function($postQuery) {
                 //     $postQuery->where('post_type', '=', '2');
                 //     $postQuery->where('member_id', '=', Auth::user()->id);
@@ -361,10 +369,13 @@ class IncubationController extends Controller
         if (isset($_GET['industry']) && $_GET['industry'] != '') {
             $industryCatID = base64_decode($_GET['industry']);
             $postQuery = $postQuery->where(function ($postQuery) use ($industryCatID) {
-                $postQuery = $postQuery->whereHas('postIndistries', function ($postQuery) use ($industryCatID) {
-                    $postQuery->where('industry_category_id', '=', 7);
-                    $postQuery->orWhere('industry_category_id', '=', $industryCatID);
-                });
+                $postQuery = $postQuery->whereHas(
+                    'postIndistries',
+                    function ($postQuery) use ($industryCatID) {
+                        $postQuery->where('industry_category_id', '=', 7);
+                        $postQuery->orWhere('industry_category_id', '=', $industryCatID);
+                    }
+                );
             });
         }
 
@@ -372,9 +383,12 @@ class IncubationController extends Controller
         if (isset($_GET['category']) && $_GET['category'] != '') {
             $categoryCatID = base64_decode($_GET['category']);
             $postQuery = $postQuery->where(function ($postQuery) use ($categoryCatID) {
-                $postQuery = $postQuery->whereHas('postCategories', function ($postQuery) use ($categoryCatID) {
-                    $postQuery->where('category_id', '=', $categoryCatID);
-                });
+                $postQuery = $postQuery->whereHas(
+                    'postCategories',
+                    function ($postQuery) use ($categoryCatID) {
+                        $postQuery->where('category_id', '=', $categoryCatID);
+                    }
+                );
             });
             //dd($postQuery)
         }
@@ -386,18 +400,24 @@ class IncubationController extends Controller
             $postQuery = $postQuery->where(function ($postQuery) use ($search) {
                 $postQuery->where('post_title', 'LIKE', '%' . $search . '%');
                 $postQuery->orWhere('post_info', 'LIKE', '%' . $search . '%');
-                $postQuery->orWhereHas('memberInfo', function ($postQuery) use ($search) {
-                    $postQuery->where('contact_name', 'LIKE', '%' . $search . '%');
-                    $postQuery->orWhere('member_company', 'LIKE', '%' . $search . '%');
-                });
+                $postQuery->orWhereHas(
+                    'memberInfo',
+                    function ($postQuery) use ($search) {
+                        $postQuery->where('contact_name', 'LIKE', '%' . $search . '%');
+                        $postQuery->orWhere('member_company', 'LIKE', '%' . $search . '%');
+                    }
+                );
             });
         }
         if (isset($_GET['category']) && $_GET['category'] != '') {
             $categoryCatID = base64_decode($_GET['category']);
             $postQuery = $postQuery->where(function ($postQuery) use ($categoryCatID) {
-                $postQuery = $postQuery->whereHas('postCategories', function ($postQuery) use ($categoryCatID) {
-                    $postQuery->where('category_id', '=', $categoryCatID);
-                });
+                $postQuery = $postQuery->whereHas(
+                    'postCategories',
+                    function ($postQuery) use ($categoryCatID) {
+                        $postQuery->where('category_id', '=', $categoryCatID);
+                    }
+                );
             });
         }
 
@@ -408,7 +428,7 @@ class IncubationController extends Controller
 
         //dd($DataBag['normalPost']);
 
-        $DataBag['mesg']  = "Sorry! No post found.";
+        $DataBag['mesg'] = "Sorry! No post found.";
 
 
 
@@ -559,7 +579,7 @@ class IncubationController extends Controller
             // $task->assigned_by = $request->input('assigned_by');
             $task->assigned_by = Auth::user()->id;
             $task->deadline = $request->input('deadline');
-            $task->user_id =  $assign;
+            $task->user_id = $assign;
             $task->status = $request->status;
             $task->save();
         }
@@ -630,18 +650,18 @@ class IncubationController extends Controller
         /***:- checking for mentor -:***/
         if (Auth()->user()->user_type == 6) {
             $mentor->whereHas('getMentor', function (Builder $query) {
-                $query->where('member_mentor_rel.mentor_id',  Auth()->user()->id);
+                $query->where('member_mentor_rel.mentor_id', Auth()->user()->id);
             });
         } else {
             /***:- for portfolio manager -:***/
             $mentor->whereHas('startUpCount', function (Builder $query) {
-                $query->where('member_pm_rel.pm_id',  Auth()->user()->id);
+                $query->where('member_pm_rel.pm_id', Auth()->user()->id);
             });
         }
 
 
 
-        $DataBag['mentorList'] = $mentor->where('status', 1)->where('user_type', 2)->whereNull('founder_id')->orderBy('id','asc')->get();
+        $DataBag['mentorList'] = $mentor->where('status', 1)->where('user_type', 2)->whereNull('founder_id')->orderBy('id', 'asc')->get();
 
         $DataBag['memberList'] = Users::whereIn('user_type', [6])->orderBy('id', 'desc')->get();
 
@@ -658,11 +678,13 @@ class IncubationController extends Controller
         $incubatee_id = $request->input('incubatee_id');
         $diagnostic_id = $request->input('diagnostic_id');
 
-        $parameterList = Parameter::with(['getResponseBriefData' => function ($q) use ($request) {
-            $q->where('response_briefs.mentor_id', $request->input('mentor_id'));
-            $q->where('response_briefs.incubatee_id', $request->input('incubatee_id'));
-            $q->where('response_briefs.diagnostic_id', $request->input('diagnostic_id'));
-        }])->get();
+        $parameterList = Parameter::with([
+            'getResponseBriefData' => function ($q) use ($request) {
+                $q->where('response_briefs.mentor_id', $request->input('mentor_id'));
+                $q->where('response_briefs.incubatee_id', $request->input('incubatee_id'));
+                $q->where('response_briefs.diagnostic_id', $request->input('diagnostic_id'));
+            }
+        ])->get();
         // dd($parameterList);
         $DataBag['diagnostic_id'] = $diagnostic_id;
         $DataBag['incubatee_id'] = $incubatee_id;
@@ -670,10 +692,10 @@ class IncubationController extends Controller
         $DataBag['parameterList'] = $parameterList;
 
         /*ResponseBrief::with(['getParameter'])->select([DB::raw('DISTINCT(mentor_id), incubatee_id,parameter_id,diagnostic_id,id,parameter_score,comment')])
-            ->where('mentor_id', $request->input('mentor_id'))
-            ->where('incubatee_id', $request->input('incubatee_id'))
-            ->where('diagnostic_id', $request->input('diagnostic_id'))
-            ->get();*/
+        ->where('mentor_id', $request->input('mentor_id'))
+        ->where('incubatee_id', $request->input('incubatee_id'))
+        ->where('diagnostic_id', $request->input('diagnostic_id'))
+        ->get();*/
         return view('incubation.diagnostics.view_parameter_list', $DataBag);
     }
 
@@ -706,21 +728,21 @@ class IncubationController extends Controller
     public function diagnosticsList($startUpId)
     {
         $DataBag = array();
-        $DataBag['startUpId']  = $startUpId;
-        $mentor  = MemberDiagnostic::with(['getMentor', 'getIncubatee']);
+        $DataBag['startUpId'] = $startUpId;
+        $mentor = MemberDiagnostic::with(['getMentor', 'getIncubatee']);
 
         /***:- checking for mentor -:***/
         if (Auth()->user()->user_type == 6) {
             $mentor->where('mentor_id', Auth()->user()->id);
         }
-        $DataBag['diagnosticList']  = $mentor->where('incubatee_id', $startUpId)->get();
+        $DataBag['diagnosticList'] = $mentor->where('incubatee_id', $startUpId)->get();
 
         return view('incubation.diagnostics.list', $DataBag);
     }
     public function addDiagnostic(Request $request, $startUpId)
     {
         $DataBag = array();
-        $DataBag['startUpId']  = $startUpId;
+        $DataBag['startUpId'] = $startUpId;
 
         if ($request->isMethod('post')) {
             MemberDiagnostic::create([
@@ -742,7 +764,7 @@ class IncubationController extends Controller
     public function editDiagnostic(Request $request, $startUpId, $diagnosticId)
     {
         $DataBag = array();
-        $DataBag['startUpId']  = $startUpId;
+        $DataBag['startUpId'] = $startUpId;
         $diagnostic = MemberDiagnostic::findOrFail($diagnosticId);
 
         if ($request->isMethod('post')) {
@@ -765,7 +787,7 @@ class IncubationController extends Controller
     public function startupViewChart($startUpId)
     {
 
-        $DataBag['startUpId']  = $startUpId;
+        $DataBag['startUpId'] = $startUpId;
 
         $DataBag['results'] = StartupYearlyFinancial::with('getFinancialYear')->orderBy('id', 'asc')->where('startup_id', '=', $startUpId)->get();
 
@@ -782,9 +804,9 @@ class IncubationController extends Controller
         $res[] = ['Months', 'Total'];
         foreach ($DataBag['results_month'] as $key => $val) {
 
-            $total = (int)$val->credit_sale + (int)$val->cash_sale;
+            $total = (int) $val->credit_sale + (int) $val->cash_sale;
 
-            $res[++$key] = [$val->getFinancialMonth->display_month, (int)$total];
+            $res[++$key] = [$val->getFinancialMonth->display_month, (int) $total];
 
             // $res[++$key] = [$val->month, (int)$val->getProducts->caption, (int)$val->credit_sale, (int)$val->cash_sale, (int)$total ];
 
@@ -809,26 +831,26 @@ class IncubationController extends Controller
 
 
         $DataBag = array();
-        $DataBag['startUpId']  = $startUpId;
+        $DataBag['startUpId'] = $startUpId;
         $mentor = Users::with(['getServiceLocation', 'getProgramme', 'getMentor', 'getCompanyType']);
 
 
         /***:- checking for mentor -:***/
         if (Auth()->user()->user_type == 6) {
             $mentor->whereHas('getMentor', function (Builder $query) {
-                $query->where('member_mentor_rel.mentor_id',  Auth()->user()->id);
+                $query->where('member_mentor_rel.mentor_id', Auth()->user()->id);
             });
         } else {
             /***:- for portfolio manager -:***/
             $mentor->whereHas('startUpCount', function (Builder $query) {
-                $query->where('member_pm_rel.pm_id',  Auth()->user()->id);
+                $query->where('member_pm_rel.pm_id', Auth()->user()->id);
             });
         }
 
         $request->session()->put('startUpId', $startUpId);
 
 
-        $DataBag['mentorList'] = $mentor->where('status', 1)->where('user_type', 2)->whereNull('founder_id')->where('id', '=',  $startUpId)->get();
+        $DataBag['mentorList'] = $mentor->where('status', 1)->where('user_type', 2)->whereNull('founder_id')->where('id', '=', $startUpId)->get();
 
 
 
@@ -840,7 +862,7 @@ class IncubationController extends Controller
 
         $DataBag = array();
 
-        $DataBag['startUpId']  = $startUpId;
+        $DataBag['startUpId'] = $startUpId;
 
 
         $DataBag['stage'] = DB::table('stage')->orderBy('stage_name', 'asc')->get();
@@ -872,12 +894,12 @@ class IncubationController extends Controller
         return view('incubation.edit_manage_profile', $DataBag);
     }
 
-    public function  startupUpdateProfile(Request $request, $startUpId)
+    public function startupUpdateProfile(Request $request, $startUpId)
     {
 
         $DataBag = array();
 
-        $DataBag['startUpId']  = $startUpId;
+        $DataBag['startUpId'] = $startUpId;
 
         //$startUpId = startUpId(Auth::user()->id);
 
@@ -893,7 +915,7 @@ class IncubationController extends Controller
         $Users = Users::findOrFail($UserID);
         $Users->member_company = trim($request->input('member_company'));
 
-        $Users->slug  = Str::slug($Users->member_company, '-');
+        $Users->slug = Str::slug($Users->member_company, '-');
 
         $Users->company_name = trim($request->input('company_name'));
         $Users->stage_id = trim($request->input('stage_id'));
@@ -932,11 +954,11 @@ class IncubationController extends Controller
 
         /* if($Users->is_raised_invest==1)
         {
-            $Users->invest_name = trim($request->input('invest_name'));
+        $Users->invest_name = trim($request->input('invest_name'));
         }
         else
         {
-            $Users->invest_name = "";
+        $Users->invest_name = "";
         }  */
 
         // $Users->speech = trim($request->input('speech'));
@@ -1413,82 +1435,126 @@ class IncubationController extends Controller
         $DataBag['startUpId'] = $startUpId;
 
         $DataBag['financials'] = StartupYearlyFinancial::with('getFinancialYear')->where('startup_id', '=', $startUpId)->orderBy('id', 'desc')->get();
-
+        // dd($DataBag['financials']->toArray()) ;
         $DataBag['finYear'] = FinancialYear::orderBy('id', 'desc')->get();
 
-        //dd($DataBag['financials']) ;
+        //dd($DataBag['financials']->toArray()) ;
 
         return view('incubation.financials', $DataBag);
     }
 
     public function addFinancialAction(Request $request, $startUpId)
     {
-        $request->validate([
-            'financial_year' => 'required'
-        ]);
 
+        $request->validate([
+            'financial_year' => 'required',
+            'customer_count' => 'required|integer',
+            'revenue' => 'required|numeric',
+            'expense' => 'required|numeric',
+
+        ]);
+        // dd($request->all());
         $DataBag['startUpId'] = $startUpId;
 
-        $financial_year =in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
+        $financial_year = in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
         $revenue = $request->input('revenue');
-        $gmv = $request->input('gmv');
+        // $gmv = $request->input('gmv');
         $expense = $request->input('expense');
         $customer_count = $request->input('customer_count');
-        $net_profit = $request->input('net_profit');
-        $ebitda = $request->input('ebitda');
-        
-        $fin = StartupYearlyFinancial::where(['startup_id'=>$startUpId,'financial_year'=>$financial_year])->first();
-        // dd($request->all(),$fin,$startUpId);
+        //$net_profit = $request->input('net_profit');
 
-        if(!empty($fin)){
-            $previous_revenue = $fin->revenue;
-            $previous_gmv = $fin->gmv;
-            $previous_expense = $fin->expense;
-            $previous_customer_count = $fin->customer_count;
-            $previous_net_profit = $fin->net_profit;
-            $previous_ebitda = $fin->ebitda;
+        // echo '<pre>';  print_r($request->all()); exit;
+        // $ebitda = $request->input('ebitda');
+        $fin = StartupYearlyFinancial::where(['startup_id' => $startUpId, 'financial_year' => $financial_year])->first();
+        if (empty($fin)) {
 
-            $fin->revenue = $previous_revenue + $revenue;
+            $yearly_revenue =
+                StartupMonthlySale::select(DB::raw("SUM(credit_sale + cash_sale) as yearly_revenue"))
+                ->where('financial_year', $financial_year)
+                ->where('startup_id', $startUpId)
+                ->first();
 
-            $fin->gmv = $previous_gmv + $gmv;
-    
-            $fin->expense = $previous_expense + $expense;
-    
-            $fin->customer_count = $previous_customer_count + $customer_count;
-    
-            $fin->ebitda = $previous_ebitda + $ebitda;
-    
-            $fin->net_profit = $previous_net_profit + $net_profit;
-    
-            $fin->save();
+            $yearly_expense =
+                StartupMonthlyExpenditure::select(DB::raw("SUM(salary_wages + other_expenses + capex + raw_material) as yearly_expense"))
+                ->where('financial_year', $financial_year)
+                ->where('startup_id', $startUpId)
+                ->first();
 
-        }else{
-            $fin = new StartupYearlyFinancial;
+            $previous_revenue = $yearly_revenue->yearly_revenue ? $yearly_revenue->yearly_revenue : 0;
+            $previous_expense = $yearly_expense->yearly_expense ? $yearly_expense->yearly_expense : 0;
+        } else {
 
-            $fin->startup_id = $startUpId;
-    
-            $fin->financial_year = $financial_year;
-    
-            $fin->revenue = $revenue;
-    
-            $fin->gmv = $gmv;
-    
-            $fin->expense = $expense;
-    
-            $fin->customer_count = $customer_count;
-    
-            $fin->ebitda = $ebitda;
-    
-            $fin->net_profit = $net_profit;
+            $previous_revenue = 0;
+            $previous_expense = 0;
         }
-        
+
+        $total_revenue = $previous_revenue + $request->input('revenue');
+        $total_expense = $previous_expense + $request->input('expense');
+
+        //dd($expense);
+        // DB::enableQueryLog();
+        StartupYearlyFinancial::updateOrCreate(
+            ['startup_id' => $startUpId, 'financial_year' => $financial_year],
+            [
+                'customer_count' => DB::raw("customer_count + $customer_count"),
+                'revenue' => DB::raw("revenue + $total_revenue"),
+                'expense' => DB::raw("expense + $total_expense"),
+                'net_profit' => DB::raw('revenue - expense')
+
+            ]
+        );
+
+        // dd(DB::getQueryLog());
 
 
+        // $fin = StartupYearlyFinancial::where(['startup_id' => $startUpId, 'financial_year' => $financial_year])->first();
+        // // dd($request->all(),$fin,$startUpId);
+
+        // if (!empty($fin)) {
 
 
+        //     $previous_revenue = $fin->revenue;
+        //     //$previous_gmv = $fin->gmv;
+        //     $previous_expense = $fin->expense;
+        //     $previous_customer_count = $fin->customer_count;
+        //     $previous_net_profit = $fin->net_profit;
+        //     // $previous_ebitda = $fin->ebitda;
+
+        //     $fin->revenue = $previous_revenue + $revenue;
+
+        //     //$fin->gmv = $previous_gmv + $gmv;
+
+        //     $fin->expense = $previous_expense + $expense;
+
+        //     $fin->customer_count = $previous_customer_count + $customer_count;
+
+        //     // $fin->ebitda = $previous_ebitda + $ebitda;
+
+        //     $fin->net_profit =  abs($fin->revenue - $fin->expense);
+
+        //     $fin->save();
+        // } else {
+        //     $fin = new StartupYearlyFinancial;
+
+        //     $fin->startup_id = $startUpId;
+
+        //     $fin->financial_year = $financial_year;
+
+        //     $fin->revenue = $revenue;
+
+        //     // $fin->gmv = $gmv;
+
+        //     $fin->expense = $expense;
+
+        //     $fin->customer_count = $customer_count;
+
+        //     // $fin->ebitda = $ebitda;
+
+        //     $fin->net_profit = abs($fin->revenue - $fin->expense);
+        // }
 
 
-        $fin->save();
+        // $fin->save();
 
         return back()->with('msg', 'Financial Report has been saved successfully!')
             ->with('msg_class', 'alert alert-success');
@@ -1496,7 +1562,7 @@ class IncubationController extends Controller
 
     public function financialDestroy($id)
     {
-        $financial_year_incub  = StartupYearlyFinancial::findOrFail($id);
+        $financial_year_incub = StartupYearlyFinancial::findOrFail($id);
         $financial_year_incub->delete();
 
         return redirect()->back()->with('msg', 'Financial Report Deleted Successfully')->with('msg_class', 'alert alert-success');;
@@ -1513,16 +1579,21 @@ class IncubationController extends Controller
 
     public function financialUpdate(Request $request, $id)
     {
-        $finance = StartupYearlyFinancial::findOrFail($id);
+
 
         $request->validate([
-            'financial_year' => 'required'
+            'financial_year' => 'required',
+            'customer_count' => 'required|integer',
+            'revenue' => 'required|numeric',
+            'expense' => 'required|numeric',
+
         ]);
 
+        $finance = StartupYearlyFinancial::findOrFail($id);
 
         //$finance->startup_id = Auth::user()->id;
 
-        $finance->financial_year  = in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
+        $finance->financial_year = in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
 
         $finance->revenue = $request->input('revenue');
 
@@ -1534,7 +1605,8 @@ class IncubationController extends Controller
 
         $finance->ebitda = $request->input('ebitda');
 
-        $finance->net_profit = $request->input('net_profit');
+        //   $finance->net_profit = $request->input('net_profit');
+        $finance->net_profit = abs($finance->revenue - $finance->expense);
 
 
         $finance->save();
@@ -1551,10 +1623,10 @@ class IncubationController extends Controller
         $DataBag['startUpId'] = $startUpId;
 
         $DataBag['financials'] = StartupMonthlySale::with(['getFinancialYear', 'getFinancialMonth'])
-        ->where('startup_id', '=', $startUpId)
-        ->groupBy('financial_year')
-        ->orderBy('id', 'desc')
-        ->get();
+            ->where('startup_id', '=', $startUpId)
+            ->groupBy('financial_year')
+            ->orderBy('id', 'desc')
+            ->get();
 
         $DataBag['finYear'] = FinancialYear::orderBy('id', 'desc')->get();
         $DataBag['finMonth'] = FinancialMonth::orderBy('id', 'asc')->get();
@@ -1571,85 +1643,141 @@ class IncubationController extends Controller
         return view('incubation.financials_month', $DataBag);
     }
 
-    public function  addFinancialMonthAction(Request $request, $startUpId)
+    public function addFinancialMonthAction(Request $request, $startUpId)
     {
+
         $request->validate([
             'financial_year' => 'required',
-            'product_id' => 'required|integer',
+            'product_id' => 'required|regex:/^[\pL\s\-]+$/u',
             'volume' => 'required|integer',
             'cash_sale' => 'required|numeric',
             'credit_sale' => 'required|numeric',
 
-        ]);
+        ], ['product_id.required' => "Please enter a Product name", "product_id.regex" => "Product must contain alpabetic characters only"]);
 
         $prods = $request->product_id;
-       // $financial_year = $request->input('financial_year');
+        // $financial_year = $request->input('financial_year');
         $financial_year = in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
         $month = $request->input('month');
         $volume = $request->input('volume');
         $credit_sale = $request->input('credit_sale');
         $cash_sale = $request->input('cash_sale');
-        
-        $finsale = StartupMonthlySale::where(['startup_id'=>$startUpId,'financial_year'=>$financial_year,'month'=>$month,'product_id'=>$prods])->first();
 
-        if(!empty($finsale)){
+        $finsale = StartupMonthlySale::where(['startup_id' => $startUpId, 'financial_year' => $financial_year, 'month' => $month, 'product_id' => $prods])->first();
+        $revenue_diff = 0;
+        if (!empty($finsale)) {
+
+            $previous_revenue = $finsale->cash_sale + $finsale->credit_sale;
+            $fin = StartupYearlyFinancial::where(['startup_id' => $startUpId, 'financial_year' => $financial_year])->first();
+
+
+            if (!empty($fin)) {
+
+                $revenue_yearly = $fin->revenue;
+
+                $revenue_diff = abs($revenue_yearly - $previous_revenue);
+            }
             $previous_product_id = $finsale->product_id;
             $previous_volume = $finsale->volume;
             $previous_credit_sale = $finsale->credit_sale;
             $previous_cash_sale = $finsale->cash_sale;
 
-            $finsale->product_id = $prods;     
-
+            $finsale->product_id = $prods;
 
             $finsale->volume = $previous_volume + $volume;
-    
-            $finsale->credit_sale = $previous_credit_sale + $credit_sale;  
-    
+
+            $finsale->credit_sale = $previous_credit_sale + $credit_sale;
+
             $finsale->cash_sale = $previous_cash_sale + $cash_sale;
-    
-    
+
+
             $finsale->save();
-        }else{
+
+            $updated_revenue = $revenue_diff + ($finsale->cash_sale + $finsale->credit_sale);
+        } else {
+
+            $previous_revenue = StartupMonthlySale::select(DB::raw("SUM(credit_sale + cash_sale) as previous_revenue"))
+                ->where('financial_year', $financial_year)
+                ->where('startup_id', $startUpId)
+                ->first();
+            $previous_revenue = $previous_revenue->previous_revenue ? $previous_revenue->previous_revenue : 0;
+
+
 
             $finsale = new StartupMonthlySale;
-    
+
             $finsale->startup_id = $startUpId;
-    
+
             $finsale->month = $request->input('month');
-            
+
             //$finsale->financial_year = $request->input('financial_year');
             #sumantra
             $finsale->financial_year = in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
-           
+
             $finsale->product_id = $prods;
-    
+
             $finsale->volume = $request->input('volume');
-    
+
             $finsale->credit_sale = $request->input('credit_sale');
-    
+
             $finsale->cash_sale = $request->input('cash_sale');
-    
+
             $finsale->save();
+
+            $fin = StartupYearlyFinancial::where(['startup_id' => $startUpId, 'financial_year' => $financial_year])->first();
+
+
+            if (!empty($fin)) {
+
+                $revenue_yearly = $fin->revenue;
+
+                $updated_revenue = abs($revenue_yearly + $finsale->cash_sale + $finsale->credit_sale);
+            } else {
+
+                $updated_revenue = abs($previous_revenue + $finsale->cash_sale + $finsale->credit_sale);
+            }
         }
 
 
-        $yearly_revenue =
-        StartupMonthlySale::select(DB::raw("SUM(credit_sale + cash_sale) as yearly_revenue"))
+        //     StartupMonthlySale::select(DB::raw("SUM(credit_sale + cash_sale) as yearly_revenue"))
+        //         ->where('financial_year', $finsale->financial_year)
+        //         ->where('startup_id', $startUpId)
+        //         ->first();
+        // $revenue = $yearly_revenue->yearly_revenue ? $yearly_revenue->yearly_revenue : 0;
 
-        ->where('financial_year', $finsale->financial_year)
-        ->where('startup_id', $startUpId)
-        ->first();
+        // StartupYearlyFinancial::updateOrCreate(
+        //     ['startup_id' => $startUpId, 'financial_year' => $finsale->financial_year],
+        //     [
+        //         'startup_id' => $startUpId,
+        //         'financial_year' => $finsale->financial_year,
+        //         'revenue' => DB::raw("revenue + $updated_revenue"),
+        //         'net_profit' => DB::raw("revenue - expense")
 
-        StartupYearlyFinancial::updateOrCreate(
-            ['startup_id' => $startUpId, 'financial_year' => $finsale->financial_year],
-            [
-                'startup_id' => $startUpId,
-                'financial_year' => $finsale->financial_year,
-                'revenue' => $yearly_revenue->yearly_revenue,
-                'net_profit' => DB::raw("revenue - expense")
+        //     ]
+        // );
+        if (!empty($fin)) {
+            StartupYearlyFinancial::where('startup_id', $startUpId)->where('financial_year', $financial_year)
+                ->update(
 
-            ]
-        );
+                    [
+                        'revenue' => $updated_revenue,
+                        'net_profit' => DB::raw("revenue - expense")
+                    ]
+                );
+        } else {
+
+
+            StartupYearlyFinancial::Create(
+
+                [
+                    'startup_id' => $startUpId,
+                    'financial_year' => $financial_year,
+                    'revenue' => $updated_revenue,
+                    'net_profit' => DB::raw("revenue - expense")
+
+                ]
+            );
+        }
         // foreach ($prods as $prod) {
 
         // }
@@ -1682,87 +1810,63 @@ class IncubationController extends Controller
 
     public function financialMonthUpdate(Request $request, $id)
     {
-        
+
 
         $request->validate([
             'financial_year' => 'required',
-            'product_id' => 'required|integer',
+            'product_id' => 'required|regex:/^[\pL\s\-]+$/u',
             'volume' => 'required|integer',
             'cash_sale' => 'required|numeric',
             'credit_sale' => 'required|numeric',
 
-        ]);
-        
+        ], ['product_id.required' => "Please enter a Product name", "product_id.regex" => "Product must contain alpabetic characters only"]);
+
         $finmonth = StartupMonthlySale::findOrFail($id);
+        $startUpId = $finmonth->startup_id;
+        $financial_year = $finmonth->financial_year;
+
+        $fin = StartupYearlyFinancial::where(['startup_id' => $startUpId, 'financial_year' => $financial_year])->first();
+
+
+        if (!empty($fin)) {
+
+            $revenue_yearly = $fin->revenue;
+
+            $revenue_diff = abs($revenue_yearly - $finmonth->cash_sale - $finmonth->credit_sale);
+        } else {
+
+            $revenue_diff = 0;
+        }
+
         $prods = $request->product_id;
 
-        $finmonth->month = $request->input('month');
-
-        $finmonth->financial_year =  in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
-        
         $finmonth->product_id = $prods;
 
         $finmonth->volume = $request->input('volume');
 
         $finmonth->credit_sale = $request->input('credit_sale');
-        
+
         $finmonth->cash_sale = $request->input('cash_sale');
         $finmonth->save();
-        
+
         /** Update records on yearly  */
-        
-        $financial_year =  in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
-        $startup_id = $finmonth->startup_id; 
 
-        $finmonth = StartupMonthlySale::findOrFail($id);
-        $monthly_sale_yearly = StartupMonthlySale::where(['startup_id'=>$startup_id,'financial_year'=>$financial_year])->get();
-        $total_credit_sale = $total_cash_sale = $total_sale = $acc_sale =  0;
-        foreach ($monthly_sale_yearly as $msy) {
-            $total_credit_sale = $total_credit_sale + $msy->credit_sale;
-            $total_cash_sale = $total_cash_sale + $msy->cash_sale;
-            $acc_sale = $total_cash_sale + $total_credit_sale;
-
-        }
-        $total_sale = $acc_sale + $total_sale;
-
-        $total_sale_monthly =  $total_sale;
-
-        $fin = StartupYearlyFinancial::where(['startup_id'=>$startup_id,'financial_year'=>$financial_year])->first();
-
-        $revenue_yearly  = $fin->revenue;
+        $updated_revenue = $revenue_diff + ($finmonth->cash_sale + $finmonth->credit_sale);
 
 
+        StartupYearlyFinancial::where('startup_id', $finmonth->startup_id)->where('financial_year', $finmonth->financial_year)
+            ->update(
 
-        if(!empty($fin)){
-            if($revenue_yearly >= $total_sale_monthly){
-                $revenue_diff = $revenue_yearly - $total_sale_monthly;
-                // dd($revenue_yearly,$total_sale_monthly,$revenue_diff);
-                $updated_revenue = $revenue_yearly - $revenue_diff;
-            }
-            if($revenue_yearly < $total_sale_monthly){
-                $revenue_diff =  $total_sale_monthly - $revenue_yearly;
-                $updated_revenue = $revenue_yearly + $revenue_diff;
-            }   
-
-            $fin->revenue = $updated_revenue;
-            $fin->save();
-
-
-        }
-
-        StartupYearlyFinancial::where('startup_id',  $finmonth->startup_id)->where('financial_year', $finmonth->financial_year)
-        ->update(
-
-            [
-     
-                'net_profit' => DB::raw("revenue - expense")
-            ]
-        );
+                [
+                    'revenue' => $updated_revenue,
+                    'net_profit' => DB::raw("revenue - expense")
+                ]
+            );
 
 
         /**End update records yearly */
-        
-        
+
+
 
 
 
@@ -1782,10 +1886,10 @@ class IncubationController extends Controller
         $DataBag['startUpId'] = $startUpId;
 
         $DataBag['finex'] = StartupMonthlyExpenditure::with(['getFinancialYear', 'getFinancialMonth'])
-        ->where('startup_id', '=', $startUpId)
-        ->groupBy('financial_year')
-        ->orderBy('id', 'desc')
-        ->get();
+            ->where('startup_id', '=', $startUpId)
+            ->groupBy('financial_year')
+            ->orderBy('id', 'desc')
+            ->get();
 
         $DataBag['finYear'] = FinancialYear::orderBy('id', 'desc')->get();
         $DataBag['finMonth'] = FinancialMonth::orderBy('id', 'asc')->get();
@@ -1793,11 +1897,11 @@ class IncubationController extends Controller
 
         return view('incubation.financial_expenses', $DataBag);
     }
-     #SUMANTRA
+    #SUMANTRA
     public function addFinancialExpenseAction(Request $request, $startUpId)
     {
 
-         $request->validate([
+        $request->validate([
             'financial_year' => 'required',
             'month' => 'required',
             'raw_material' => 'required|numeric',
@@ -1806,60 +1910,130 @@ class IncubationController extends Controller
             'capex' => 'required|numeric',
 
         ]);
+
         $DataBag['startUpId'] = $startUpId;
-
-        $finexp = new StartupMonthlyExpenditure;
-
-        $finexp->startup_id = $startUpId;
-
-        $finexp->month = $request->input('month');
-
-        $finexp->financial_year = in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
-
-       
-        $finexp->raw_material = request('raw_material', 0);
-
-        $finexp->salary_wages = request('salary_wages', 0);
-
-        $finexp->other_expenses = request('other_expenses', 0);
-
-        $finexp->capex = request('capex', 0);
-
-        $finexp->raw_material == null ? 0 : $finexp->raw_material;
-        $finexp->salary_wages == null ? 0 : $finexp->raw_material;
-        $finexp->other_expenses == null ? 0 : $finexp->raw_material;
-        $finexp->capex == null ? 0 : $finexp->raw_material;
-
-        $finexp->save();
-
-        $yearly_expenses =
-            StartupMonthlyExpenditure::select(DB::raw("SUM(salary_wages + other_expenses + capex + raw_material) as yearly_expenses"))
-
-            ->where('financial_year', $finexp->financial_year)
-            ->where('startup_id', $startUpId)
-            ->first();
-
-          //  echo $yearly_expenses;  exit;
-        // dd(DB::getQueryLog());        
-
-        // dd($yearly_expenses);
-        //  DB::enableQueryLog(); 
-        StartupYearlyFinancial::updateOrCreate(
-            ['startup_id' => $startUpId, 'financial_year' => $finexp->financial_year],
-            [
-                'startup_id' => $startUpId,
-                'financial_year' => $finexp->financial_year,
-                'expense' => $yearly_expenses->yearly_expenses,
-                'net_profit' => DB::raw("revenue - expense")
-            ]
-        );
+        $financial_year = in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
+        $month = $request->input('month');
+        $raw_material = $request->input('raw_material');
+        $salary_wages = $request->input('salary_wages');
+        $other_expenses = $request->input('other_expenses');
+        $capex = $request->input('capex');
 
 
 
+        $finexp = StartupMonthlyExpenditure::where([
+            'startup_id' => $startUpId,
+            'financial_year' => $financial_year,
+            'month' => $month
+        ])->first();
+        $expense_diff = 0;
+
+        if (!empty($finexp)) {
+
+            $previous_expense = $finexp->raw_material + $finexp->salary_wages + $finexp->other_expenses + $finexp->capex;
+            $fin = StartupYearlyFinancial::where(['startup_id' => $startUpId, 'financial_year' => $financial_year])->first();
+
+            if (!empty($fin)) {
+
+                $expense_yearly = $fin->expense;
+
+                $expense_diff = abs($expense_yearly - $previous_expense);
+            }
+            $previous_raw_material = $finexp->raw_material;
+            $previous_salary_wages = $finexp->salary_wages;
+            $previous_other_expenses = $finexp->other_expenses;
+            $previous_capex = $finexp->capex;
+
+
+            $finexp->raw_material = $previous_raw_material + $raw_material;
+
+            $finexp->salary_wages = $previous_salary_wages + $salary_wages;
+
+            $finexp->other_expenses = $previous_other_expenses + $other_expenses;
+
+            $finexp->capex = $previous_capex + $capex;
+
+
+            $finexp->save();
+
+
+
+            $updated_expense = $expense_diff + ($finexp->raw_material + $finexp->salary_wages + $finexp->other_expenses +
+                $finexp->capex);
+        } else {
+
+            $previous_expense = StartupMonthlyExpenditure::select(DB::raw("SUM(raw_material + salary_wages + other_expenses + capex)
+    as previous_expense"))
+                ->where('financial_year', $financial_year)
+                ->where('startup_id', $startUpId)
+                ->first();
+            $previous_expense = $previous_expense->previous_expense ? $previous_expense->previous_expense : 0;
+
+            $finexp = new StartupMonthlyExpenditure;
+
+            $finexp->startup_id = $startUpId;
+
+            $finexp->month = $month;
+
+            //$finsale->financial_year = $request->input('financial_year');
+            #sumantra
+            $finexp->financial_year = $financial_year;
+            $finexp->capex = $capex;
+
+            $finexp->raw_material = $raw_material;
+
+            $finexp->salary_wages = $salary_wages;
+
+            $finexp->other_expenses = $other_expenses;
+
+            $finexp->save();
+
+            $fin = StartupYearlyFinancial::where(['startup_id' => $startUpId, 'financial_year' => $financial_year])->first();
+
+
+            if (!empty($fin)) {
+
+                $expense_yearly = $fin->expense;
+
+                $updated_expense =
+                    abs($expense_yearly + $finexp->capex + $finexp->raw_material + $finexp->salary_wages + $finexp->other_expenses);
+            } else {
+
+                $updated_expense = abs($previous_expense + $finexp->capex + $finexp->raw_material + $finexp->salary_wages +
+                    $finexp->other_expenses);
+            }
+        }
+
+
+        if (!empty($fin)) {
+            StartupYearlyFinancial::where('startup_id', $startUpId)->where('financial_year', $financial_year)
+                ->update(
+
+                    [
+                        'expense' => $updated_expense,
+                        'net_profit' => DB::raw("revenue - expense")
+                    ]
+                );
+        } else {
+
+
+            StartupYearlyFinancial::Create(
+
+                [
+                    'startup_id' => $startUpId,
+                    'financial_year' => $financial_year,
+                    'expense' => $updated_expense,
+                    'net_profit' => DB::raw("revenue - expense")
+
+                ]
+            );
+        }
 
         return back()->with('msg', 'Financial Expenses has been saved successfully!')
             ->with('msg_class', 'alert alert-success');
     }
+
+
 
 
     public function financialExpenseEdit($id)
@@ -1889,6 +2063,25 @@ class IncubationController extends Controller
 
         $finexpense = StartupMonthlyExpenditure::findOrFail($id);
 
+
+        $startUpId = $finexpense->startup_id;
+        $financial_year = $finexpense->financial_year;
+
+        $fin = StartupYearlyFinancial::where(['startup_id' => $startUpId, 'financial_year' => $financial_year])->first();
+
+
+        if (!empty($fin)) {
+
+            $expense_yearly = $fin->expense;
+
+            $expense_diff = abs($expense_yearly - $finexpense->raw_material - $finexpense->salary_wages - $finexpense->other_expenses - $finexpense->capex);
+        } else {
+
+            $expense_diff = 0;
+        }
+        //echo $expense_yearly;
+        // echo $expense_diff; exit;
+
         $finexpense->month = $request->input('month');
 
         $finexpense->financial_year = $request->input('financial_year');
@@ -1901,56 +2094,20 @@ class IncubationController extends Controller
 
         $finexpense->capex = $request->input('capex');
 
+
         $finexpense->save();
 
+        $updated_expense =
+            $expense_diff + $finexpense->raw_material + $finexpense->salary_wages + $finexpense->other_expenses + $finexpense->capex;
+
         /** Update records on yearly  */
-        
-        $financial_year = in_array($request->input('month'), [10, 11]) ? $request->input('financial_year') - 1 : $request->input('financial_year');
-        $startup_id = $request->startup_id; 
-        
-        $monthly_expense_yearly = StartupMonthlyExpenditure::where(['startup_id'=>$startup_id,'financial_year'=>$financial_year])->get();
-        // dd($monthly_expense_yearly,$startup_id);
-
-        $total_salary_wages = $total_other_expenses = $total_capex =  $total_expense = $total_raw_material = $acc_expenses = 0;
-        foreach ($monthly_expense_yearly as $mey) {
-            $total_salary_wages = $total_salary_wages + $mey->salary_wages;
-            $total_raw_material = $total_raw_material + $mey->raw_material;
-            $total_other_expenses = $total_other_expenses + $mey->other_expenses;
-            $total_capex = $total_capex + $mey->capex;
-
-            $acc_expenses = $total_salary_wages + $total_other_expenses + $total_capex + $total_raw_material;
 
 
-        }
-        $total_expense = $acc_expenses + $total_expense;
-
-        $total_expense_monthly =  $total_expense;
-
-        $fin = StartupYearlyFinancial::where(['startup_id'=>$startup_id,'financial_year'=>$financial_year])->first();
-        $expense_yearly  = $fin->expense;
-
-
-
-        if(!empty($fin)){
-            if($expense_yearly >= $total_expense_monthly){
-                $expense_diff = $expense_yearly - $total_expense_monthly;
-                // dd($expense_yearly,$total_expense_monthly,$expense_diff);
-                $updated_expense = $expense_yearly - $expense_diff;
-            }
-            if($expense_yearly < $total_expense_monthly){
-                $expense_diff =  $total_expense_monthly - $expense_yearly;
-                $updated_expense = $expense_yearly + $expense_diff;
-            }   
-
-            $fin->expense = $updated_expense;
-            $fin->save();
-        }
-
-        StartupYearlyFinancial::where('startup_id', $finexpense->startup_id)->where('financial_year', $finexpense->financial_year)
+        StartupYearlyFinancial::where('startup_id', $startUpId)->where('financial_year', $financial_year)
             ->update(
 
                 [
-                
+                    'expense' => $updated_expense,
                     'net_profit' => DB::raw("revenue - expense")
                 ]
             );
@@ -1989,8 +2146,12 @@ class IncubationController extends Controller
     {
 
         $request->validate([
-            'financial_year' => 'required'
-        ]);
+            'financial_year' => 'required',
+            'month' => 'required',
+            'product_id' => 'required|regex:/^[\pL\s\-]+$/u',
+            'volume' => 'required|integer',
+            'amount' => 'required|numeric',
+        ], ['product_id.required' => "Please enter a Product name", "product_id.regex" => "Product must contain alpabetic characters only"]);
 
         $prods = $request->product_id;
         // dd($prods);
@@ -2036,32 +2197,37 @@ class IncubationController extends Controller
 
     public function OrderPipelineUpdate(Request $request, $id)
     {
-        $orderpipe = StartupMonthlyOrderPipeline::findOrFail($id);
 
         $request->validate([
-            'financial_year' => 'required'
-        ]);
+            'financial_year' => 'required',
+            'month' => 'required',
+            'product_id' => 'required|regex:/^[\pL\s\-]+$/u',
+            'volume' => 'required|integer',
+            'amount' => 'required|numeric',
+        ], ['product_id.required' => "Please enter a Product name", "product_id.regex" => "Product must contain alpabetic characters only"]);
+
+        $orderpipe = StartupMonthlyOrderPipeline::findOrFail($id);
 
         $prods = $request->product_id;
 
-        foreach ($prods as $prod) {
+        // foreach ($prods as $prod) {
 
 
-            //$orderpipe->startup_id = Auth::user()->id;
+        //$orderpipe->startup_id = Auth::user()->id;
 
-            $orderpipe->month = $request->input('month');
+        $orderpipe->month = $request->input('month');
 
-            $orderpipe->financial_year = $request->input('financial_year');
+        $orderpipe->financial_year = $request->input('financial_year');
 
-            $orderpipe->product_id = $prod;
+        $orderpipe->product_id = $prods;
 
-            $orderpipe->volume = $request->input('volume');
+        $orderpipe->volume = $request->input('volume');
 
-            $orderpipe->amount = $request->input('amount');
+        $orderpipe->amount = $request->input('amount');
 
 
-            $orderpipe->save();
-        }
+        $orderpipe->save();
+        //  }
 
         return redirect()->back()->with('msg', 'Order Pipeline Updated Successfully')->with('msg_class', 'alert alert-success');;
     }
@@ -2091,6 +2257,11 @@ class IncubationController extends Controller
     public function addYearlyTargetAction(Request $request, $startUpId)
     {
 
+        $request->validate([
+            'financial_year' => 'required',
+            'revenue' => 'required|numeric',
+            'volume' => 'required|numeric',
+        ]);
 
         $yearlytargets = new StartupYearlyTarget;
 
@@ -2124,9 +2295,10 @@ class IncubationController extends Controller
         $targets = StartupYearlyTarget::findOrFail($id);
 
         $request->validate([
-            'financial_year' => 'required'
+            'financial_year' => 'required',
+            'revenue' => 'required|numeric',
+            'volume' => 'required|numeric',
         ]);
-
 
         //$targets->startup_id = Auth::user()->id;
 
@@ -2164,6 +2336,13 @@ class IncubationController extends Controller
     public function addImpactsAction(Request $request, $startUpId)
     {
 
+        $request->validate([
+            'indirect_employees' => 'required',
+            'employee_count' => 'required|integer',
+            'women_employee_count' => 'required|integer',
+            'total_beneficiaries' => 'required|integer',
+        ]);
+
         $impacts = new StartupImpact;
 
         $impacts->startup_id = $startUpId;
@@ -2194,12 +2373,17 @@ class IncubationController extends Controller
 
     public function impactsUpdate(Request $request, $id)
     {
-
+   
+       
+        $request->validate([
+            'indirect_employees' => 'required',
+            'employee_count' => 'required|integer',
+            'women_employee_count' => 'required|integer',
+            'total_beneficiaries' => 'required|integer',
+        ]);
+        
         $impact = StartupImpact::findOrFail($id);
 
-        $request->validate([
-            'indirect_employees' => 'required'
-        ]);
 
         //$impact->startup_id = Auth::user()->id;
 
@@ -2226,7 +2410,7 @@ class IncubationController extends Controller
     }
 
 
-    public function  addFundingNeeds($startUpId)
+    public function addFundingNeeds($startUpId)
     {
 
 

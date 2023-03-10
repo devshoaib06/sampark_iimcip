@@ -209,6 +209,7 @@
     @include('frontend.includes.add_question_modal')
 
     @push('page_js')
+   
         <script>
             $('#frm_pfupd').validate({
                 errorElement: 'span',

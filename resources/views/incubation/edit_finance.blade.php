@@ -29,6 +29,17 @@
         <div class="postCard manage-wrap">
             <div class="postWrap">
                 <div class="pwdbox">
+                <div class="row">
+                    <div class="col-md-12">
+                        @if ($errors->any())
+                        <div class="alert alert-danger" role="alert">
+                            @foreach ($errors->all() as $message)
+                            <div> {{ $message }} </div>
+                            @endforeach
+                        </div>
+                        @endif
+                    </div>
+                </div>
                     {{-- <form action="{{ route('incubatee.task.update', $task->id) }}" method="POST"> --}}
                     <form action="{{ route('startup.finyear.update', $finance->id) }}" method="POST">
                         {{ csrf_field() }}
@@ -42,8 +53,8 @@
                                     <select name="financial_year" required class="form-control">
                                         @if (isset($finYear) && count($finYear) > 0)
                                             @foreach ($finYear as $finY)
-                                                <option value="{{ $finY->id }}"
-                                                    {{ $finY->id == $finance->financial_year ? 'selected' : '' }}>
+                                                <option value="{{ old('financial_year', $finY->id) }}"
+                                                    {{ old('financial_year', $finY->id) == $finance->financial_year ? 'selected' : '' }}>
                                                     {{ $finY->display_year }}</option>
                                             @endforeach
                                         @endif
@@ -54,8 +65,8 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="revenue" class="form-label">Revenue</label>
-                                    <input type="text" class="form-control" id="revenue" name="revenue"
-                                        value="{{ $finance->revenue }}">
+                                    <input type="number" min="0" class="form-control" id="revenue" name="revenue"
+                                        value="{{ old('revenue', $finance->revenue) }}">
                                 </div>
                             </div>
 
@@ -70,16 +81,16 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="expense" class="form-label">Expense</label>
-                                    <input type="text" class="form-control" id="expense" name="expense"
-                                        value="{{ $finance->expense }}">
+                                    <input type="number" min="0" class="form-control" id="expense" name="expense"
+                                        value="{{ old('expense', $finance->expense)}}">
                                 </div>
                             </div>
 
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="customer_count" class="form-label">Customer Count</label>
-                                    <input type="text" class="form-control" id="customer_count" name="customer_count"
-                                        value="{{ $finance->customer_count }}">
+                                    <input type="number" min="0" class="form-control" id="customer_count" name="customer_count"
+                                        value="{{ old('customer_count', $finance->customer_count)}}">
                                 </div>
                             </div>
 
@@ -96,8 +107,8 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="net_profit" class="form-label">Net Profit</label>
-                                    <input type="text" class="form-control" id="net_profit" name="net_profit"
-                                        value="{{ $finance->net_profit }}">
+                                    <input type="number" min="0" readonly class="form-control" id="net_profit" name="net_profit"
+                                        value="{{ old('net_profit', $finance->net_profit)}}">
                                 </div>
                             </div>
 
@@ -121,5 +132,16 @@
         </form>
 
     </div>
-
+    @push('page_js')
+    <script type="text/javascript">
+     $(document).ready(function() {
+       var revenue = 0;
+       var expense = 0;
+        $("#revenue, #expense").keyup(function() {
+             net_profit = Math.abs($("#revenue").val()) -  Math.abs($("#expense").val());
+             $("#net_profit").val(net_profit);
+        });
+    });
+    </script>
+    @endpush
 @endsection

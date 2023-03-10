@@ -2936,9 +2936,8 @@ class FrontendController extends Controller
 
     public function custDestroy($id)
     {
-        $cust_startup = StartupCustomer::findOrFail($id);
-        $cust_startup->delete();
-
+        $custs = StartupCustomer::findOrFail($id);
+        $custs->delete();
 
         return redirect()->back()->with('success', 'Customer Deleted Successfully');
     }
@@ -3015,8 +3014,10 @@ class FrontendController extends Controller
     #sumantra dey
     public function financialDestroy($id)
     {
-        $financial = StartupYearlyFinancial::findOrFail($id);
-        $financial->delete();
+        $custs = StartupYearlyFinancial::findOrFail($id);
+        $custs->delete();
+        // StartupMonthlySale::where('startup_id', $custs->startup_id)
+        //     ->where('financial_year', $custs->financial_year)->delete();
 
         return redirect()->back()->with('msg', 'Financial Report Deleted Successfully')
             ->with('msg_class', 'alert alert-success');
@@ -3117,18 +3118,45 @@ class FrontendController extends Controller
     public function financialMonthDestroy($id)
     {
         $finmonth = StartupMonthlySale::findOrFail($id);
+        $revenue = $finmonth->credit_sale + $finmonth->cash_sale;
         $finmonth->delete();
 
-        $revenue = $finmonth->credit_sale + $finmonth->cash_sale;
-        
+       
+        // echo '<pre>'; print_r($revenue); exit;
+
+
+        // $count_yearly_sales = StartupMonthlySale::where('startup_id', $finmonth->startup_id)
+        //     ->where('financial_year', $finmonth->financial_year)->count();
+
+        // DB::enableQueryLog();
+        // if ($count_yearly_sales > 1) {
         StartupYearlyFinancial::where('startup_id', $finmonth->startup_id)
             ->where('financial_year', $finmonth->financial_year)
+            // ->decrement('revenue', )
             ->update([
                 'revenue' =>  DB::raw("revenue - $revenue"),
                 'net_profit' => DB::raw("revenue - expense")
 
             ]);
-       
+
+            // $year =   StartupYearlyFinancial::where('startup_id', $finmonth->startup_id)
+            // ->where('financial_year', $finmonth->financial_year)
+            // // ->decrement('revenue', )
+            // ->select([
+            //       DB::raw("revenue - $revenue"),
+            //       DB::raw("revenue - expense")
+
+            // ])->get();
+
+        // if($StartupYearlyFinancial){
+        // $StartupYearlyFinancial->net_profit = $StartupYearlyFinancial->revenue - $StartupYearlyFinancial->expense;
+        // $StartupYearlyFinancial->save();
+        // }
+        // } else {
+        //     StartupYearlyFinancial::where('startup_id', $finmonth->startup_id)
+        //         ->where('financial_year', $finmonth->financial_year)->delete();
+        // }
+        // dd(DB::getQueryLog());
         return redirect()->back()->with('msg', 'Financial Month Deleted Successfully')->with('msg_class', 'alert alert-success');
     }
 
@@ -3266,15 +3294,21 @@ class FrontendController extends Controller
     #sumantra
     public function financialExpenseDestroy($id)
     {
-        
+        // dd("frontend controller");
+
         $finexpense = StartupMonthlyExpenditure::findOrFail($id);
+        $update_expense = 
+        $finexpense->raw_material + $finexpense->salary_wages + $finexpense->other_expenses + $finexpense->capex;
+
         $finexpense->delete();
 
-        $update_expense = 
-            $finexpense->raw_material + $finexpense->salary_wages + $finexpense->other_expenses + $finexpense->capex;
+       
 
-        StartupYearlyFinancial::where('startup_id', $finexpense->startup_id)
+
+
+        $StartupYearlyFinancial = StartupYearlyFinancial::where('startup_id', $finexpense->startup_id)
             ->where('financial_year', $finexpense->financial_year)
+            //->decrement('expense', $update_expense);
             ->update([
                 'expense' =>    DB::raw("expense - $update_expense"),
                 'net_profit' => DB::raw("revenue - expense")
@@ -3358,29 +3392,32 @@ class FrontendController extends Controller
         $orderpipe = StartupMonthlyOrderPipeline::findOrFail($id);
 
         $request->validate([
-            'financial_year' => 'required'
+            'financial_year' => 'required',
+            'product_id' => 'required|regex:/^[\pL\s\-]+$/u',
+            'volume' => 'required|numeric',
+            'amount' =>'required|numeric'
         ]);
 
         $prods = $request->product_id;
 
-        $orderpipe->startup_id = Auth::user()->id;
-
-        $orderpipe->month = $request->input('month');
-
-        $orderpipe->financial_year = $request->input('financial_year');
-
-        $orderpipe->product_id = $prods;
-
-        $orderpipe->volume = $request->input('volume');
-
-        $orderpipe->amount = $request->input('amount');
+      //  foreach ($prods as $prod) {
 
 
-        $orderpipe->save();
-        // foreach ($prods as $prod) {
+            $orderpipe->startup_id = Auth::user()->id;
+
+            $orderpipe->month = $request->input('month');
+
+            $orderpipe->financial_year = $request->input('financial_year');
+
+            $orderpipe->product_id = $prods;
+
+            $orderpipe->volume = $request->input('volume');
+
+            $orderpipe->amount = $request->input('amount');
 
 
-        // }
+            $orderpipe->save();
+     //   }
 
         return redirect()->back()->with('msg', 'Order Pipeline Updated Successfully')->with('msg_class', 'alert alert-success');;
     }

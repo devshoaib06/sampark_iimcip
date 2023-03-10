@@ -37,28 +37,28 @@
             <div class="col-md-4">
                      <div class="form-group">
                 <label for="indirect_employees" class="form-label">Indirect Employees</label>
-                <input type="text" class="form-control" id="indirect_employees" name="indirect_employees" value="{{ $impact->indirect_employees }}">
+                <input type="number" min="0" class="form-control" id="indirect_employees" name="indirect_employees" value="{{ $impact->indirect_employees }}">
             </div>
             </div>
 
             <div class="col-md-4">
                      <div class="form-group">
                 <label for="employee_count" class="form-label">Employee Count</label>
-                <input type="text" class="form-control" id="employee_count" name="employee_count" value="{{ $impact->employee_count }}">
+                <input type="number" min="0" class="form-control" id="employee_count" name="employee_count" value="{{ $impact->employee_count }}">
             </div>
             </div>
 
             <div class="col-md-4">
                      <div class="form-group">
                 <label for="women_employee_count" class="form-label">Women Employee Count</label>
-                <input type="text" class="form-control" id="women_employee_count" name="women_employee_count" value="{{ $impact->women_employee_count }}">
+                <input type="number" min="0" class="form-control" id="women_employee_count" name="women_employee_count" value="{{ $impact->women_employee_count }}">
             </div>
             </div>
 
             <div class="col-md-4">
                      <div class="form-group">
                 <label for="total_beneficiaries" class="form-label">Total Beneficiaries</label>
-                <input type="text" class="form-control" id="total_beneficiaries" name="total_beneficiaries" value="{{ $impact->total_beneficiaries }}">
+                <input type="number" min="0" class="form-control" id="total_beneficiaries" name="total_beneficiaries" value="{{ $impact->total_beneficiaries }}" readonly>
             </div>
             </div>
           
@@ -81,5 +81,21 @@
         </form>
    
     </div>
+    @push('page_js')
+    <script>
 
+        $(document).ready(function() {
+            $("#unselectableTh").hide();
+    
+            $("#indirect_employees, #employee_count, #women_employee_count").on("focusout change",function(){
+                let indirect_emp =  $("#indirect_employees").val()!=''?$("#indirect_employees").val():0;
+                let employee_count =  $("#employee_count").val()!=''?$("#employee_count").val():0;
+                let women_employee_count =  $("#women_employee_count").val()!=''?$("#women_employee_count").val():0;
+                let totalVal = parseInt(indirect_emp) + parseInt(employee_count)  + parseInt(women_employee_count);
+                $("#total_beneficiaries").val(totalVal);
+                
+            })
+        });
+    </script>
+    @endpush
     @endsection

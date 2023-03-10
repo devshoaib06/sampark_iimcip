@@ -66,6 +66,17 @@
         <div class="postCard manage-wrap">
             <div class="postWrap">
                 <div class="pwdbox">
+                <div class="row">
+                    <div class="col-md-12">
+                        @if ($errors->any())
+                        <div class="alert alert-danger" role="alert">
+                            @foreach ($errors->all() as $message)
+                            <div> {{ $message }} </div>
+                            @endforeach
+                        </div>
+                        @endif
+                    </div>
+                </div>
                     <h3>Add Orders</h3>
                     <form name="frm_pfupd" id="frm_pfupd" action="{{ route('startup.addorderpipeact', [$startUpId]) }}"
                         method="post" enctype="multipart/form-data">
@@ -78,7 +89,7 @@
                                     <select name="month" required class="form-control">
                                         @if (isset($finMonth) && count($finMonth) > 0)
                                             @foreach ($finMonth as $finM)
-                                                <option value="{{ $finM->id }}">{{ $finM->display_month }}</option>
+                                                <option value="{{ old( 'month', $finM->id) }}">{{ $finM->display_month }}</option>
                                             @endforeach
                                         @endif
                                     </select>
@@ -91,7 +102,7 @@
                                     <select name="financial_year" required class="form-control">
                                         @if (isset($finYear) && count($finYear) > 0)
                                             @foreach ($finYear as $finY)
-                                                <option value="{{ $finY->id }}">{{ $finY->display_year }}</option>
+                                                <option value="{{ old( 'financial_year', $finY->id) }}">{{ $finY->display_year }}</option>
                                             @endforeach
                                         @endif
                                     </select>
@@ -100,12 +111,12 @@
 
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <input type="text" class="form-control" name="product_id" id="product_id">
+                                    <input type="text" class="form-control" name="product_id" id="product_id" placeholder="Product">
                                     {{-- <select name="product_id[]" class="form-control indusCatIds" multiple="multiple">
                                         <option value="" disabled>Select Product</option>
                                         @if (isset($allProducts) && count($allProducts))
                                             @foreach ($allProducts as $c)
-                                                <option value="{{ $c->id }}">{{ $c->caption }}</option>
+                                                <option value="{{ old( 'product_id', $c->id) }}">{{ $c->caption }}</option>
                                             @endforeach
                                         @endif
                                     </select> --}}
@@ -115,14 +126,14 @@
                             <div class="col-md-3">
                                 <div class="form-group">
 
-                                    <input type="text" class="form-control" name="volume" placeholder="Volume" />
+                                    <input type="text" class="form-control" name="volume" placeholder="Volume" value="{{old('volume')}}" />
                                 </div>
                             </div>
 
                             <div class="col-md-3">
                                 <div class="form-group">
 
-                                    <input type="text" class="form-control" name="amount" placeholder="Amount(Rs.)" />
+                                    <input type="text" class="form-control" name="amount" placeholder="Amount(Rs.)"  value="{{old('amount')}}" />
                                 </div>
                             </div>
 
